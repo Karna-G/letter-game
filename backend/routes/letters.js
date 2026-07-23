@@ -5,18 +5,28 @@ const User = require('../models/User');
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 
-// Get all letters for a specific user (Receiver or Sender)
+// Get all letters where user is the Sender
 router.get('/user/:userId', async (req, res) => {
   try {
     const letters = await Letter.find({
-      $or: [
-        { senderRef: req.params.userId }, 
-        { receiverRef: req.params.userId, status: 'delivered' }
-      ]
+      senderRef: req.params.userId
     }).populate('senderRef', 'name').populate('receiverRef', 'name').populate('mailmanRef', 'name');
     res.json(letters);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching letters' });
+    res.status(500).json({ message: 'Error fetching sent letters' });
+  }
+});
+
+// Get all delivered letters for a specific user's Mailbox
+router.get('/mailbox/:userId', async (req, res) => {
+  try {
+    const letters = await Letter.find({
+      receiverRef: req.params.userId,
+      status: 'delivered'
+    }).populate('senderRef', 'name').populate('receiverRef', 'name').populate('mailmanRef', 'name');
+    res.json(letters);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching mailbox letters' });
   }
 });
 
@@ -151,31 +161,35 @@ router.post('/scan', async (req, res) => {
     
     // Scenario 1: Mailman scans a 'pending' letter -> Picks it up
     if (role === 'mailman' && letter.status === 'pending') {
+      // If the mailman IS the receiver, just deliver it directly to their mailbox!
+      if (letter.receiverRef && letter.receiverRef.toString() === userId) {
+        letter.status = 'delivered';
+        letter.deliveredAt = Date.now();
+        await letter.save();
+        return res.json({ message: 'You picked up a letter addressed to thee! It is now in thy Mailbox.', letter });
+      }
+
       letter.mailmanRef = userId;
       letter.status = 'in-transit';
       letter.pickedUpAt = Date.now();
       await letter.save();
-      return res.json({ message: 'Letter successfully picked up!', letter });
+      return res.json({ message: 'Letter successfully picked up! Check thy Deliveries.', letter });
     }
     
     // Scenario 2: Receiver scans an 'in-transit' letter -> Delivers it
-    if (role === 'receiver' || role === 'sender' || !role) {
-      // For simplicity, anyone not a mailman can receive it, or specifically the intended receiver.
-      // If we want to strictly check receiver:
+    if (letter.status === 'in-transit') {
       if (letter.receiverRef && letter.receiverRef.toString() !== userId) {
-        return res.status(403).json({ message: 'This letter is not addressed to you!' });
+        return res.status(403).json({ message: 'This letter is not addressed to thee!' });
       }
       
-      if (letter.status === 'in-transit') {
-        letter.status = 'delivered';
-        letter.deliveredAt = Date.now();
-        await letter.save();
-        return res.json({ message: 'Letter successfully received!', letter });
-      } else if (letter.status === 'delivered') {
-         return res.json({ message: 'Letter was already delivered.', letter });
-      } else {
-         return res.status(400).json({ message: 'Letter is not in transit yet.' });
-      }
+      letter.status = 'delivered';
+      letter.deliveredAt = Date.now();
+      await letter.save();
+      return res.json({ message: 'Letter successfully received! It is now in thy Mailbox.', letter });
+    }
+    
+    if (letter.status === 'delivered') {
+      return res.json({ message: 'Letter was already delivered.', letter });
     }
     
     res.status(400).json({ message: 'Action not allowed in current state.', letter });

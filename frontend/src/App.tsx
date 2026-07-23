@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Feather, Mail, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, updateLetter, deleteLetter } from './api';
+import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, deleteLetter } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Html5Qrcode } from 'html5-qrcode';
 
@@ -196,16 +196,27 @@ function Home({ user }: { user: any }) {
   const [createdQR, setCreatedQR] = useState('');
   const [error, setError] = useState('');
   const [myLetters, setMyLetters] = useState<any[]>([]);
+  const [myMailbox, setMyMailbox] = useState<any[]>([]);
   const [currentDraftId, setCurrentDraftId] = useState('');
 
   useEffect(() => {
     fetchMyLetters();
+    fetchMyMailbox();
   }, []);
 
   const fetchMyLetters = async () => {
     try {
       const data = await getMyLetters();
       setMyLetters(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchMyMailbox = async () => {
+    try {
+      const data = await getMyMailbox();
+      setMyMailbox(data);
     } catch (e) {
       console.error(e);
     }
@@ -321,34 +332,50 @@ function Home({ user }: { user: any }) {
         </div>
       </div>
 
-      {/* Received/Sent Letters List */}
+      {/* Mailbox Section */}
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
-        <h2 className="text-3xl font-bold mb-6 text-[#5C3A21] italic">Thy Correspondences</h2>
+        <h2 className="text-3xl font-bold mb-6 text-[#5C3A21] italic">Thy Mailbox</h2>
+        {myMailbox.length === 0 ? (
+          <p className="text-center text-[#8B5A2B] italic">Thy mailbox is currently empty.</p>
+        ) : (
+          <div className="space-y-4">
+            {myMailbox.map((l: any, i) => (
+              <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C]">
+                <p className="font-bold text-[#5C3A21]">
+                  Letter from {l.senderRef?.name || 'Unknown'}
+                </p>
+                <p className="text-sm italic text-[#8B5A2B]">Received on: {new Date(l.deliveredAt).toLocaleDateString()}</p>
+                <div className="mt-4 p-4 bg-white border-2 border-[#D2B48C] rounded text-lg font-serif whitespace-pre-wrap shadow-inner">{l.content}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Sent Letters / Drafts List */}
+      <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
+        <h2 className="text-3xl font-bold mb-6 text-[#5C3A21] italic">Thy Dispatched Missives</h2>
         {myLetters.length === 0 ? (
-          <p className="text-center text-[#8B5A2B] italic">Thy pigeonhole is empty.</p>
+          <p className="text-center text-[#8B5A2B] italic">Thou hast sent no letters yet.</p>
         ) : (
           <div className="space-y-4">
             {myLetters.map((l: any, i) => (
               <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C] flex justify-between items-center">
                 <div>
                   <p className="font-bold text-[#5C3A21]">
-                    {l.senderRef?._id === user.id ? 'Sent Letter' : 'Received Letter'}
-                    {l.senderRef?.name ? ` from ${l.senderRef.name}` : ''}
-                    {l.status === 'draft' && ' (Draft)'}
+                    {l.status === 'draft' ? 'Draft to ' : 'Sent Letter to '} 
+                    {l.receiverRef?.name || l.receiverRef || 'Unknown'}
                   </p>
                   <p className="text-sm italic text-[#8B5A2B]">Status: {l.status} {l.qrCodeToken ? `| Token: ${l.qrCodeToken.substring(0,8)}...` : ''}</p>
-                  {(l.status === 'delivered' || l.status === 'draft') && l.senderRef?._id !== user.id && (
-                     <div className="mt-2 p-3 bg-white border border-[#D2B48C] rounded text-lg font-serif whitespace-pre-wrap">{l.content}</div>
-                  )}
                 </div>
                 <div className="flex space-x-2">
-                  {l.senderRef?._id === user.id && l.status === 'draft' && (
+                  {l.status === 'draft' && (
                     <>
                       <button onClick={() => loadDraft(l)} className="px-4 py-2 bg-[#FAF0E6] text-[#8B5A2B] border border-[#D2B48C] rounded shadow hover:bg-[#FDF5E6]">Edit</button>
                       <button onClick={() => handleDeleteDraft(l._id)} disabled={loading} className="px-4 py-2 bg-red-100 text-red-700 border border-red-300 rounded shadow hover:bg-red-200">Burn</button>
                     </>
                   )}
-                  {l.senderRef?._id === user.id && l.status === 'pending' && (
+                  {l.status === 'pending' && (
                     <button onClick={() => setCreatedQR(l.qrCodeToken)} className="px-4 py-2 bg-[#8B5A2B] text-[#FDF5E6] rounded shadow hover:bg-[#5C3A21]">Show QR</button>
                   )}
                 </div>
@@ -383,16 +410,27 @@ function Home({ user }: { user: any }) {
 // ============================================
 function MailmanDashboard({ user }: { user: any }) {
   const [quests, setQuests] = useState<any[]>([]);
-  const [selectedQR, setSelectedQR] = useState('');
+  const [myMailbox, setMyMailbox] = useState<any[]>([]);
+  const [selectedQR, setSelectedQR] = useState<{token: string, receiverName: string} | null>(null);
 
   useEffect(() => {
     fetchQuests();
+    fetchMyMailbox();
   }, []);
 
   const fetchQuests = async () => {
     try {
       const data = await getActiveQuests();
       setQuests(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchMyMailbox = async () => {
+    try {
+      const data = await getMyMailbox();
+      setMyMailbox(data);
     } catch (e) {
       console.error(e);
     }
@@ -413,12 +451,12 @@ function MailmanDashboard({ user }: { user: any }) {
             </div>
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-[#8B5A2B] mb-4">Active Quests</h3>
+            <h3 className="text-2xl font-bold text-[#8B5A2B] mb-4">Thy Deliveries</h3>
             <div className="bg-[#FDF5E6] p-6 rounded border border-[#D2B48C] shadow-inner mb-4 text-center">
               {quests.length === 0 ? (
                 <>
                   <Star className="w-8 h-8 mx-auto text-[#D2B48C] mb-2" />
-                  <p className="text-[#8B5A2B] italic">No active quests at this time.</p>
+                  <p className="text-[#8B5A2B] italic">No active deliveries at this time.</p>
                   <p className="text-sm text-[#D2B48C] mt-1">Await thy summons, brave carrier.</p>
                 </>
               ) : (
@@ -426,10 +464,10 @@ function MailmanDashboard({ user }: { user: any }) {
                   {quests.map((q, i) => (
                     <div key={i} className="flex justify-between items-center bg-white p-3 border border-[#D2B48C] rounded">
                        <div>
-                         <p className="font-bold text-[#5C3A21]">Letter from {q.senderRef?.name}</p>
-                         <p className="text-xs italic text-[#8B5A2B]">Status: {q.status}</p>
+                         <p className="font-bold text-[#5C3A21]">Deliver to {q.receiverRef?.name || 'Unknown'}</p>
+                         <p className="text-xs italic text-[#8B5A2B]">From: {q.senderRef?.name}</p>
                        </div>
-                       <button onClick={() => setSelectedQR(q.qrCodeToken)} className="bg-[#8B5A2B] text-white px-3 py-1 rounded text-sm font-bold shadow hover:bg-[#5C3A21]">Show QR</button>
+                       <button onClick={() => setSelectedQR({ token: q.qrCodeToken, receiverName: q.receiverRef?.name || 'Unknown' })} className="bg-[#8B5A2B] text-white px-3 py-1 rounded text-sm font-bold shadow hover:bg-[#5C3A21]">Show QR</button>
                     </div>
                   ))}
                 </div>
@@ -439,15 +477,36 @@ function MailmanDashboard({ user }: { user: any }) {
         </div>
       </div>
 
+      {/* Mailman's Mailbox */}
+      <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
+        <h2 className="text-3xl font-bold mb-6 text-[#5C3A21] italic">Thy Mailbox</h2>
+        {myMailbox.length === 0 ? (
+          <p className="text-center text-[#8B5A2B] italic">Thy mailbox is currently empty.</p>
+        ) : (
+          <div className="space-y-4">
+            {myMailbox.map((l: any, i) => (
+              <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C]">
+                <p className="font-bold text-[#5C3A21]">
+                  Letter from {l.senderRef?.name || 'Unknown'}
+                </p>
+                <p className="text-sm italic text-[#8B5A2B]">Received on: {new Date(l.deliveredAt).toLocaleDateString()}</p>
+                <div className="mt-4 p-4 bg-white border-2 border-[#D2B48C] rounded text-lg font-serif whitespace-pre-wrap shadow-inner">{l.content}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       <AnimatePresence>
         {selectedQR && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
             <div className="bg-[#FAF0E6] p-8 rounded-lg max-w-md w-full relative border-4 border-[#8B5A2B] text-center shadow-2xl">
-              <button onClick={() => setSelectedQR('')} className="absolute top-2 right-2 text-[#8B5A2B] hover:text-[#5C3A21]"><X className="w-8 h-8" /></button>
+              <button onClick={() => setSelectedQR(null)} className="absolute top-2 right-2 text-[#8B5A2B] hover:text-[#5C3A21]"><X className="w-8 h-8" /></button>
               <h3 className="text-2xl font-bold text-[#5C3A21] mb-2 font-serif">Delivery Wax Seal</h3>
+              <p className="text-[#8B5A2B] italic mb-2 text-lg font-bold">For: {selectedQR.receiverName}</p>
               <p className="text-[#8B5A2B] italic mb-6">Present this to the Receiver so they may scan and read the letter.</p>
               <div className="flex justify-center p-4 bg-white border-2 border-[#D2B48C] rounded mb-4 inline-block">
-                <QRCodeCanvas value={selectedQR} size={250} fgColor="#5C3A21" />
+                <QRCodeCanvas value={selectedQR.token} size={250} fgColor="#5C3A21" />
               </div>
             </div>
           </motion.div>

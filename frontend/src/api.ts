@@ -119,3 +119,12 @@ export async function getMyLetters() {
     method: 'GET',
   });
 }
+
+export async function getMyMailbox() {
+  const user = getStoredUser();
+  if (!user) throw new Error('Not logged in');
+  
+  return await apiRequest(`/letters/mailbox/${user.id}`, {
+    method: 'GET',
+  });
+}
