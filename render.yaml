@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: letter-game
+    env: node
+    region: singapore
+    buildCommand: npm run install-backend && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false

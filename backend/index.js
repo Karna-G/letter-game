@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -24,12 +25,10 @@ app.use(cors());
 app.use(express.json());
 
 // ============================================
-// ROUTES - Add all your routes here
+// ROUTES
 // ============================================
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/letters', require('./routes/letters'));
-
-// Test route
 app.use('/api/test', require('./routes/test'));
 
 // Basic status route
@@ -39,6 +38,17 @@ app.get('/api/status', (req, res) => {
     mongodb: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
     database: mongoose.connection.name || 'Not connected'
   });
+});
+
+// ============================================
+// SERVE REACT FRONTEND IN PRODUCTION
+// ============================================
+const frontendBuild = path.join(__dirname, '..', 'frontend', 'dist');
+app.use(express.static(frontendBuild));
+
+// For any route not matched by the API, send the React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendBuild, 'index.html'));
 });
 
 // ============================================
@@ -57,16 +67,13 @@ io.on('connection', (socket) => {
 });
 
 // ============================================
-// START SERVER - Listen on all interfaces
+// START SERVER
 // ============================================
 const PORT = process.env.PORT || 5000;
 
-// Listen on 0.0.0.0 to accept connections from any IP
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 http://localhost:${PORT}`);
-  console.log(`🌐 http://127.0.0.1:${PORT}`);
-  console.log(`🌐 http://${require('os').networkInterfaces()['Ethernet']?.[0]?.address || 'your-ip'}:${PORT}`);
 });
 
 // Handle unhandled promise rejections

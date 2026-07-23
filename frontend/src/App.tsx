@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Feather, Map, Mail, Scroll, Shield, LogOut, User, Crown, Sparkles, Scan, X, CheckCircle } from 'lucide-react';
+import { Feather, Mail, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, updateLetter, deleteLetter } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -417,7 +417,7 @@ function MailmanDashboard({ user }: { user: any }) {
             <div className="bg-[#FDF5E6] p-6 rounded border border-[#D2B48C] shadow-inner mb-4 text-center">
               {quests.length === 0 ? (
                 <>
-                  <Sparkles className="w-8 h-8 mx-auto text-[#D2B48C] mb-2" />
+                  <Star className="w-8 h-8 mx-auto text-[#D2B48C] mb-2" />
                   <p className="text-[#8B5A2B] italic">No active quests at this time.</p>
                   <p className="text-sm text-[#D2B48C] mt-1">Await thy summons, brave carrier.</p>
                 </>
@@ -484,7 +484,7 @@ function QRScanner() {
             handleScan(decodedText);
           }
         },
-        (errorMessage) => {
+        (_errorMessage) => {
           // parse errors are normal (no QR found yet)
         }
       );
@@ -584,8 +584,8 @@ function MapTracker() {
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="bg-[#FAF0E6] p-6 rounded-lg shadow-2xl border border-[#D2B48C]">
       <h2 className="text-3xl font-bold text-center mb-6 text-[#5C3A21] italic">The Mailman's Journey</h2>
       <div className="h-[600px] w-full rounded-lg overflow-hidden border-4 border-[#8B5A2B] shadow-inner relative">
-        <MapContainer center={defaultPosition} zoom={13} scrollWheelZoom={false} className="h-full w-full">
-          <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MapContainer {...{ center: defaultPosition, zoom: 13, scrollWheelZoom: false } as any} className="h-full w-full">
+          <TileLayer {...{ attribution: '© OpenStreetMap contributors', url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" } as any} />
           <Marker position={defaultPosition}>
             <Popup><div className="font-serif text-[#5C3A21] text-center"><strong>Thy Letter Carrier</strong><br />Currently en route.</div></Popup>
           </Marker>

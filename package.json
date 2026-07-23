@@ -2,9 +2,11 @@
   "name": "letter-game",
   "version": "1.0.0",
   "scripts": {
-    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
-    "backend": "cd backend && node index.js",
-    "frontend": "cd frontend && npm run dev"
+    "build": "cd frontend && npm install --legacy-peer-deps && npm run build",
+    "start": "cd backend && node index.js",
+    "install-backend": "cd backend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
