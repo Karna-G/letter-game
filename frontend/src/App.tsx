@@ -150,18 +150,18 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-[#FDF5E6] text-[#2C1A0B] font-serif" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}>
-        <nav className="flex justify-between items-center p-6 border-b-2 border-[#8B5A2B] bg-[#FDF5E6] bg-opacity-90 shadow-md">
-          <div className="flex items-center space-x-3">
+        <nav className="flex flex-col md:flex-row justify-between items-center p-4 md:p-6 border-b-2 border-[#8B5A2B] bg-[#FDF5E6] bg-opacity-90 shadow-md">
+          <div className="flex items-center space-x-3 mb-4 md:mb-0">
             <Feather className="w-8 h-8 text-[#8B5A2B]" />
-            <h1 className="text-3xl font-bold tracking-widest text-[#5C3A21] uppercase">The Postmaster's Guild</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-widest text-[#5C3A21] uppercase text-center">The Postmaster's Guild</h1>
           </div>
-          <div className="flex items-center space-x-6 text-lg">
+          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-0 md:space-x-6 text-base md:text-lg">
             <Link to="/" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Mail className="w-5 h-5" /> <span>My Letters</span></Link>
             <Link to="/scanner" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scan className="w-5 h-5" /> <span>Scan Wax Seal</span></Link>
             {user.role === 'mailman' && <Link to="/mailman" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Feather className="w-5 h-5" /> <span>Guild Dashboard</span></Link>}
             <Link to="/gallery" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scroll className="w-5 h-5" /> <span>Gallery & Stamps</span></Link>
             
-            <div className="flex items-center space-x-3 ml-4 pl-4 border-l-2 border-[#D2B48C]">
+            <div className="flex items-center space-x-3 md:ml-4 md:pl-4 border-l-0 md:border-l-2 border-[#D2B48C]">
               <div className="flex items-center space-x-2 bg-[#FAF0E6] px-3 py-1 rounded border border-[#D2B48C]">
                 {user.role === 'mailman' ? <Crown className="w-4 h-4 text-[#8B5A2B]" /> : <User className="w-4 h-4 text-[#8B5A2B]" />}
                 <span className="text-sm font-semibold text-[#5C3A21]">{user.name}</span>
@@ -318,13 +318,13 @@ function Home({ user }: { user: any }) {
             <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} className="w-full bg-[#FDF5E6] border-2 border-[#D2B48C] p-4 rounded focus:outline-none focus:border-[#8B5A2B] text-lg font-serif resize-none shadow-inner" placeholder="Write thy words of wisdom..."></textarea>
           </div>
           {error && <p className={`font-bold italic ${error.includes('saved') ? 'text-green-600' : 'text-red-600'}`}>{error}</p>}
-          <div className="flex justify-between items-center pt-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-6 gap-4">
             <div className="flex items-center space-x-2 text-[#8B5A2B]"><Shield className="w-5 h-5" /><span className="text-sm font-semibold">Wax Seal Required</span></div>
-            <div className="flex space-x-4">
-              <button onClick={handleSaveDraft} disabled={loading} className="bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] px-6 py-3 rounded text-lg font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C]">
+            <div className="flex flex-col sm:flex-row w-full md:w-auto space-y-3 sm:space-y-0 sm:space-x-4">
+              <button onClick={handleSaveDraft} disabled={loading} className="w-full sm:w-auto bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] px-6 py-3 rounded text-lg font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C]">
                 {loading && !createdQR ? 'Saving...' : 'Save Draft'}
               </button>
-              <button onClick={handleSend} disabled={loading} className="bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] px-8 py-3 rounded text-lg font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723]">
+              <button onClick={handleSend} disabled={loading} className="w-full sm:w-auto bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] px-8 py-3 rounded text-lg font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723]">
                 {loading && createdQR ? 'Sealing...' : 'Seal & Dispatch'}
               </button>
             </div>
@@ -360,23 +360,23 @@ function Home({ user }: { user: any }) {
         ) : (
           <div className="space-y-4">
             {myLetters.map((l: any, i) => (
-              <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C] flex justify-between items-center">
-                <div>
+              <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="w-full sm:w-auto">
                   <p className="font-bold text-[#5C3A21]">
                     {l.status === 'draft' ? 'Draft to ' : 'Sent Letter to '} 
                     {l.receiverRef?.name || l.receiverRef || 'Unknown'}
                   </p>
-                  <p className="text-sm italic text-[#8B5A2B]">Status: {l.status} {l.qrCodeToken ? `| Token: ${l.qrCodeToken.substring(0,8)}...` : ''}</p>
+                  <p className="text-sm italic text-[#8B5A2B] truncate w-full">Status: {l.status} {l.qrCodeToken ? `| Token: ${l.qrCodeToken.substring(0,8)}...` : ''}</p>
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex w-full sm:w-auto flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   {l.status === 'draft' && (
                     <>
-                      <button onClick={() => loadDraft(l)} className="px-4 py-2 bg-[#FAF0E6] text-[#8B5A2B] border border-[#D2B48C] rounded shadow hover:bg-[#FDF5E6]">Edit</button>
-                      <button onClick={() => handleDeleteDraft(l._id)} disabled={loading} className="px-4 py-2 bg-red-100 text-red-700 border border-red-300 rounded shadow hover:bg-red-200">Burn</button>
+                      <button onClick={() => loadDraft(l)} className="w-full sm:w-auto px-4 py-2 bg-[#FAF0E6] text-[#8B5A2B] border border-[#D2B48C] rounded shadow hover:bg-[#FDF5E6]">Edit</button>
+                      <button onClick={() => handleDeleteDraft(l._id)} disabled={loading} className="w-full sm:w-auto px-4 py-2 bg-red-100 text-red-700 border border-red-300 rounded shadow hover:bg-red-200">Burn</button>
                     </>
                   )}
                   {l.status === 'pending' && (
-                    <button onClick={() => setCreatedQR(l.qrCodeToken)} className="px-4 py-2 bg-[#8B5A2B] text-[#FDF5E6] rounded shadow hover:bg-[#5C3A21]">Show QR</button>
+                    <button onClick={() => setCreatedQR(l.qrCodeToken)} className="w-full sm:w-auto px-4 py-2 bg-[#8B5A2B] text-[#FDF5E6] rounded shadow hover:bg-[#5C3A21]">Show QR</button>
                   )}
                 </div>
               </div>
@@ -462,12 +462,12 @@ function MailmanDashboard({ user }: { user: any }) {
               ) : (
                 <div className="space-y-3 text-left">
                   {quests.map((q, i) => (
-                    <div key={i} className="flex justify-between items-center bg-white p-3 border border-[#D2B48C] rounded">
-                       <div>
+                    <div key={i} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 border border-[#D2B48C] rounded gap-3">
+                       <div className="w-full sm:w-auto">
                          <p className="font-bold text-[#5C3A21]">Deliver to {q.receiverRef?.name || 'Unknown'}</p>
                          <p className="text-xs italic text-[#8B5A2B]">From: {q.senderRef?.name}</p>
                        </div>
-                       <button onClick={() => setSelectedQR({ token: q.qrCodeToken, receiverName: q.receiverRef?.name || 'Unknown' })} className="bg-[#8B5A2B] text-white px-3 py-1 rounded text-sm font-bold shadow hover:bg-[#5C3A21]">Show QR</button>
+                       <button onClick={() => setSelectedQR({ token: q.qrCodeToken, receiverName: q.receiverRef?.name || 'Unknown' })} className="w-full sm:w-auto bg-[#8B5A2B] text-white px-4 py-2 rounded text-sm font-bold shadow hover:bg-[#5C3A21]">Show QR</button>
                     </div>
                   ))}
                 </div>
