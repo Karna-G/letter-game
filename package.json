@@ -1,9 +1,12 @@
 {
   "name": "letter-game",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
-    "build": "cd frontend && npm install --legacy-peer-deps && npm run build",
-    "start": "cd backend && node index.js",
+    "build": "cd frontend && npm install --legacy-peer-deps --include=dev && npm run build",
+    "start": "NODE_ENV=production cd backend && node index.js",
     "install-backend": "cd backend && npm install",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev"
