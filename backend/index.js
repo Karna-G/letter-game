@@ -47,7 +47,7 @@ const frontendBuild = path.join(__dirname, '..', 'frontend', 'dist');
 app.use(express.static(frontendBuild));
 
 // For any route not matched by the API, send the React app
-app.get('*', (req, res) => {
+app.get(/(.*)/, (req, res) => {
   res.sendFile(path.join(frontendBuild, 'index.html'));
 });
 
