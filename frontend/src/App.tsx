@@ -43,11 +43,16 @@ const QuillAnimation = () => {
       </motion.svg>
       <motion.div
         className="absolute"
-        initial={{ x: -80, y: -10, rotate: -20 }}
-        animate={{ x: 80, y: 10, rotate: 10 }}
+        initial={{ x: -80, y: -25, rotate: -35 }}
+        animate={{ x: 80, y: 5, rotate: 5 }}
         transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
       >
-        <Feather className="w-10 h-10 text-[#5C3A21] drop-shadow-lg" style={{ filter: 'drop-shadow(2px 4px 2px rgba(92, 58, 33, 0.4))' }} />
+        <img 
+          src="/fountain-pen.png" 
+          alt="Vintage Fountain Pen" 
+          className="w-20 h-20 object-contain drop-shadow-lg" 
+          style={{ mixBlendMode: 'multiply', filter: 'drop-shadow(4px 6px 4px rgba(92, 58, 33, 0.5))' }} 
+        />
       </motion.div>
     </div>
   );
