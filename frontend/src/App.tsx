@@ -1,12 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Feather, Mail, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star } from 'lucide-react';
+import { Feather, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, deleteLetter } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Html5Qrcode } from 'html5-qrcode';
+
+// ============================================
+// AESTHETIC DECORATIONS
+// ============================================
+const QuillAnimation = () => {
+  return (
+    <div className="relative w-full h-16 flex justify-center items-center mb-4 overflow-hidden">
+      <motion.svg
+        width="200"
+        height="60"
+        viewBox="0 0 200 60"
+        className="text-[#8B5A2B] opacity-70"
+      >
+        <motion.path
+          d="M 10 30 Q 30 10 50 30 T 90 30 T 130 30 T 170 30"
+          fill="transparent"
+          strokeWidth="3"
+          stroke="currentColor"
+          strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
+        />
+        <motion.path
+          d="M 20 40 Q 40 20 60 40 T 100 40 T 140 40 T 180 40"
+          fill="transparent"
+          strokeWidth="2"
+          stroke="currentColor"
+          strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 2.5, ease: "easeInOut", delay: 0.5, repeat: Infinity, repeatType: "reverse", repeatDelay: 0.5 }}
+        />
+      </motion.svg>
+      <motion.div
+        className="absolute"
+        initial={{ x: -80, y: -10, rotate: -20 }}
+        animate={{ x: 80, y: 10, rotate: 10 }}
+        transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
+      >
+        <Feather className="w-10 h-10 text-[#5C3A21] drop-shadow-lg" style={{ filter: 'drop-shadow(2px 4px 2px rgba(92, 58, 33, 0.4))' }} />
+      </motion.div>
+    </div>
+  );
+};
 
 // ============================================
 // AUTH PAGE — Login & Register
@@ -49,9 +94,7 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
         className="w-full max-w-lg"
       >
         <div className="text-center mb-8">
-          <motion.div animate={{ rotate: [0, -5, 5, 0] }} transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}>
-            <Feather className="w-16 h-16 mx-auto text-[#8B5A2B] mb-4" />
-          </motion.div>
+          <QuillAnimation />
           <h1 className="text-4xl font-bold tracking-widest text-[#5C3A21] uppercase font-serif">The Postmaster's Guild</h1>
           <p className="text-[#8B5A2B] italic mt-2 text-lg">
             {mode === 'login' ? '"Present thy credentials, traveller."' : '"Inscribe thy name upon the rolls of the Guild."'}
@@ -156,7 +199,7 @@ function App() {
             <h1 className="text-2xl md:text-3xl font-bold tracking-widest text-[#5C3A21] uppercase text-center">The Postmaster's Guild</h1>
           </div>
           <div className="flex flex-wrap justify-center items-center gap-4 md:gap-0 md:space-x-6 text-base md:text-lg">
-            <Link to="/" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Mail className="w-5 h-5" /> <span>My Letters</span></Link>
+            <Link to="/" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><User className="w-5 h-5" /> <span>My Profile</span></Link>
             <Link to="/scanner" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scan className="w-5 h-5" /> <span>Scan Wax Seal</span></Link>
             {user.role === 'mailman' && <Link to="/mailman" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Feather className="w-5 h-5" /> <span>Guild Dashboard</span></Link>}
             <Link to="/gallery" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scroll className="w-5 h-5" /> <span>Gallery & Stamps</span></Link>
@@ -174,7 +217,10 @@ function App() {
 
         <main className="container mx-auto p-8">
           <Routes>
-            <Route path="/" element={<Home user={user} />} />
+            <Route path="/" element={<UserProfile user={user} />} />
+            <Route path="/compose" element={<ComposeLetter />} />
+            <Route path="/mailbox" element={<MyMailbox />} />
+            <Route path="/sent" element={<SentLetters />} />
             <Route path="/map" element={<MapTracker />} />
             <Route path="/mailman" element={user.role === 'mailman' ? <MailmanDashboard user={user} /> : <Navigate to="/" />} />
             <Route path="/scanner" element={<QRScanner />} />
@@ -187,40 +233,60 @@ function App() {
 }
 
 // ============================================
-// HOME — Compose Letter / Inbox
+// USER PROFILE (Landing Page)
 // ============================================
-function Home({ user }: { user: any }) {
+function UserProfile({ user }: { user: any }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto space-y-8">
+      <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C] relative overflow-hidden text-center">
+        <QuillAnimation />
+        <h2 className="text-4xl font-bold text-[#5C3A21] italic mb-2">Welcome back, <span className="text-[#8B5A2B]">{user.name}</span></h2>
+        <p className="text-[#D2B48C] text-lg mt-1 italic mb-8">May thy quill be sharp and thy ink plentiful.</p>
+        
+        <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-8">
+          <Link to="/compose" className="w-full md:w-auto bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] px-8 py-4 rounded text-xl font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723] flex flex-col items-center">
+            <span className="text-3xl mb-2">✍️</span>
+            Compose Thy Epistle
+          </Link>
+          <Link to="/mailbox" className="w-full md:w-auto bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] px-8 py-4 rounded text-xl font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] flex flex-col items-center">
+            <span className="text-3xl mb-2">📬</span>
+            Thy Mailbox
+          </Link>
+          <Link to="/sent" className="w-full md:w-auto bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] px-8 py-4 rounded text-xl font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] flex flex-col items-center">
+            <span className="text-3xl mb-2">🕊️</span>
+            Thy Dispatched Missives
+          </Link>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// COMPOSE LETTER
+// ============================================
+function ComposeLetter() {
   const [receiverRef, setReceiverRef] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [createdQR, setCreatedQR] = useState('');
   const [error, setError] = useState('');
-  const [myLetters, setMyLetters] = useState<any[]>([]);
-  const [myMailbox, setMyMailbox] = useState<any[]>([]);
   const [currentDraftId, setCurrentDraftId] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    fetchMyLetters();
-    fetchMyMailbox();
-  }, []);
-
-  const fetchMyLetters = async () => {
-    try {
-      const data = await getMyLetters();
-      setMyLetters(data);
-    } catch (e) {
-      console.error(e);
+    if (location.state?.draft) {
+      const draft = location.state.draft;
+      setContent(draft.content || '');
+      if (draft.receiverRef && typeof draft.receiverRef === 'object') {
+        setReceiverRef(draft.receiverRef.name || '');
+      } else {
+        setReceiverRef(draft.receiverRef || '');
+      }
+      setCurrentDraftId(draft._id);
     }
-  };
-
-  const fetchMyMailbox = async () => {
-    try {
-      const data = await getMyMailbox();
-      setMyMailbox(data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  }, [location]);
 
   const handleSend = async () => {
     if (!content.trim()) { setError('The missive cannot be empty.'); return; }
@@ -233,15 +299,10 @@ function Home({ user }: { user: any }) {
         res = await sendLetter(receiverRef, content, 'standard', 'pending');
       }
       setCreatedQR(res.qrCodeToken);
-      setContent('');
-      setReceiverRef('');
-      setCurrentDraftId('');
-      fetchMyLetters();
     } catch (e: any) {
       setError(e.message || 'Failed to dispatch letter');
-    } finally {
       setLoading(false);
-    }
+    } 
   };
 
   const handleSaveDraft = async () => {
@@ -255,7 +316,7 @@ function Home({ user }: { user: any }) {
         setCurrentDraftId(res._id);
       }
       setError('Draft saved successfully!');
-      fetchMyLetters();
+      setTimeout(() => navigate('/sent'), 1500);
     } catch (e: any) {
       setError(e.message || 'Failed to save draft');
     } finally {
@@ -263,44 +324,13 @@ function Home({ user }: { user: any }) {
     }
   };
 
-  const handleDeleteDraft = async (id: string) => {
-    if (!window.confirm("Are you sure you wish to burn this draft?")) return;
-    setLoading(true);
-    try {
-      await deleteLetter(id);
-      if (currentDraftId === id) {
-        setContent('');
-        setReceiverRef('');
-        setCurrentDraftId('');
-      }
-      fetchMyLetters();
-    } catch (e: any) {
-      setError(e.message || 'Failed to delete draft');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadDraft = (letter: any) => {
-    setContent(letter.content);
-    // receiverRef might be a populated object { _id, name } or a plain string/null
-    if (letter.receiverRef && typeof letter.receiverRef === 'object') {
-      setReceiverRef(letter.receiverRef.name || '');
-    } else {
-      setReceiverRef(letter.receiverRef || '');
-    }
-    setCurrentDraftId(letter._id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleQRClose = () => {
+    setCreatedQR('');
+    navigate('/sent');
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto space-y-8">
-      <div className="text-center">
-        <h2 className="text-2xl text-[#8B5A2B] italic">Welcome back, <span className="font-bold text-[#5C3A21]">{user.name}</span></h2>
-        <p className="text-[#D2B48C] text-sm mt-1">May thy quill be sharp and thy ink plentiful.</p>
-      </div>
-
-      {/* Compose Letter Card */}
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C] relative overflow-hidden">
         <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 border-[#8B5A2B] m-4 opacity-50"></div>
         <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 border-[#8B5A2B] m-4 opacity-50"></div>
@@ -332,11 +362,52 @@ function Home({ user }: { user: any }) {
         </div>
       </div>
 
-      {/* Mailbox Section */}
+      <AnimatePresence>
+        {createdQR && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <div className="bg-[#FAF0E6] p-8 rounded-lg max-w-md w-full relative border-4 border-[#8B5A2B] text-center shadow-2xl">
+              <button onClick={handleQRClose} className="absolute top-2 right-2 text-[#8B5A2B] hover:text-[#5C3A21]"><X className="w-8 h-8" /></button>
+              <h3 className="text-2xl font-bold text-[#5C3A21] mb-2 font-serif">Letter Sealed!</h3>
+              <p className="text-[#8B5A2B] italic mb-6">Present this Wax Seal (QR Code) to a Mailman for pickup.</p>
+              <div className="flex justify-center p-4 bg-white border-2 border-[#D2B48C] rounded mb-4 inline-block">
+                <QRCodeCanvas value={createdQR} size={250} fgColor="#5C3A21" />
+              </div>
+              <p className="font-mono text-sm text-[#8B5A2B] bg-[#FDF5E6] p-2 rounded border border-[#D2B48C]">{createdQR}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ============================================
+// MY MAILBOX (Inbox)
+// ============================================
+function MyMailbox() {
+  const [myMailbox, setMyMailbox] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchMyMailbox = async () => {
+      try {
+        const data = await getMyMailbox();
+        setMyMailbox(data);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchMyMailbox();
+  }, []);
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
-        <h2 className="text-3xl font-bold mb-6 text-[#5C3A21] italic">Thy Mailbox</h2>
+        <div className="flex items-center justify-between mb-6">
+           <h2 className="text-3xl font-bold text-[#5C3A21] italic">Thy Mailbox</h2>
+           <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold">← Back to Profile</Link>
+        </div>
         {myMailbox.length === 0 ? (
-          <p className="text-center text-[#8B5A2B] italic">Thy mailbox is currently empty.</p>
+          <p className="text-center text-[#8B5A2B] italic py-8">Thy mailbox is currently empty.</p>
         ) : (
           <div className="space-y-4">
             {myMailbox.map((l: any, i) => (
@@ -351,12 +422,60 @@ function Home({ user }: { user: any }) {
           </div>
         )}
       </div>
+    </motion.div>
+  );
+}
 
-      {/* Sent Letters / Drafts List */}
+// ============================================
+// SENT LETTERS (Outbox)
+// ============================================
+function SentLetters() {
+  const [myLetters, setMyLetters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [createdQR, setCreatedQR] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchMyLetters();
+  }, []);
+
+  const fetchMyLetters = async () => {
+    try {
+      const data = await getMyLetters();
+      setMyLetters(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteDraft = async (id: string) => {
+    if (!window.confirm("Are you sure you wish to burn this draft?")) return;
+    setLoading(true);
+    try {
+      await deleteLetter(id);
+      fetchMyLetters();
+    } catch (e: any) {
+      alert(e.message || 'Failed to delete draft');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadDraft = (letter: any) => {
+    // Navigate to compose and pass state (or we can just let Compose handle it if we passed draft ID via URL. 
+    // For simplicity without changing routing logic, we can pass it via router state)
+    navigate('/compose', { state: { draft: letter } });
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
-        <h2 className="text-3xl font-bold mb-6 text-[#5C3A21] italic">Thy Dispatched Missives</h2>
+        <div className="flex items-center justify-between mb-6">
+           <h2 className="text-3xl font-bold text-[#5C3A21] italic">Thy Dispatched Missives</h2>
+           <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold">← Back to Profile</Link>
+        </div>
         {myLetters.length === 0 ? (
-          <p className="text-center text-[#8B5A2B] italic">Thou hast sent no letters yet.</p>
+          <p className="text-center text-[#8B5A2B] italic py-8">Thou hast sent no letters yet.</p>
         ) : (
           <div className="space-y-4">
             {myLetters.map((l: any, i) => (
@@ -385,18 +504,16 @@ function Home({ user }: { user: any }) {
         )}
       </div>
 
-      {/* QR Code Modal for Sender */}
       <AnimatePresence>
         {createdQR && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
             <div className="bg-[#FAF0E6] p-8 rounded-lg max-w-md w-full relative border-4 border-[#8B5A2B] text-center shadow-2xl">
               <button onClick={() => setCreatedQR('')} className="absolute top-2 right-2 text-[#8B5A2B] hover:text-[#5C3A21]"><X className="w-8 h-8" /></button>
-              <h3 className="text-2xl font-bold text-[#5C3A21] mb-2 font-serif">Letter Sealed!</h3>
-              <p className="text-[#8B5A2B] italic mb-6">Present this Wax Seal (QR Code) to a Mailman for pickup.</p>
+              <h3 className="text-2xl font-bold text-[#5C3A21] mb-2 font-serif">Delivery Wax Seal</h3>
+              <p className="text-[#8B5A2B] italic mb-6">Present this to the Receiver so they may scan and read the letter.</p>
               <div className="flex justify-center p-4 bg-white border-2 border-[#D2B48C] rounded mb-4 inline-block">
                 <QRCodeCanvas value={createdQR} size={250} fgColor="#5C3A21" />
               </div>
-              <p className="font-mono text-sm text-[#8B5A2B] bg-[#FDF5E6] p-2 rounded border border-[#D2B48C]">{createdQR}</p>
             </div>
           </motion.div>
         )}
