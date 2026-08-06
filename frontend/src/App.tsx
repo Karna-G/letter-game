@@ -47,11 +47,11 @@ const QuillAnimation = () => {
         animate={{ x: 70, y: 0, rotate: 5 }}
         transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
       >
-        <img
-          src="/vintage-pen-v2.png"
-          alt="Vintage Fountain Pen"
-          className="w-20 h-20 object-contain"
-          style={{ mixBlendMode: 'multiply', transform: 'scaleX(-1)', filter: 'contrast(0.5) brightness(1.2)' }}
+        <img 
+          src="/clean-pen.png" 
+          alt="Vintage Fountain Pen" 
+          className="w-20 h-20 object-contain drop-shadow-lg" 
+          style={{ transform: 'scaleX(-1)' }} 
         />
       </motion.div>
     </div>
