@@ -47,11 +47,11 @@ const QuillAnimation = () => {
         animate={{ x: 70, y: 0, rotate: 5 }}
         transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
       >
-        <img 
-          src="/vintage-pen-v2.png" 
-          alt="Vintage Fountain Pen" 
-          className="w-20 h-20 object-contain" 
-          style={{ mixBlendMode: 'multiply', transform: 'scaleX(-1)', filter: 'contrast(1.5) brightness(1.2)' }} 
+        <img
+          src="/vintage-pen-v2.png"
+          alt="Vintage Fountain Pen"
+          className="w-20 h-20 object-contain"
+          style={{ mixBlendMode: 'multiply', transform: 'scaleX(-1)', filter: 'contrast(1.5) brightness(1.2)' }}
         />
       </motion.div>
     </div>
@@ -115,17 +115,15 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
           <div className="flex border-b-2 border-[#D2B48C]">
             <button
               onClick={() => { setMode('login'); setError(''); }}
-              className={`flex-1 py-4 text-lg font-bold tracking-wider transition-all ${
-                mode === 'login' ? 'bg-[#8B5A2B] text-[#FDF5E6] shadow-inner' : 'text-[#8B5A2B] hover:bg-[#F5DEB3]'
-              }`}
+              className={`flex-1 py-4 text-lg font-bold tracking-wider transition-all ${mode === 'login' ? 'bg-[#8B5A2B] text-[#FDF5E6] shadow-inner' : 'text-[#8B5A2B] hover:bg-[#F5DEB3]'
+                }`}
             >
               Enter the Guild
             </button>
             <button
               onClick={() => { setMode('register'); setError(''); }}
-              className={`flex-1 py-4 text-lg font-bold tracking-wider transition-all ${
-                mode === 'register' ? 'bg-[#8B5A2B] text-[#FDF5E6] shadow-inner' : 'text-[#8B5A2B] hover:bg-[#F5DEB3]'
-              }`}
+              className={`flex-1 py-4 text-lg font-bold tracking-wider transition-all ${mode === 'register' ? 'bg-[#8B5A2B] text-[#FDF5E6] shadow-inner' : 'text-[#8B5A2B] hover:bg-[#F5DEB3]'
+                }`}
             >
               Join the Guild
             </button>
@@ -208,7 +206,7 @@ function App() {
             <Link to="/scanner" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scan className="w-5 h-5" /> <span>Scan Wax Seal</span></Link>
             {user.role === 'mailman' && <Link to="/mailman" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Feather className="w-5 h-5" /> <span>Guild Dashboard</span></Link>}
             <Link to="/gallery" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scroll className="w-5 h-5" /> <span>Gallery & Stamps</span></Link>
-            
+
             <div className="flex items-center space-x-3 md:ml-4 md:pl-4 border-l-0 md:border-l-2 border-[#D2B48C]">
               <div className="flex items-center space-x-2 bg-[#FAF0E6] px-3 py-1 rounded border border-[#D2B48C]">
                 {user.role === 'mailman' ? <Crown className="w-4 h-4 text-[#8B5A2B]" /> : <User className="w-4 h-4 text-[#8B5A2B]" />}
@@ -247,7 +245,7 @@ function UserProfile({ user }: { user: any }) {
         <QuillAnimation />
         <h2 className="text-4xl font-bold text-[#5C3A21] italic mb-2">Welcome back, <span className="text-[#8B5A2B]">{user.name}</span></h2>
         <p className="text-[#D2B48C] text-lg mt-1 italic mb-8">May thy quill be sharp and thy ink plentiful.</p>
-        
+
         <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-8">
           <Link to="/compose" className="w-full md:w-auto bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] px-8 py-4 rounded text-xl font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723] flex flex-col items-center">
             <span className="text-3xl mb-2">✍️</span>
@@ -307,7 +305,7 @@ function ComposeLetter() {
     } catch (e: any) {
       setError(e.message || 'Failed to dispatch letter');
       setLoading(false);
-    } 
+    }
   };
 
   const handleSaveDraft = async () => {
@@ -341,7 +339,7 @@ function ComposeLetter() {
         <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 border-[#8B5A2B] m-4 opacity-50"></div>
         <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 border-[#8B5A2B] m-4 opacity-50"></div>
         <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-[#8B5A2B] m-4 opacity-50"></div>
-        
+
         <h2 className="text-4xl font-bold text-center mb-8 text-[#5C3A21] italic">Compose Thine Epistle</h2>
         <div className="space-y-6">
           <div>
@@ -408,8 +406,8 @@ function MyMailbox() {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
         <div className="flex items-center justify-between mb-6">
-           <h2 className="text-3xl font-bold text-[#5C3A21] italic">Thy Mailbox</h2>
-           <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold">← Back to Profile</Link>
+          <h2 className="text-3xl font-bold text-[#5C3A21] italic">Thy Mailbox</h2>
+          <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold">← Back to Profile</Link>
         </div>
         {myMailbox.length === 0 ? (
           <p className="text-center text-[#8B5A2B] italic py-8">Thy mailbox is currently empty.</p>
@@ -476,8 +474,8 @@ function SentLetters() {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
         <div className="flex items-center justify-between mb-6">
-           <h2 className="text-3xl font-bold text-[#5C3A21] italic">Thy Dispatched Missives</h2>
-           <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold">← Back to Profile</Link>
+          <h2 className="text-3xl font-bold text-[#5C3A21] italic">Thy Dispatched Missives</h2>
+          <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold">← Back to Profile</Link>
         </div>
         {myLetters.length === 0 ? (
           <p className="text-center text-[#8B5A2B] italic py-8">Thou hast sent no letters yet.</p>
@@ -487,10 +485,10 @@ function SentLetters() {
               <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="w-full sm:w-auto">
                   <p className="font-bold text-[#5C3A21]">
-                    {l.status === 'draft' ? 'Draft to ' : 'Sent Letter to '} 
+                    {l.status === 'draft' ? 'Draft to ' : 'Sent Letter to '}
                     {l.receiverRef?.name || l.receiverRef || 'Unknown'}
                   </p>
-                  <p className="text-sm italic text-[#8B5A2B] truncate w-full">Status: {l.status} {l.qrCodeToken ? `| Token: ${l.qrCodeToken.substring(0,8)}...` : ''}</p>
+                  <p className="text-sm italic text-[#8B5A2B] truncate w-full">Status: {l.status} {l.qrCodeToken ? `| Token: ${l.qrCodeToken.substring(0, 8)}...` : ''}</p>
                 </div>
                 <div className="flex w-full sm:w-auto flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   {l.status === 'draft' && (
@@ -533,7 +531,7 @@ function SentLetters() {
 function MailmanDashboard({ user }: { user: any }) {
   const [quests, setQuests] = useState<any[]>([]);
   const [myMailbox, setMyMailbox] = useState<any[]>([]);
-  const [selectedQR, setSelectedQR] = useState<{token: string, receiverName: string} | null>(null);
+  const [selectedQR, setSelectedQR] = useState<{ token: string, receiverName: string } | null>(null);
 
   useEffect(() => {
     fetchQuests();
@@ -585,11 +583,11 @@ function MailmanDashboard({ user }: { user: any }) {
                 <div className="space-y-3 text-left">
                   {quests.map((q, i) => (
                     <div key={i} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 border border-[#D2B48C] rounded gap-3">
-                       <div className="w-full sm:w-auto">
-                         <p className="font-bold text-[#5C3A21]">Deliver to {q.receiverRef?.name || 'Unknown'}</p>
-                         <p className="text-xs italic text-[#8B5A2B]">From: {q.senderRef?.name}</p>
-                       </div>
-                       <button onClick={() => setSelectedQR({ token: q.qrCodeToken, receiverName: q.receiverRef?.name || 'Unknown' })} className="w-full sm:w-auto bg-[#8B5A2B] text-white px-4 py-2 rounded text-sm font-bold shadow hover:bg-[#5C3A21]">Show QR</button>
+                      <div className="w-full sm:w-auto">
+                        <p className="font-bold text-[#5C3A21]">Deliver to {q.receiverRef?.name || 'Unknown'}</p>
+                        <p className="text-xs italic text-[#8B5A2B]">From: {q.senderRef?.name}</p>
+                      </div>
+                      <button onClick={() => setSelectedQR({ token: q.qrCodeToken, receiverName: q.receiverRef?.name || 'Unknown' })} className="w-full sm:w-auto bg-[#8B5A2B] text-white px-4 py-2 rounded text-sm font-bold shadow hover:bg-[#5C3A21]">Show QR</button>
                     </div>
                   ))}
                 </div>
@@ -710,20 +708,20 @@ function QRScanner() {
   return (
     <div className="max-w-2xl mx-auto text-center space-y-8">
       <h2 className="text-3xl font-bold mb-6 text-[#5C3A21] italic">Scan Wax Seal (QR Code)</h2>
-      
+
       {message ? (
         <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border-4 border-[#8B5A2B] flex flex-col items-center justify-center space-y-4">
-           <CheckCircle className="w-16 h-16 text-green-600" />
-           <h3 className="text-2xl font-bold text-[#5C3A21]">{message}</h3>
-           <p className="text-[#8B5A2B] italic">Redirecting to thy desk...</p>
+          <CheckCircle className="w-16 h-16 text-green-600" />
+          <h3 className="text-2xl font-bold text-[#5C3A21]">{message}</h3>
+          <p className="text-[#8B5A2B] italic">Redirecting to thy desk...</p>
         </div>
       ) : (
         <div className="bg-[#FAF0E6] p-4 rounded-lg shadow-2xl border-4 border-[#8B5A2B] relative overflow-hidden flex flex-col justify-center items-center">
           {scannerError ? (
             <div className="p-8 text-center bg-red-50 border border-red-200 rounded">
-               <h3 className="text-red-700 font-bold mb-2">Camera Access Failed</h3>
-               <p className="text-red-600 mb-4">{scannerError}</p>
-               <button onClick={startCamera} className="mt-4 bg-[#8B5A2B] text-white px-6 py-2 rounded font-bold">Try Again</button>
+              <h3 className="text-red-700 font-bold mb-2">Camera Access Failed</h3>
+              <p className="text-red-600 mb-4">{scannerError}</p>
+              <button onClick={startCamera} className="mt-4 bg-[#8B5A2B] text-white px-6 py-2 rounded font-bold">Try Again</button>
             </div>
           ) : !cameraActive && (
             <div className="p-12 flex flex-col items-center space-y-4">
@@ -734,7 +732,7 @@ function QRScanner() {
               </button>
             </div>
           )}
-          
+
           <div className="w-full">
             <div id="reader" className="w-full bg-black rounded overflow-hidden"></div>
             {cameraActive && (
@@ -748,8 +746,8 @@ function QRScanner() {
       <div className="bg-[#FDF5E6] p-6 rounded border border-[#D2B48C] shadow-inner mt-8">
         <h4 className="font-bold text-[#5C3A21] mb-2">Manual Token Entry (For Sages without magical lenses)</h4>
         <div className="flex space-x-2">
-           <input type="text" value={result} onChange={(e) => setResult(e.target.value)} placeholder="Enter QR Token ID..." className="flex-1 p-3 border-2 border-[#D2B48C] rounded font-mono text-sm focus:border-[#8B5A2B] bg-white" />
-           <button onClick={() => handleScan(result)} disabled={loading} className="bg-[#8B5A2B] text-[#FDF5E6] px-6 py-3 rounded font-bold shadow hover:bg-[#5C3A21]">Submit</button>
+          <input type="text" value={result} onChange={(e) => setResult(e.target.value)} placeholder="Enter QR Token ID..." className="flex-1 p-3 border-2 border-[#D2B48C] rounded font-mono text-sm focus:border-[#8B5A2B] bg-white" />
+          <button onClick={() => handleScan(result)} disabled={loading} className="bg-[#8B5A2B] text-[#FDF5E6] px-6 py-3 rounded font-bold shadow hover:bg-[#5C3A21]">Submit</button>
         </div>
       </div>
     </div>
@@ -785,7 +783,7 @@ function Gallery() {
         <h2 className="text-4xl font-bold text-center mb-2 text-[#5C3A21] italic">The Royal Stamp Gallery</h2>
         <p className="text-center text-[#8B5A2B] italic mb-8">Collect stamps from thy travels across the realm.</p>
         <div className="grid grid-cols-3 gap-6">
-          {[ { name: 'Novice Seal', desc: 'First letter sent', emoji: '📜', earned: false }, { name: 'Swift Courier', desc: '10 deliveries made', emoji: '🏇', earned: false }, { name: 'Royal Decree', desc: 'Endorsed by the Crown', emoji: '👑', earned: false }, { name: 'Night Owl', desc: 'Delivery after midnight', emoji: '🦉', earned: false }, { name: 'Storm Rider', desc: 'Delivered in the rain', emoji: '⚡', earned: false }, { name: 'Phantom Post', desc: 'Received a Dibbyuk letter', emoji: '👻', earned: false } ].map((stamp, i) => (
+          {[{ name: 'Novice Seal', desc: 'First letter sent', emoji: '📜', earned: false }, { name: 'Swift Courier', desc: '10 deliveries made', emoji: '🏇', earned: false }, { name: 'Royal Decree', desc: 'Endorsed by the Crown', emoji: '👑', earned: false }, { name: 'Night Owl', desc: 'Delivery after midnight', emoji: '🦉', earned: false }, { name: 'Storm Rider', desc: 'Delivered in the rain', emoji: '⚡', earned: false }, { name: 'Phantom Post', desc: 'Received a Dibbyuk letter', emoji: '👻', earned: false }].map((stamp, i) => (
             <motion.div key={i} whileHover={{ scale: 1.05, rotate: 2 }} className={`p-6 rounded-lg border-2 text-center transition-all ${stamp.earned ? 'border-[#8B5A2B] bg-[#FDF5E6] shadow-lg' : 'border-[#D2B48C] bg-[#FAF0E6] opacity-50'}`}>
               <span className="text-4xl block mb-2">{stamp.emoji}</span>
               <p className="font-bold text-[#5C3A21]">{stamp.name}</p>
