@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Feather, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star } from 'lucide-react';
+import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, deleteLetter } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -43,16 +43,11 @@ const QuillAnimation = () => {
       </motion.svg>
       <motion.div
         className="absolute"
-        initial={{ x: -90, y: -30, rotate: -35 }}
-        animate={{ x: 70, y: 0, rotate: 5 }}
+        initial={{ x: -80, y: -10, rotate: -20 }}
+        animate={{ x: 80, y: 10, rotate: 10 }}
         transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
       >
-        <img 
-          src="/clean-pen.png" 
-          alt="Vintage Fountain Pen" 
-          className="w-20 h-20 object-contain drop-shadow-lg" 
-          style={{ transform: 'scaleX(-1)' }} 
-        />
+        <PenTool className="w-10 h-10 text-[#5C3A21] drop-shadow-lg" style={{ filter: 'drop-shadow(2px 4px 2px rgba(92, 58, 33, 0.4))' }} />
       </motion.div>
     </div>
   );
