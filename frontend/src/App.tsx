@@ -51,7 +51,7 @@ const QuillAnimation = () => {
           src="/vintage-pen-v2.png" 
           alt="Vintage Fountain Pen" 
           className="w-20 h-20 object-contain" 
-          style={{ mixBlendMode: 'multiply', transform: 'scaleX(-1)' }} 
+          style={{ mixBlendMode: 'multiply', transform: 'scaleX(-1)', filter: 'contrast(1.5) brightness(1.2)' }} 
         />
       </motion.div>
     </div>
