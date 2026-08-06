@@ -48,7 +48,7 @@ const QuillAnimation = () => {
         transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
       >
         <img 
-          src="/fountain-pen.png" 
+          src="/vintage-pen-v2.png" 
           alt="Vintage Fountain Pen" 
           className="w-20 h-20 object-contain drop-shadow-lg" 
           style={{ filter: 'drop-shadow(4px 6px 4px rgba(92, 58, 33, 0.5))' }} 
