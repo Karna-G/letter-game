@@ -21,31 +21,21 @@ const QuillAnimation = () => {
         className="text-[#8B5A2B] opacity-70"
       >
         <motion.path
-          d="M 10 30 Q 30 10 50 30 T 90 30 T 130 30 T 170 30"
+          d="M 15 40 C 30 10, 45 10, 37 40 C 37 20, 52 20, 52 40 C 60 20, 82 20, 75 30 C 67 40, 82 40, 90 40 C 105 10, 120 10, 112 40 C 127 10, 142 10, 135 40 C 142 20, 165 20, 157 30 C 150 40, 165 40, 172 30"
           fill="transparent"
           strokeWidth="3"
           stroke="currentColor"
           strokeLinecap="round"
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
-        />
-        <motion.path
-          d="M 20 40 Q 40 20 60 40 T 100 40 T 140 40 T 180 40"
-          fill="transparent"
-          strokeWidth="2"
-          stroke="currentColor"
-          strokeLinecap="round"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 2.5, ease: "easeInOut", delay: 0.5, repeat: Infinity, repeatType: "reverse", repeatDelay: 0.5 }}
+          transition={{ duration: 2.5, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
         />
       </motion.svg>
       <motion.div
         className="absolute"
-        initial={{ x: -80, y: -10, rotate: -20 }}
-        animate={{ x: 80, y: 10, rotate: 10 }}
-        transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
+        initial={{ x: -85, y: -5, rotate: -20 }}
+        animate={{ x: 75, y: 5, rotate: 10 }}
+        transition={{ duration: 2.5, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 1 }}
       >
         <PenTool className="w-10 h-10 text-[#5C3A21] drop-shadow-lg" style={{ filter: 'drop-shadow(2px 4px 2px rgba(92, 58, 33, 0.4))' }} />
       </motion.div>
