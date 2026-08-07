@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, deleteLetter } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Html5Qrcode } from 'html5-qrcode';
+import MailmenDirectory from './components/MailmenDirectory';
 
 // ============================================
 // AESTHETIC DECORATIONS
@@ -190,6 +191,7 @@ function App() {
             <Link to="/" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><User className="w-5 h-5" /> <span>My Profile</span></Link>
             <Link to="/scanner" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scan className="w-5 h-5" /> <span>Scan Wax Seal</span></Link>
             {user.role === 'mailman' && <Link to="/mailman" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Feather className="w-5 h-5" /> <span>Guild Dashboard</span></Link>}
+            <Link to="/directory" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Crown className="w-5 h-5" /> <span>Guild Roster</span></Link>
             <Link to="/gallery" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scroll className="w-5 h-5" /> <span>Gallery & Stamps</span></Link>
 
             <div className="flex items-center space-x-3 md:ml-4 md:pl-4 border-l-0 md:border-l-2 border-[#D2B48C]">
@@ -211,6 +213,7 @@ function App() {
             <Route path="/sent" element={<SentLetters />} />
             <Route path="/map" element={<MapTracker />} />
             <Route path="/mailman" element={user.role === 'mailman' ? <MailmanDashboard user={user} /> : <Navigate to="/" />} />
+            <Route path="/directory" element={<MailmenDirectory />} />
             <Route path="/scanner" element={<QRScanner />} />
             <Route path="/gallery" element={<Gallery />} />
           </Routes>

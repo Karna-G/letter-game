@@ -128,3 +128,9 @@ export async function getMyMailbox() {
     method: 'GET',
   });
 }
+
+export async function getMailmenDirectory() {
+  return await apiRequest('/users/mailmen', {
+    method: 'GET',
+  });
+}
