@@ -240,6 +240,7 @@ function App() {
             <Route path="/compose" element={<ComposeLetter />} />
             <Route path="/mailbox" element={<MyMailbox />} />
             <Route path="/sent" element={<SentLetters />} />
+            <Route path="/archive" element={<LetterArchive />} />
             <Route path="/map" element={<MapTracker />} />
             <Route path="/mailman" element={user.role === 'mailman' ? <MailmanDashboard user={user} /> : <Navigate to="/" />} />
             <Route path="/directory" element={<MailmenDirectory />} />
@@ -263,18 +264,22 @@ function UserProfile({ user }: { user: any }) {
         <h2 className="text-4xl font-bold text-[#5C3A21] italic mb-2">Welcome back, <span className="text-[#8B5A2B]">{user.name}</span></h2>
         <p className="text-[#D2B48C] text-lg mt-1 italic mb-8">May thy quill be sharp and thy ink plentiful.</p>
 
-        <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-8">
-          <Link to="/compose" className="w-full md:w-auto bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] px-8 py-4 rounded text-xl font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723] flex flex-col items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+          <Link to="/compose" className="w-full bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] p-4 rounded text-lg font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723] flex flex-col items-center justify-center text-center">
             <span className="text-3xl mb-2">✍️</span>
             Compose Thy Epistle
           </Link>
-          <Link to="/mailbox" className="w-full md:w-auto bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] px-8 py-4 rounded text-xl font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] flex flex-col items-center">
+          <Link to="/mailbox" className="w-full bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] p-4 rounded text-lg font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] flex flex-col items-center justify-center text-center">
             <span className="text-3xl mb-2">📬</span>
             Thy Mailbox
           </Link>
-          <Link to="/sent" className="w-full md:w-auto bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] px-8 py-4 rounded text-xl font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] flex flex-col items-center">
+          <Link to="/sent" className="w-full bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] p-4 rounded text-lg font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] flex flex-col items-center justify-center text-center">
             <span className="text-3xl mb-2">🕊️</span>
             Thy Dispatched Missives
+          </Link>
+          <Link to="/archive" className="w-full bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] p-4 rounded text-lg font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] flex flex-col items-center justify-center text-center">
+            <span className="text-3xl mb-2">📚</span>
+            Archive of Letters
           </Link>
         </div>
       </div>
@@ -402,10 +407,98 @@ function ComposeLetter() {
 }
 
 // ============================================
+// LETTER ARCHIVE (Feature #12)
+// ============================================
+function LetterArchive() {
+  const [letters, setLetters] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const [inbox, outbox] = await Promise.all([getMyMailbox(), getMyLetters()]);
+        
+        const markedInbox = inbox.map((l: any) => ({ ...l, direction: 'incoming' }));
+        const markedOutbox = outbox.map((l: any) => ({ ...l, direction: 'outgoing' }));
+        
+        const merged = [...markedInbox, ...markedOutbox];
+        merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setLetters(merged);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
+  }, []);
+
+  const filteredLetters = letters.filter(l => 
+    l.content?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    l.senderRef?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (l.receiverRef?.name || l.receiverRef)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    l.status?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-6xl mx-auto">
+      <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+          <div>
+            <h2 className="text-4xl font-bold text-[#5C3A21] italic mb-2">The Grand Archive</h2>
+            <p className="text-[#8B5A2B] italic">A chronicle of all missives sent, received, and drafted.</p>
+          </div>
+          <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold border-2 border-[#D2B48C] px-4 py-2 rounded">← Back to Profile</Link>
+        </div>
+        
+        <div className="mb-8">
+          <input 
+            type="text" 
+            placeholder="Search the archive by name, words, or status..." 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            className="w-full bg-[#FDF5E6] border-2 border-[#D2B48C] p-4 rounded focus:outline-none focus:border-[#8B5A2B] text-xl font-serif italic shadow-inner"
+          />
+        </div>
+
+        {loading ? (
+          <p className="text-center text-[#8B5A2B] italic py-12 text-xl">Dusting off the ancient tomes...</p>
+        ) : filteredLetters.length === 0 ? (
+          <p className="text-center text-[#8B5A2B] italic py-12 text-xl">No records found matching thy query in the archives.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredLetters.map((l: any, i) => (
+              <div key={i} className="bg-[#FDF5E6] p-6 rounded-lg border-2 border-[#D2B48C] flex flex-col justify-between shadow-lg relative overflow-hidden transition-transform hover:-translate-y-1">
+                <div className={`absolute top-0 right-0 px-3 py-1 text-xs font-bold text-white rounded-bl-lg ${l.direction === 'incoming' ? 'bg-[#5C3A21]' : 'bg-[#8B5A2B]'}`}>
+                  {l.direction === 'incoming' ? 'INCOMING' : (l.status === 'draft' ? 'DRAFT' : 'OUTGOING')}
+                </div>
+                <div>
+                  <div className="mb-4 pt-4 border-b border-[#D2B48C] pb-2">
+                    <p className="font-bold text-[#5C3A21] text-lg">
+                      {l.direction === 'incoming' ? `From: ${l.senderRef?.name || 'Unknown'}` : `To: ${l.receiverRef?.name || l.receiverRef || 'Unknown'}`}
+                    </p>
+                    <p className="text-xs italic text-[#8B5A2B] mt-1">{new Date(l.createdAt).toLocaleDateString()} • Status: {l.status}</p>
+                  </div>
+                  <div className="text-md font-serif text-[#3E2723] whitespace-pre-wrap line-clamp-6">
+                    {l.content}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
 // MY MAILBOX (Inbox)
 // ============================================
 function MyMailbox() {
   const [myMailbox, setMyMailbox] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchMyMailbox = async () => {
@@ -426,11 +519,23 @@ function MyMailbox() {
           <h2 className="text-3xl font-bold text-[#5C3A21] italic">Thy Mailbox</h2>
           <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold">← Back to Profile</Link>
         </div>
+        <div className="mb-6">
+          <input 
+            type="text" 
+            placeholder="Search missives by sender or content..." 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            className="w-full bg-[#FDF5E6] border-2 border-[#D2B48C] p-3 rounded focus:outline-none focus:border-[#8B5A2B] text-lg font-serif italic shadow-inner"
+          />
+        </div>
         {myMailbox.length === 0 ? (
           <p className="text-center text-[#8B5A2B] italic py-8">Thy mailbox is currently empty.</p>
         ) : (
           <div className="space-y-4">
-            {myMailbox.map((l: any, i) => (
+            {myMailbox.filter(l => 
+              l.content?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+              l.senderRef?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+            ).map((l: any, i) => (
               <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C]">
                 <p className="font-bold text-[#5C3A21]">
                   Letter from {l.senderRef?.name || 'Unknown'}
@@ -451,6 +556,7 @@ function MyMailbox() {
 // ============================================
 function SentLetters() {
   const [myLetters, setMyLetters] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [createdQR, setCreatedQR] = useState('');
   const navigate = useNavigate();
@@ -494,11 +600,23 @@ function SentLetters() {
           <h2 className="text-3xl font-bold text-[#5C3A21] italic">Thy Dispatched Missives</h2>
           <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold">← Back to Profile</Link>
         </div>
+        <div className="mb-6">
+          <input 
+            type="text" 
+            placeholder="Search dispatched missives by recipient or content..." 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            className="w-full bg-[#FDF5E6] border-2 border-[#D2B48C] p-3 rounded focus:outline-none focus:border-[#8B5A2B] text-lg font-serif italic shadow-inner"
+          />
+        </div>
         {myLetters.length === 0 ? (
           <p className="text-center text-[#8B5A2B] italic py-8">Thou hast sent no letters yet.</p>
         ) : (
           <div className="space-y-4">
-            {myLetters.map((l: any, i) => (
+            {myLetters.filter(l => 
+              l.content?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+              (l.receiverRef?.name || l.receiverRef)?.toLowerCase().includes(searchQuery.toLowerCase())
+            ).map((l: any, i) => (
               <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="w-full sm:w-auto">
                   <p className="font-bold text-[#5C3A21]">
