@@ -17,8 +17,12 @@ const HierarchyBadges = () => {
     { name: 'Novice', req: '0 XP', icon: '📝', desc: 'A beginner carrier learning the routes.' },
     { name: 'Courier', req: '100 XP', icon: '🏃', desc: 'A reliable runner for standard missives.' },
     { name: 'Rider', req: '500 XP', icon: '🐎', desc: 'Fast delivery across greater distances.' },
-    { name: 'Postmaster', req: '1000 XP', icon: '🎩', desc: 'Oversees regional distributions.' },
-    { name: 'Guild Master', req: '5000 XP', icon: '👑', desc: 'A legend among letter carriers.' },
+    { name: 'Navigator', req: '1000 XP', icon: '🧭', desc: 'Expert pathfinder in uncharted lands.' },
+    { name: 'Postmaster', req: '2500 XP', icon: '🎩', desc: 'Oversees regional distributions.' },
+    { name: 'Guild Elder', req: '5000 XP', icon: '📜', desc: 'A venerable keeper of guild traditions.' },
+    { name: 'Grandmaster', req: '10000 XP', icon: '👑', desc: 'A legend among letter carriers.' },
+    { name: 'Mythic Carrier', req: '25000 XP', icon: '🦄', desc: 'Deliveries that defy natural law.' },
+    { name: 'Realm Legend', req: '50000 XP', icon: '✨', desc: 'A name whispered in postal mythology.' },
   ];
   return (
     <div className="bg-[#FAF0E6] p-8 rounded-lg shadow-2xl border border-[#D2B48C] mt-8">
@@ -240,7 +244,7 @@ function App() {
             <Route path="/mailman" element={user.role === 'mailman' ? <MailmanDashboard user={user} /> : <Navigate to="/" />} />
             <Route path="/directory" element={<MailmenDirectory />} />
             <Route path="/scanner" element={<QRScanner />} />
-            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/gallery" element={<Gallery user={user} />} />
           </Routes>
         </main>
       </div>
@@ -760,7 +764,7 @@ function MapTracker() {
   );
 }
 
-function Gallery() {
+function Gallery({ user }: { user: any }) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
@@ -808,7 +812,7 @@ function Gallery() {
           ))}
         </div>
       </div>
-      <HierarchyBadges />
+      {user?.role !== 'mailman' && <HierarchyBadges />}
     </motion.div>
   );
 }
