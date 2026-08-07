@@ -10,8 +10,33 @@ import { Html5Qrcode } from 'html5-qrcode';
 import MailmenDirectory from './components/MailmenDirectory';
 
 // ============================================
-// AESTHETIC DECORATIONS
+// AESTHETIC DECORATIONS & STATIC COMPONENTS
 // ============================================
+const HierarchyBadges = () => {
+  const ranks = [
+    { name: 'Novice', req: '0 XP', icon: '📝', desc: 'A beginner carrier learning the routes.' },
+    { name: 'Courier', req: '100 XP', icon: '🏃', desc: 'A reliable runner for standard missives.' },
+    { name: 'Rider', req: '500 XP', icon: '🐎', desc: 'Fast delivery across greater distances.' },
+    { name: 'Postmaster', req: '1000 XP', icon: '🎩', desc: 'Oversees regional distributions.' },
+    { name: 'Guild Master', req: '5000 XP', icon: '👑', desc: 'A legend among letter carriers.' },
+  ];
+  return (
+    <div className="bg-[#FAF0E6] p-8 rounded-lg shadow-2xl border border-[#D2B48C] mt-8">
+      <h3 className="text-3xl font-bold mb-6 text-[#5C3A21] italic text-center">Guild Hierarchy & Badges</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {ranks.map((r, i) => (
+          <div key={i} className="bg-[#FDF5E6] p-4 rounded border-2 border-[#D2B48C] text-center shadow">
+            <span className="text-4xl mb-2 block">{r.icon}</span>
+            <h4 className="font-bold text-[#8B5A2B] text-xl">{r.name}</h4>
+            <p className="text-sm font-semibold text-[#5C3A21] mb-2">{r.req}</p>
+            <p className="text-xs italic text-gray-600">{r.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const QuillAnimation = () => {
   return (
     <div className="relative w-full h-16 flex justify-center items-center mb-4 overflow-hidden">
@@ -518,27 +543,16 @@ function SentLetters() {
 // ============================================
 function MailmanDashboard({ user }: { user: any }) {
   const [quests, setQuests] = useState<any[]>([]);
-  const [myMailbox, setMyMailbox] = useState<any[]>([]);
   const [selectedQR, setSelectedQR] = useState<{ token: string, receiverName: string } | null>(null);
 
   useEffect(() => {
     fetchQuests();
-    fetchMyMailbox();
   }, []);
 
   const fetchQuests = async () => {
     try {
       const data = await getActiveQuests();
       setQuests(data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const fetchMyMailbox = async () => {
-    try {
-      const data = await getMyMailbox();
-      setMyMailbox(data);
     } catch (e) {
       console.error(e);
     }
@@ -585,26 +599,8 @@ function MailmanDashboard({ user }: { user: any }) {
         </div>
       </div>
 
-      {/* Mailman's Mailbox */}
-      <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
-        <h2 className="text-3xl font-bold mb-6 text-[#5C3A21] italic">Thy Mailbox</h2>
-        {myMailbox.length === 0 ? (
-          <p className="text-center text-[#8B5A2B] italic">Thy mailbox is currently empty.</p>
-        ) : (
-          <div className="space-y-4">
-            {myMailbox.map((l: any, i) => (
-              <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C]">
-                <p className="font-bold text-[#5C3A21]">
-                  Letter from {l.senderRef?.name || 'Unknown'}
-                </p>
-                <p className="text-sm italic text-[#8B5A2B]">Received on: {new Date(l.deliveredAt).toLocaleDateString()}</p>
-                <div className="mt-4 p-4 bg-white border-2 border-[#D2B48C] rounded text-lg font-serif whitespace-pre-wrap shadow-inner">{l.content}</div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
+      {/* Hierarchy Badges (Replaced Mailbox) */}
+      <HierarchyBadges />
       <AnimatePresence>
         {selectedQR && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
@@ -770,17 +766,49 @@ function Gallery() {
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
         <h2 className="text-4xl font-bold text-center mb-2 text-[#5C3A21] italic">The Royal Stamp Gallery</h2>
         <p className="text-center text-[#8B5A2B] italic mb-8">Collect stamps from thy travels across the realm.</p>
-        <div className="grid grid-cols-3 gap-6">
-          {[{ name: 'Novice Seal', desc: 'First letter sent', emoji: '📜', earned: false }, { name: 'Swift Courier', desc: '10 deliveries made', emoji: '🏇', earned: false }, { name: 'Royal Decree', desc: 'Endorsed by the Crown', emoji: '👑', earned: false }, { name: 'Night Owl', desc: 'Delivery after midnight', emoji: '🦉', earned: false }, { name: 'Storm Rider', desc: 'Delivered in the rain', emoji: '⚡', earned: false }, { name: 'Phantom Post', desc: 'Received a Dibbyuk letter', emoji: '👻', earned: false }].map((stamp, i) => (
-            <motion.div key={i} whileHover={{ scale: 1.05, rotate: 2 }} className={`p-6 rounded-lg border-2 text-center transition-all ${stamp.earned ? 'border-[#8B5A2B] bg-[#FDF5E6] shadow-lg' : 'border-[#D2B48C] bg-[#FAF0E6] opacity-50'}`}>
-              <span className="text-4xl block mb-2">{stamp.emoji}</span>
-              <p className="font-bold text-[#5C3A21]">{stamp.name}</p>
-              <p className="text-xs italic text-[#8B5A2B] mt-1">{stamp.desc}</p>
-              {!stamp.earned && <p className="text-xs text-[#D2B48C] mt-2">🔒 Locked</p>}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {[
+            { name: 'Novice Seal', desc: 'First letter sent', emoji: '📜', earned: false },
+            { name: 'Swift Courier', desc: '10 deliveries made', emoji: '🏇', earned: false },
+            { name: 'Royal Decree', desc: 'Endorsed by the Crown', emoji: '👑', earned: false },
+            { name: 'Night Owl', desc: 'Delivery after midnight', emoji: '🦉', earned: false },
+            { name: 'Storm Rider', desc: 'Delivered in the rain', emoji: '⚡', earned: false },
+            { name: 'Phantom Post', desc: 'Received a Dibbyuk letter', emoji: '👻', earned: false },
+            { name: 'Pigeon Friend', desc: 'Used the bird network', emoji: '🕊️', earned: false },
+            { name: 'Dragon Scaled', desc: 'Survive extreme heat', emoji: '🐉', earned: false },
+            { name: 'Ocean Bottle', desc: 'Sent a message in a bottle', emoji: '🍾', earned: false },
+            { name: 'Time Traveler', desc: 'Sent a time capsule', emoji: '⏳', earned: false },
+            { name: 'Secret Keeper', desc: 'Sent an encrypted missive', emoji: '🗝️', earned: false },
+            { name: 'Wax Master', desc: 'Used 5 different wax colors', emoji: '🕯️', earned: false },
+            { name: 'Guild Initiate', desc: 'Joined the postmaster guild', emoji: '🤝', earned: false },
+            { name: 'Mountain Climber', desc: 'Delivered to high altitudes', emoji: '⛰️', earned: false },
+            { name: 'Desert Nomad', desc: 'Crossed the arid dunes', emoji: '🐪', earned: false },
+            { name: 'Frost Walker', desc: 'Delivered in snowstorms', emoji: '❄️', earned: false },
+            { name: 'Iron Horse', desc: 'Used the steam train', emoji: '🚂', earned: false },
+            { name: 'Sea Captain', desc: 'Delivered via ship', emoji: '⛵', earned: false },
+            { name: 'Star Gazer', desc: 'Nighttime delivery expert', emoji: '✨', earned: false },
+            { name: 'Sun Bringer', desc: 'First delivery of the dawn', emoji: '🌅', earned: false },
+            { name: 'Forest Ranger', desc: 'Navigated the deep woods', emoji: '🌲', earned: false },
+            { name: 'City Dweller', desc: '100 urban deliveries', emoji: '🏙️', earned: false },
+            { name: 'Rural Charm', desc: '100 countryside deliveries', emoji: '🏡', earned: false },
+            { name: 'Speed Demon', desc: 'Delivered under 1 hour', emoji: '⚡', earned: false },
+            { name: 'Heavy Load', desc: 'Delivered a large parcel', emoji: '📦', earned: false },
+            { name: 'Featherweight', desc: 'Carried a single feather', emoji: '🪶', earned: false },
+            { name: 'Ink Stained', desc: 'Wrote 50 letters', emoji: '🖋️', earned: false },
+            { name: 'Parchment Hoarder', desc: 'Collected 100 letters', emoji: '📚', earned: false },
+            { name: 'Golden Compass', desc: 'Perfect navigation score', emoji: '🧭', earned: false },
+            { name: 'Mythic Carrier', desc: 'Legendary status achieved', emoji: '🦄', earned: false }
+          ].map((stamp, i) => (
+            <motion.div key={i} whileHover={{ scale: 1.05, rotate: 2 }} className={`p-4 rounded-lg border-2 text-center transition-all ${stamp.earned ? 'border-[#8B5A2B] bg-[#FDF5E6] shadow-lg' : 'border-[#D2B48C] bg-[#FAF0E6] opacity-50'}`}>
+              <span className="text-3xl block mb-2">{stamp.emoji}</span>
+              <p className="font-bold text-[#5C3A21] text-sm leading-tight">{stamp.name}</p>
+              <p className="text-[10px] italic text-[#8B5A2B] mt-1 leading-tight">{stamp.desc}</p>
+              {!stamp.earned && <p className="text-[10px] font-bold text-[#D2B48C] mt-2">🔒 LOCKED</p>}
             </motion.div>
           ))}
         </div>
       </div>
+      <HierarchyBadges />
     </motion.div>
   );
 }
