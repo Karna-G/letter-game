@@ -247,8 +247,13 @@ const CustomCursor = () => {
       }}
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" className="drop-shadow-xl">
-        <path d="M9 9 L22 22 L20 24 L7 11 Z" fill={isHovering ? "#8B5A2B" : "#5C3A21"} stroke="#3E2723" strokeWidth="1" />
+        {/* The wooden body of the pen */}
+        <path d="M11 7 L24 20 L20 24 L7 11 Z" fill={isHovering ? "#8B5A2B" : "#5C3A21"} stroke="#3E2723" strokeWidth="1" />
+        
+        {/* The gold connecting band */}
         <path d="M7 11 L11 7 L9 5 L5 9 Z" fill="#D2B48C" stroke="#3E2723" strokeWidth="1" />
+        
+        {/* The silver/steel nib pointing to the top-left (0,0) */}
         <path d="M5 9 L9 5 L0 0 Z" fill="#E5E7EB" stroke="#3E2723" strokeWidth="1" />
         <line x1="0" y1="0" x2="5" y2="5" stroke="#3E2723" strokeWidth="1" />
         <circle cx="5" cy="5" r="0.5" fill="#3E2723" />
