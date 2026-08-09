@@ -777,6 +777,16 @@ function MailmanDashboard({ user }: { user: any }) {
     }
   };
 
+  const handleSeizeMissive = async (token: string) => {
+    try {
+      const res = await scanLetter(token);
+      alert(res.message || 'Missive seized successfully!');
+      fetchQuests();
+    } catch (e: any) {
+      alert(e.message || 'Error seizing missive');
+    }
+  };
+
   const xp = user.reputation || 0;
   const deliveries = user.deliveriesCompleted || 0;
   const { currentRank, earnedCount } = getRankFromXP(xp);
@@ -820,7 +830,11 @@ function MailmanDashboard({ user }: { user: any }) {
                         <p className="font-bold text-[#5C3A21]">Deliver to {q.receiverRef?.name || 'Unknown'}</p>
                         <p className="text-xs italic text-[#8B5A2B]">From: {q.senderRef?.name}</p>
                       </div>
-                      <button onClick={() => setSelectedQR({ token: q.qrCodeToken, receiverName: q.receiverRef?.name || 'Unknown' })} className="w-full sm:w-auto bg-[#8B5A2B] text-white px-4 py-2 rounded text-sm font-bold shadow hover:bg-[#5C3A21]">Show QR</button>
+                      {(q.receiverRef?._id === user.id || q.receiverRef === user.id) ? (
+                        <button onClick={() => handleSeizeMissive(q.qrCodeToken)} className="w-full sm:w-auto bg-[#8B5A2B] text-white px-4 py-2 rounded text-sm font-bold shadow hover:bg-[#5C3A21]">Seize Missive</button>
+                      ) : (
+                        <button onClick={() => setSelectedQR({ token: q.qrCodeToken, receiverName: q.receiverRef?.name || 'Unknown' })} className="w-full sm:w-auto bg-[#8B5A2B] text-white px-4 py-2 rounded text-sm font-bold shadow hover:bg-[#5C3A21]">Show QR</button>
+                      )}
                     </div>
                   ))}
                 </div>
