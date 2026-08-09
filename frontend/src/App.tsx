@@ -246,11 +246,12 @@ const CustomCursor = () => {
         transformOrigin: 'top left'
       }}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={isHovering ? "#8B5A2B" : "#5C3A21"} strokeWidth={isHovering ? "3" : "2"} strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-lg">
-        <path d="M12 19l7-7 3 3-7 7-3-3z"/>
-        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-        <path d="M2 2l7.586 7.586"/>
-        <circle cx="11" cy="11" r="2"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" className="drop-shadow-xl">
+        <path d="M9 9 L22 22 L20 24 L7 11 Z" fill={isHovering ? "#8B5A2B" : "#5C3A21"} stroke="#3E2723" strokeWidth="1" />
+        <path d="M7 11 L11 7 L9 5 L5 9 Z" fill="#D2B48C" stroke="#3E2723" strokeWidth="1" />
+        <path d="M5 9 L9 5 L0 0 Z" fill="#E5E7EB" stroke="#3E2723" strokeWidth="1" />
+        <line x1="0" y1="0" x2="5" y2="5" stroke="#3E2723" strokeWidth="1" />
+        <circle cx="5" cy="5" r="0.5" fill="#3E2723" />
       </svg>
     </div>
   );
