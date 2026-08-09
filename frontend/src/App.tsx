@@ -12,30 +12,47 @@ import MailmenDirectory from './components/MailmenDirectory';
 // ============================================
 // AESTHETIC DECORATIONS & STATIC COMPONENTS
 // ============================================
-const HierarchyBadges = () => {
+export const getRankFromXP = (xp: number) => {
   const ranks = [
-    { name: 'Novice', req: '0 XP', icon: '📝', desc: 'A beginner carrier learning the routes.' },
-    { name: 'Courier', req: '100 XP', icon: '🏃', desc: 'A reliable runner for standard missives.' },
-    { name: 'Rider', req: '500 XP', icon: '🐎', desc: 'Fast delivery across greater distances.' },
-    { name: 'Navigator', req: '1000 XP', icon: '🧭', desc: 'Expert pathfinder in uncharted lands.' },
-    { name: 'Postmaster', req: '2500 XP', icon: '🎩', desc: 'Oversees regional distributions.' },
-    { name: 'Guild Elder', req: '5000 XP', icon: '📜', desc: 'A venerable keeper of guild traditions.' },
-    { name: 'Grandmaster', req: '10000 XP', icon: '👑', desc: 'A legend among letter carriers.' },
-    { name: 'Mythic Carrier', req: '25000 XP', icon: '🦄', desc: 'Deliveries that defy natural law.' },
-    { name: 'Realm Legend', req: '50000 XP', icon: '✨', desc: 'A name whispered in postal mythology.' },
+    { name: 'Novice', req: 0, icon: '📝', desc: 'A beginner carrier learning the routes.' },
+    { name: 'Courier', req: 100, icon: '🏃', desc: 'A reliable runner for standard missives.' },
+    { name: 'Rider', req: 500, icon: '🐎', desc: 'Fast delivery across greater distances.' },
+    { name: 'Navigator', req: 1000, icon: '🧭', desc: 'Expert pathfinder in uncharted lands.' },
+    { name: 'Postmaster', req: 2500, icon: '🎩', desc: 'Oversees regional distributions.' },
+    { name: 'Guild Elder', req: 5000, icon: '📜', desc: 'A venerable keeper of guild traditions.' },
+    { name: 'Grandmaster', req: 10000, icon: '👑', desc: 'A legend among letter carriers.' },
+    { name: 'Mythic Carrier', req: 25000, icon: '🦄', desc: 'Deliveries that defy natural law.' },
+    { name: 'Realm Legend', req: 50000, icon: '✨', desc: 'A name whispered in postal mythology.' },
   ];
+  let currentRank = ranks[0];
+  let earnedCount = 0;
+  for (const rank of ranks) {
+    if (xp >= rank.req) {
+      currentRank = rank;
+      earnedCount++;
+    }
+  }
+  return { currentRank, ranks, earnedCount };
+};
+
+const HierarchyBadges = ({ userXP }: { userXP?: number }) => {
+  const { ranks } = getRankFromXP(userXP || 0);
+  
   return (
     <div className="bg-[#FAF0E6] p-8 rounded-lg shadow-2xl border border-[#D2B48C] mt-8">
       <h3 className="text-3xl font-bold mb-6 text-[#5C3A21] italic text-center">Guild Hierarchy & Badges</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {ranks.map((r, i) => (
-          <div key={i} className="bg-[#FDF5E6] p-4 rounded border-2 border-[#D2B48C] text-center shadow">
-            <span className="text-4xl mb-2 block">{r.icon}</span>
-            <h4 className="font-bold text-[#8B5A2B] text-xl">{r.name}</h4>
-            <p className="text-sm font-semibold text-[#5C3A21] mb-2">{r.req}</p>
-            <p className="text-xs italic text-gray-600">{r.desc}</p>
-          </div>
-        ))}
+        {ranks.map((r, i) => {
+          const earned = userXP !== undefined ? userXP >= r.req : true;
+          return (
+            <div key={i} className={`p-4 rounded border-2 text-center shadow transition-all ${earned ? 'bg-[#FDF5E6] border-[#D2B48C]' : 'bg-gray-100 border-gray-300 opacity-60 grayscale'}`}>
+              <span className="text-4xl mb-2 block">{r.icon}</span>
+              <h4 className={`font-bold text-xl ${earned ? 'text-[#8B5A2B]' : 'text-gray-500'}`}>{r.name}</h4>
+              <p className={`text-sm font-semibold mb-2 ${earned ? 'text-[#5C3A21]' : 'text-gray-400'}`}>{r.req} XP</p>
+              <p className="text-xs italic text-gray-600">{r.desc}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -745,6 +762,7 @@ function SentLetters() {
 function MailmanDashboard({ user }: { user: any }) {
   const [quests, setQuests] = useState<any[]>([]);
   const [selectedQR, setSelectedQR] = useState<{ token: string, receiverName: string } | null>(null);
+  const [showBadges, setShowBadges] = useState(false);
 
   useEffect(() => {
     fetchQuests();
@@ -759,18 +777,30 @@ function MailmanDashboard({ user }: { user: any }) {
     }
   };
 
+  const xp = user.reputation || 0;
+  const deliveries = user.deliveriesCompleted || 0;
+  const { currentRank, earnedCount } = getRankFromXP(xp);
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto space-y-8">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
         <h2 className="text-4xl font-bold text-center mb-2 text-[#5C3A21] italic">The Postmaster's Registry</h2>
-        <p className="text-center text-[#8B5A2B] italic mb-8">Carrier: {user.name} • Rank: Novice • XP: 0</p>
+        <p className="text-center text-[#8B5A2B] italic mb-8">Carrier: {user.name} • Rank: {currentRank.name} • XP: {xp}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="md:border-r-2 border-[#D2B48C] md:pr-8">
             <h3 className="text-2xl font-bold text-[#8B5A2B] mb-4">Thy Stats</h3>
             <div className="space-y-3">
-              <div className="flex justify-between items-center bg-[#FDF5E6] p-3 rounded border border-[#D2B48C]"><span className="text-[#5C3A21] font-semibold">Deliveries Completed</span><span className="text-[#8B5A2B] font-bold text-xl">0</span></div>
-              <div className="flex justify-between items-center bg-[#FDF5E6] p-3 rounded border border-[#D2B48C]"><span className="text-[#5C3A21] font-semibold">Reputation Score</span><span className="text-[#8B5A2B] font-bold text-xl">0</span></div>
-              <div className="flex justify-between items-center bg-[#FDF5E6] p-3 rounded border border-[#D2B48C]"><span className="text-[#5C3A21] font-semibold">Badges Earned</span><span className="text-[#8B5A2B] font-bold text-xl">0</span></div>
+              <div className="flex justify-between items-center bg-[#FDF5E6] p-3 rounded border border-[#D2B48C]"><span className="text-[#5C3A21] font-semibold">Deliveries Completed</span><span className="text-[#8B5A2B] font-bold text-xl">{deliveries}</span></div>
+              <div className="flex justify-between items-center bg-[#FDF5E6] p-3 rounded border border-[#D2B48C]"><span className="text-[#5C3A21] font-semibold">Experience (XP)</span><span className="text-[#8B5A2B] font-bold text-xl">{xp}</span></div>
+              <div className="flex justify-between items-center bg-[#FDF5E6] p-3 rounded border border-[#D2B48C]">
+                <span className="text-[#5C3A21] font-semibold">Badges Earned</span>
+                <div className="flex items-center gap-4">
+                  <span className="text-[#8B5A2B] font-bold text-xl">{earnedCount}</span>
+                  <button onClick={() => setShowBadges(!showBadges)} className="bg-[#8B5A2B] text-white px-3 py-1 rounded text-sm shadow hover:bg-[#5C3A21]">
+                    {showBadges ? 'Hide Badges' : 'Thy Badges'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <div>
@@ -800,8 +830,14 @@ function MailmanDashboard({ user }: { user: any }) {
         </div>
       </div>
 
-      {/* Hierarchy Badges (Replaced Mailbox) */}
-      <HierarchyBadges />
+      <AnimatePresence>
+        {showBadges && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+            <HierarchyBadges userXP={xp} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <AnimatePresence>
         {selectedQR && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">

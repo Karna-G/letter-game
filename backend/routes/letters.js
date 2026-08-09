@@ -161,11 +161,16 @@ router.post('/scan', async (req, res) => {
     
     // Scenario 1: Mailman scans a 'pending' letter -> Picks it up
     if (role === 'mailman' && letter.status === 'pending') {
-      // If the mailman IS the receiver, just deliver it directly to their mailbox!
       if (letter.receiverRef && letter.receiverRef.toString() === userId) {
         letter.status = 'delivered';
         letter.deliveredAt = Date.now();
         await letter.save();
+        
+        // Mailman delivered to themselves
+        await User.findByIdAndUpdate(userId, {
+          $inc: { deliveriesCompleted: 1, reputation: 15 }
+        });
+
         return res.json({ message: 'You picked up a letter addressed to thee! It is now in thy Mailbox.', letter });
       }
 
@@ -185,6 +190,14 @@ router.post('/scan', async (req, res) => {
       letter.status = 'delivered';
       letter.deliveredAt = Date.now();
       await letter.save();
+
+      // Give the mailman their XP and delivery count
+      if (letter.mailmanRef) {
+        await User.findByIdAndUpdate(letter.mailmanRef, {
+          $inc: { deliveriesCompleted: 1, reputation: 15 }
+        });
+      }
+
       return res.json({ message: 'Letter successfully received! It is now in thy Mailbox.', letter });
     }
     
