@@ -11,10 +11,10 @@ body {
 
 @media (pointer: fine) {
   body {
-    cursor: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%235C3A21%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%2019l7-7%203%203-7%207-3-3z%22%2F%3E%3Cpath%20d%3D%22M18%2013l-1.5-7.5L2%202l3.5%2014.5L13%2018l5-5z%22%2F%3E%3Cpath%20d%3D%22M2%202l7.586%207.586%22%2F%3E%3Ccircle%20cx%3D%2211%22%20cy%3D%2211%22%20r%3D%222%22%2F%3E%3C%2Fsvg%3E') 2 2, auto;
+    cursor: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM1QzNBMjEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMTlsNy03IDMgMy03IDctMy0zeiIvPjxwYXRoIGQ9Ik0xOCAxM2wtMS41LTcuNUwyIDJsMy41IDE0LjVMMTMgMThsNS01eiIvPjxwYXRoIGQ9Ik0yIDJsNy41ODYgNy41ODYiLz48Y2lyY2xlIGN4PSIxMSIgY3k9IjExIiByPSIyIi8+PC9zdmc+') 2 2, auto !important;
   }
   
   a, button, [role="button"], input[type="button"], input[type="submit"] {
-    cursor: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238B5A2B%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%2019l7-7%203%203-7%207-3-3z%22%2F%3E%3Cpath%20d%3D%22M18%2013l-1.5-7.5L2%202l3.5%2014.5L13%2018l5-5z%22%2F%3E%3Cpath%20d%3D%22M2%202l7.586%207.586%22%2F%3E%3Ccircle%20cx%3D%2211%22%20cy%3D%2211%22%20r%3D%222%22%2F%3E%3C%2Fsvg%3E') 2 2, pointer;
+    cursor: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM4QjVBMkIiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMTlsNy03IDMgMy03IDctMy0zeiIvPjxwYXRoIGQ9Ik0xOCAxM2wtMS41LTcuNUwyIDJsMy41IDE0LjVMMTMgMThsNS01eiIvPjxwYXRoIGQ9Ik0yIDJsNy41ODYgNy41ODYiLz48Y2lyY2xlIGN4PSIxMSIgY3k9IjExIiByPSIyIi8+PC9zdmc+') 2 2, pointer !important;
   }
 }
