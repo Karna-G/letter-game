@@ -46,4 +46,16 @@ router.get('/mailmen', async (req, res) => {
   }
 });
 
+// Get user profile by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching user profile' });
+  }
+});
+
 module.exports = router;

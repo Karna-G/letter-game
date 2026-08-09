@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, deleteLetter } from './api';
+import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, deleteLetter, getUserProfile } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Html5Qrcode } from 'html5-qrcode';
 import MailmenDirectory from './components/MailmenDirectory';
@@ -763,10 +763,21 @@ function MailmanDashboard({ user }: { user: any }) {
   const [quests, setQuests] = useState<any[]>([]);
   const [selectedQR, setSelectedQR] = useState<{ token: string, receiverName: string } | null>(null);
   const [showBadges, setShowBadges] = useState(false);
+  const [liveUser, setLiveUser] = useState<any>(user);
 
   useEffect(() => {
     fetchQuests();
+    fetchLiveUser();
   }, []);
+
+  const fetchLiveUser = async () => {
+    try {
+      const data = await getUserProfile(user.id || user._id);
+      setLiveUser(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchQuests = async () => {
     try {
@@ -782,13 +793,14 @@ function MailmanDashboard({ user }: { user: any }) {
       const res = await scanLetter(token);
       alert(res.message || 'Missive seized successfully!');
       fetchQuests();
+      fetchLiveUser();
     } catch (e: any) {
       alert(e.message || 'Error seizing missive');
     }
   };
 
-  const xp = user.reputation || 0;
-  const deliveries = user.deliveriesCompleted || 0;
+  const xp = liveUser.reputation || 0;
+  const deliveries = liveUser.deliveriesCompleted || 0;
   const { currentRank, earnedCount } = getRankFromXP(xp);
 
   return (

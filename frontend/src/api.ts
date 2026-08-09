@@ -120,6 +120,12 @@ export async function getMyLetters() {
   });
 }
 
+export async function getUserProfile(userId: string) {
+  return await apiRequest(`/users/${userId}`, {
+    method: 'GET',
+  });
+}
+
 export async function getMyMailbox() {
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
