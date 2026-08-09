@@ -10,9 +10,9 @@ body {
 }
 
 html, body, #root {
-  cursor: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM1QzNBMjEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMTlsNy03IDMgMy03IDctMy0zeiIvPjxwYXRoIGQ9Ik0xOCAxM2wtMS41LTcuNUwyIDJsMy41IDE0LjVMMTMgMThsNS01eiIvPjxwYXRoIGQ9Ik0yIDJsNy41ODYgNy41ODYiLz48Y2lyY2xlIGN4PSIxMSIgY3k9IjExIiByPSIyIi8+PC9zdmc+') 2 2, auto !important;
+  cursor: url('/pen.svg') 2 2, auto !important;
 }
 
 a, button, [role="button"], input[type="button"], input[type="submit"], .cursor-pointer, a * {
-  cursor: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM4QjVBMkIiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMTlsNy03IDMgMy03IDctMy0zeiIvPjxwYXRoIGQ9Ik0xOCAxM2wtMS41LTcuNUwyIDJsMy41IDE0LjVMMTMgMThsNS01eiIvPjxwYXRoIGQ9Ik0yIDJsNy41ODYgNy41ODYiLz48Y2lyY2xlIGN4PSIxMSIgY3k9IjExIiByPSIyIi8+PC9zdmc+') 2 2, pointer !important;
+  cursor: url('/pen-pointer.svg') 2 2, pointer !important;
 }
