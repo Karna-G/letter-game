@@ -9,10 +9,3 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-html, body, #root {
-  cursor: url('/pen.svg') 2 2, auto !important;
-}
-
-a, button, [role="button"], input[type="button"], input[type="submit"], .cursor-pointer, a * {
-  cursor: url('/pen-pointer.svg') 2 2, pointer !important;
-}

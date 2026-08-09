@@ -192,6 +192,71 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
 }
 
 // ============================================
+// REACT CUSTOM CURSOR (Guaranteed to work)
+// ============================================
+const CustomCursor = () => {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [hidden, setHidden] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const [hasMouse, setHasMouse] = useState(false);
+
+  useEffect(() => {
+    // Only activate if the device actually has a hovering pointer (mouse/trackpad)
+    if (!window.matchMedia('(any-hover: hover)').matches) {
+      return;
+    }
+    setHasMouse(true);
+
+    const style = document.createElement('style');
+    style.innerHTML = `* { cursor: none !important; }`;
+    document.head.appendChild(style);
+
+    const mMove = (e: MouseEvent) => {
+      setPosition({ x: e.clientX, y: e.clientY });
+      
+      const target = e.target as HTMLElement;
+      const clickable = target.closest('a, button, [role="button"], input, select, textarea, .cursor-pointer');
+      setIsHovering(!!clickable);
+    };
+
+    const mEnter = () => setHidden(false);
+    const mLeave = () => setHidden(true);
+
+    document.addEventListener('mousemove', mMove);
+    document.addEventListener('mouseenter', mEnter);
+    document.addEventListener('mouseleave', mLeave);
+
+    return () => {
+      document.removeEventListener('mousemove', mMove);
+      document.removeEventListener('mouseenter', mEnter);
+      document.removeEventListener('mouseleave', mLeave);
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  if (!hasMouse) return null;
+
+  return (
+    <div 
+      className="pointer-events-none fixed top-0 left-0 z-[99999]"
+      style={{
+        transform: `translate(${position.x}px, ${position.y}px) rotate(${isHovering ? '-15deg' : '0deg'}) scale(${isHovering ? 1.2 : 1})`,
+        opacity: hidden ? 0 : 1,
+        transition: 'transform 0.15s ease-out, opacity 0.2s',
+        transformOrigin: 'top left'
+      }}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={isHovering ? "#8B5A2B" : "#5C3A21"} strokeWidth={isHovering ? "3" : "2"} strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-lg">
+        <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+        <path d="M2 2l7.586 7.586"/>
+        <circle cx="11" cy="11" r="2"/>
+      </svg>
+    </div>
+  );
+};
+
+// ============================================
 // MAIN APP (shown after login)
 // ============================================
 function App() {
@@ -206,9 +271,16 @@ function App() {
   }, []);
 
   if (!authChecked) return null;
-  if (!user) return <AuthPage onAuth={setUser} />;
+  if (!user) return (
+    <>
+      <CustomCursor />
+      <AuthPage onAuth={setUser} />
+    </>
+  );
 
   return (
+    <>
+    <CustomCursor />
     <Router>
       <div className="min-h-screen bg-[#FDF5E6] text-[#2C1A0B] font-serif" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}>
         <nav className="flex flex-col md:flex-row justify-between items-center p-4 md:p-6 border-b-2 border-[#8B5A2B] bg-[#FDF5E6] bg-opacity-90 shadow-md">
@@ -250,6 +322,7 @@ function App() {
         </main>
       </div>
     </Router>
+    </>
   );
 }
 
