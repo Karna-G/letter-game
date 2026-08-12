@@ -46,6 +46,31 @@ router.get('/mailmen', async (req, res) => {
   }
 });
 
+// Feature 11: Guild Leaderboards — top mailmen (by XP) & top senders (by reputation)
+// Must be declared before the generic '/:id' route below.
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const topMailmen = await User.find({ role: 'mailman' })
+      .select('name xp rank deliveriesCompleted badges')
+      .sort({ xp: -1 })
+      .limit(10);
+
+    const topSenders = await User.find({ role: 'sender' })
+      .select('name reputationScore lettersSent')
+      .sort({ reputationScore: -1 })
+      .limit(10);
+
+    res.json({
+      mailmanOfTheMonth: topMailmen.length > 0 ? topMailmen[0] : null,
+      topMailmen,
+      topSenders
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching leaderboard' });
+  }
+});
+
 // Get user profile by ID
 router.get('/:id', async (req, res) => {
   try {

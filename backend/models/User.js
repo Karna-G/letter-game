@@ -13,7 +13,8 @@ const userSchema = new mongoose.Schema({
   },
   
   // Reputation & Rewards
-  reputationScore: { type: Number, default: 0 },
+  reputationScore: { type: Number, default: 0 }, // Feature 8: Sender Reputation Score
+  lettersSent: { type: Number, default: 0 }, // Count of dispatched (non-draft) letters, unlocks free stamps
   stamps: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Stamp' }],
   
   // Mailman specific fields

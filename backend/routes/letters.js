@@ -17,13 +17,30 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
-// Get all delivered letters for a specific user's Mailbox
+// Get all delivered (and burned) letters for a specific user's Mailbox
 router.get('/mailbox/:userId', async (req, res) => {
   try {
     const letters = await Letter.find({
       receiverRef: req.params.userId,
-      status: 'delivered'
+      status: { $in: ['delivered', 'burned'] }
     }).populate('senderRef', 'name').populate('receiverRef', 'name').populate('mailmanRef', 'name');
+
+    // Feature 22: Burn After Reading — auto-burn any letter whose 60s fade window has elapsed
+    const BURN_WINDOW_MS = 60 * 1000;
+    const now = Date.now();
+    for (const letter of letters) {
+      if (
+        letter.status === 'delivered' &&
+        letter.burnAfterReading &&
+        letter.firstReadAt &&
+        now - new Date(letter.firstReadAt).getTime() >= BURN_WINDOW_MS
+      ) {
+        letter.status = 'burned';
+        letter.content = '🔥 The ink hath faded to nothingness. This letter is lost forever.';
+        await letter.save();
+      }
+    }
+
     res.json(letters);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching mailbox letters' });
@@ -43,31 +60,36 @@ router.get('/mailman/:userId/active', async (req, res) => {
   }
 });
 
+// Sender Reputation Score (Feature 8): awarded per dispatched (sealed) letter, unlocks free stamps
+const REPUTATION_PER_LETTER = 10;
+
 // Create a new letter (or draft)
 router.post('/', async (req, res) => {
   try {
-    const { senderRef, receiverRef, content, type, scheduledFor, status } = req.body;
-    
+    const { senderRef, receiverRef, content, type, scheduledFor, status, burnAfterReading } = req.body;
+
     // Only generate QR code token if it's being immediately dispatched ('pending')
     const initialStatus = status === 'draft' ? 'draft' : 'pending';
     const qrCodeToken = initialStatus === 'pending' ? uuidv4() : undefined;
-    
+
     const letterData = {
       senderRef,
       content,
       type,
       scheduledFor,
       qrCodeToken,
-      status: initialStatus
+      status: initialStatus,
+      burnAfterReading: !!burnAfterReading,
+      sealedAt: initialStatus === 'pending' ? Date.now() : undefined
     };
-    
+
     // Only add receiverRef if it's explicitly provided and not an empty string
     if (receiverRef && receiverRef.trim() !== '') {
       const query = receiverRef.trim();
-      const user = await User.findOne({ 
-        $or: [{ name: query }, { email: query }] 
+      const user = await User.findOne({
+        $or: [{ name: query }, { email: query }]
       });
-      
+
       if (user) {
         letterData.receiverRef = user._id;
       } else if (mongoose.Types.ObjectId.isValid(query)) {
@@ -76,9 +98,17 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ message: `Could not find any user named "${query}" in the Guild.` });
       }
     }
-    
+
     const newLetter = new Letter(letterData);
     await newLetter.save();
+
+    // Feature 8: Sender Reputation Score — grows with every letter actually dispatched
+    if (initialStatus === 'pending' && senderRef) {
+      await User.findByIdAndUpdate(senderRef, {
+        $inc: { reputationScore: REPUTATION_PER_LETTER, lettersSent: 1 }
+      });
+    }
+
     res.status(201).json(newLetter);
   } catch (error) {
     console.error(error);
@@ -89,19 +119,20 @@ router.post('/', async (req, res) => {
 // Update an existing letter (e.g. edit a draft, or dispatch a draft)
 router.put('/:id', async (req, res) => {
   try {
-    const { receiverRef, content, status } = req.body;
+    const { receiverRef, content, status, burnAfterReading } = req.body;
     const letter = await Letter.findById(req.params.id);
-    
+
     if (!letter) return res.status(404).json({ message: 'Letter not found' });
-    
+
     if (content) letter.content = content;
-    
+    if (typeof burnAfterReading === 'boolean') letter.burnAfterReading = burnAfterReading;
+
     if (receiverRef && receiverRef.trim() !== '') {
       const query = receiverRef.trim();
-      const user = await User.findOne({ 
-        $or: [{ name: query }, { email: query }] 
+      const user = await User.findOne({
+        $or: [{ name: query }, { email: query }]
       });
-      
+
       if (user) {
         letter.receiverRef = user._id;
       } else if (mongoose.Types.ObjectId.isValid(query)) {
@@ -112,18 +143,65 @@ router.put('/:id', async (req, res) => {
     } else if (receiverRef === '') {
       letter.receiverRef = undefined; // Unset if explicitly empty
     }
-    
+
     // If upgrading from draft to pending, generate the QR code
-    if (letter.status === 'draft' && status === 'pending') {
+    const wasDraft = letter.status === 'draft';
+    if (wasDraft && status === 'pending') {
       letter.status = 'pending';
       letter.qrCodeToken = uuidv4();
+      letter.sealedAt = Date.now();
     }
-    
+
     await letter.save();
+
+    // Feature 8: Sender Reputation Score — award once, on the moment a draft becomes dispatched
+    if (wasDraft && letter.status === 'pending' && letter.senderRef) {
+      await User.findByIdAndUpdate(letter.senderRef, {
+        $inc: { reputationScore: REPUTATION_PER_LETTER, lettersSent: 1 }
+      });
+    }
+
     res.json(letter);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error updating letter' });
+  }
+});
+
+// Feature 6: Real-Time Dispatch Tracking — mark a delivered letter as read by the receiver
+router.put('/:id/read', async (req, res) => {
+  try {
+    const letter = await Letter.findById(req.params.id);
+    if (!letter) return res.status(404).json({ message: 'Letter not found' });
+    if (letter.status !== 'delivered') {
+      return res.status(400).json({ message: 'This letter cannot be read in its current state.' });
+    }
+    if (!letter.firstReadAt) {
+      letter.firstReadAt = Date.now();
+      await letter.save();
+    }
+    res.json(letter);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error marking letter as read' });
+  }
+});
+
+// Feature 22: Burn After Reading — finalize the burn once the ink-fade animation completes client-side
+router.put('/:id/burn', async (req, res) => {
+  try {
+    const letter = await Letter.findById(req.params.id);
+    if (!letter) return res.status(404).json({ message: 'Letter not found' });
+    if (!letter.burnAfterReading) {
+      return res.status(400).json({ message: 'This letter was not marked for burning.' });
+    }
+    letter.status = 'burned';
+    letter.content = '🔥 The ink hath faded to nothingness. This letter is lost forever.';
+    await letter.save();
+    res.json(letter);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error burning letter' });
   }
 });
 
@@ -168,7 +246,7 @@ router.post('/scan', async (req, res) => {
         
         // Mailman delivered to themselves
         await User.findByIdAndUpdate(userId, {
-          $inc: { deliveriesCompleted: 1, reputation: 15 }
+          $inc: { deliveriesCompleted: 1, xp: 15 }
         });
 
         return res.json({ message: 'You picked up a letter addressed to thee! It is now in thy Mailbox.', letter });
@@ -194,7 +272,7 @@ router.post('/scan', async (req, res) => {
       // Give the mailman their XP and delivery count
       if (letter.mailmanRef) {
         await User.findByIdAndUpdate(letter.mailmanRef, {
-          $inc: { deliveriesCompleted: 1, reputation: 15 }
+          $inc: { deliveriesCompleted: 1, xp: 15 }
         });
       }
 

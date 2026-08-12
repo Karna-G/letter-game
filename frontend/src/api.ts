@@ -63,24 +63,38 @@ export function getStoredToken() {
   return localStorage.getItem('postmaster_token');
 }
 
-export async function sendLetter(receiverRef: string, content: string, type: string = 'standard', status: string = 'pending') {
+export async function sendLetter(receiverRef: string, content: string, type: string = 'standard', status: string = 'pending', burnAfterReading: boolean = false) {
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
-  
+
   return await apiRequest('/letters', {
     method: 'POST',
-    body: JSON.stringify({ senderRef: user.id, receiverRef, content, type, status }),
+    body: JSON.stringify({ senderRef: user.id, receiverRef, content, type, status, burnAfterReading }),
   });
 }
 
-export async function updateLetter(id: string, receiverRef: string, content: string, status: string = 'draft') {
+export async function updateLetter(id: string, receiverRef: string, content: string, status: string = 'draft', burnAfterReading: boolean = false) {
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
-  
+
   return await apiRequest(`/letters/${id}`, {
     method: 'PUT',
-    body: JSON.stringify({ receiverRef, content, status }),
+    body: JSON.stringify({ receiverRef, content, status, burnAfterReading }),
   });
+}
+
+// Feature 22: Burn After Reading
+export async function markLetterRead(id: string) {
+  return await apiRequest(`/letters/${id}/read`, { method: 'PUT' });
+}
+
+export async function burnLetter(id: string) {
+  return await apiRequest(`/letters/${id}/burn`, { method: 'PUT' });
+}
+
+// Feature 11: Guild Leaderboards
+export async function getLeaderboard() {
+  return await apiRequest('/users/leaderboard', { method: 'GET' });
 }
 
 export async function deleteLetter(id: string) {

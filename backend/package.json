@@ -27,5 +27,9 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true,
+    "mongodb-memory-server@11.2.0": true
   }
 }

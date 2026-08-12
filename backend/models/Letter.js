@@ -20,14 +20,17 @@ const letterSchema = new mongoose.Schema({
   },
   
   // Timestamps
+  sealedAt: { type: Date }, // When the letter moved from draft -> pending (dispatched)
   pickedUpAt: { type: Date },
   deliveredAt: { type: Date },
+  firstReadAt: { type: Date }, // When the receiver first opened a delivered letter
   scheduledFor: { type: Date }, // For time capsule
-  
+
   // Game mechanics
   weatherDelayEvents: [{ type: String }],
   qrCodeToken: { type: String }, // Token to verify delivery
-  
+  burnAfterReading: { type: Boolean, default: false }, // Feature 22: ink fades & letter is destroyed after reading
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('Letter', letterSchema);

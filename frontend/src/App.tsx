@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star } from 'lucide-react';
+import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, deleteLetter, getUserProfile } from './api';
+import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, deleteLetter, getUserProfile, markLetterRead, burnLetter, getLeaderboard } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Html5Qrcode } from 'html5-qrcode';
 import MailmenDirectory from './components/MailmenDirectory';
@@ -316,6 +316,7 @@ function App() {
             <Link to="/scanner" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scan className="w-5 h-5" /> <span>Scan Wax Seal</span></Link>
             {user.role === 'mailman' && <Link to="/mailman" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Feather className="w-5 h-5" /> <span>Guild Dashboard</span></Link>}
             <Link to="/directory" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Crown className="w-5 h-5" /> <span>Guild Roster</span></Link>
+            <Link to="/leaderboard" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Trophy className="w-5 h-5" /> <span>Leaderboards</span></Link>
             <Link to="/gallery" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scroll className="w-5 h-5" /> <span>Gallery & Stamps</span></Link>
 
             <div className="flex items-center space-x-3 md:ml-4 md:pl-4 border-l-0 md:border-l-2 border-[#D2B48C]">
@@ -339,6 +340,7 @@ function App() {
             <Route path="/map" element={<MapTracker />} />
             <Route path="/mailman" element={user.role === 'mailman' ? <MailmanDashboard user={user} /> : <Navigate to="/" />} />
             <Route path="/directory" element={<MailmenDirectory />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/scanner" element={<QRScanner />} />
             <Route path="/gallery" element={<Gallery user={user} />} />
           </Routes>
@@ -353,14 +355,28 @@ function App() {
 // USER PROFILE (Landing Page)
 // ============================================
 function UserProfile({ user }: { user: any }) {
+  const [liveUser, setLiveUser] = useState<any>(user);
+
+  useEffect(() => {
+    getUserProfile(user.id || user._id).then(setLiveUser).catch(() => {});
+  }, []);
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto space-y-8">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C] relative overflow-hidden text-center">
         <QuillAnimation />
         <h2 className="text-4xl font-bold text-[#5C3A21] italic mb-2">Welcome back, <span className="text-[#8B5A2B]">{user.name}</span></h2>
-        <p className="text-[#D2B48C] text-lg mt-1 italic mb-8">May thy quill be sharp and thy ink plentiful.</p>
+        <p className="text-[#D2B48C] text-lg mt-1 italic mb-4">May thy quill be sharp and thy ink plentiful.</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+        {user.role !== 'mailman' && (
+          <div className="inline-flex items-center gap-2 bg-[#FDF5E6] border-2 border-[#D2B48C] px-4 py-2 rounded-full shadow mb-4">
+            <Award className="w-5 h-5 text-[#8B5A2B]" />
+            <span className="text-[#5C3A21] font-bold">Reputation: {liveUser?.reputationScore ?? 0}</span>
+            <span className="text-xs italic text-[#8B5A2B]">• {liveUser?.lettersSent ?? 0} letters sent</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
           <Link to="/compose" className="w-full bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] p-4 rounded text-lg font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723] flex flex-col items-center justify-center text-center">
             <span className="text-3xl mb-2">✍️</span>
             Compose Thy Epistle
@@ -389,6 +405,7 @@ function UserProfile({ user }: { user: any }) {
 function ComposeLetter() {
   const [receiverRef, setReceiverRef] = useState('');
   const [content, setContent] = useState('');
+  const [burnAfterReading, setBurnAfterReading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [createdQR, setCreatedQR] = useState('');
   const [error, setError] = useState('');
@@ -405,6 +422,7 @@ function ComposeLetter() {
       } else {
         setReceiverRef(draft.receiverRef || '');
       }
+      setBurnAfterReading(!!draft.burnAfterReading);
       setCurrentDraftId(draft._id);
     }
   }, [location]);
@@ -415,9 +433,9 @@ function ComposeLetter() {
     try {
       let res;
       if (currentDraftId) {
-        res = await updateLetter(currentDraftId, receiverRef, content, 'pending');
+        res = await updateLetter(currentDraftId, receiverRef, content, 'pending', burnAfterReading);
       } else {
-        res = await sendLetter(receiverRef, content, 'standard', 'pending');
+        res = await sendLetter(receiverRef, content, 'standard', 'pending', burnAfterReading);
       }
       setCreatedQR(res.qrCodeToken);
     } catch (e: any) {
@@ -431,9 +449,9 @@ function ComposeLetter() {
     setLoading(true); setError('');
     try {
       if (currentDraftId) {
-        await updateLetter(currentDraftId, receiverRef, content, 'draft');
+        await updateLetter(currentDraftId, receiverRef, content, 'draft', burnAfterReading);
       } else {
-        const res = await sendLetter(receiverRef, content, 'standard', 'draft');
+        const res = await sendLetter(receiverRef, content, 'standard', 'draft', burnAfterReading);
         setCurrentDraftId(res._id);
       }
       setError('Draft saved successfully!');
@@ -468,6 +486,11 @@ function ComposeLetter() {
             <label className="block text-lg font-semibold mb-2 text-[#8B5A2B]">The Missive:</label>
             <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} className="w-full bg-[#FDF5E6] border-2 border-[#D2B48C] p-4 rounded focus:outline-none focus:border-[#8B5A2B] text-lg font-serif resize-none shadow-inner" placeholder="Write thy words of wisdom..."></textarea>
           </div>
+          <label className="flex items-center gap-3 bg-[#FDF5E6] border-2 border-[#D2B48C] p-3 rounded cursor-pointer">
+            <input type="checkbox" checked={burnAfterReading} onChange={(e) => setBurnAfterReading(e.target.checked)} className="w-5 h-5 accent-[#8B5A2B]" />
+            <Flame className="w-5 h-5 text-red-700" />
+            <span className="text-[#5C3A21] font-semibold">Burn After Reading — the ink fades to ash 60 seconds after the receiver opens it</span>
+          </label>
           {error && <p className={`font-bold italic ${error.includes('saved') ? 'text-green-600' : 'text-red-600'}`}>{error}</p>}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-6 gap-4">
             <div className="flex items-center space-x-2 text-[#8B5A2B]"><Shield className="w-5 h-5" /><span className="text-sm font-semibold">Wax Seal Required</span></div>
@@ -595,18 +618,59 @@ function LetterArchive() {
 function MyMailbox() {
   const [myMailbox, setMyMailbox] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [openLetter, setOpenLetter] = useState<any>(null);
+  const [fadeProgress, setFadeProgress] = useState(0);
+  const burnTimerRef = React.useRef<number | null>(null);
+  const BURN_WINDOW_MS = 60000;
+
+  const fetchMyMailbox = async () => {
+    try {
+      const data = await getMyMailbox();
+      setMyMailbox(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
-    const fetchMyMailbox = async () => {
+    fetchMyMailbox();
+    return () => { if (burnTimerRef.current) window.clearInterval(burnTimerRef.current); };
+  }, []);
+
+  const startFadeTimer = (letterId: string, readAtMs: number) => {
+    if (burnTimerRef.current) window.clearInterval(burnTimerRef.current);
+    burnTimerRef.current = window.setInterval(async () => {
+      const progress = Math.min(1, (Date.now() - readAtMs) / BURN_WINDOW_MS);
+      setFadeProgress(progress);
+      if (progress >= 1) {
+        if (burnTimerRef.current) window.clearInterval(burnTimerRef.current);
+        try { await burnLetter(letterId); } catch (e) { console.error(e); }
+        setOpenLetter(null);
+        fetchMyMailbox();
+      }
+    }, 400);
+  };
+
+  const openLetterView = async (letter: any) => {
+    setOpenLetter(letter);
+    setFadeProgress(0);
+    if (letter.burnAfterReading && letter.status === 'delivered') {
       try {
-        const data = await getMyMailbox();
-        setMyMailbox(data);
+        const updated = await markLetterRead(letter._id);
+        startFadeTimer(letter._id, new Date(updated.firstReadAt).getTime());
       } catch (e) {
         console.error(e);
+        setOpenLetter(null);
+        fetchMyMailbox();
       }
-    };
+    }
+  };
+
+  const closeLetterView = () => {
+    // Closing the viewer does not stop the burn — the ink keeps fading once reading has begun.
+    setOpenLetter(null);
     fetchMyMailbox();
-  }, []);
+  };
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
@@ -616,11 +680,11 @@ function MyMailbox() {
           <Link to="/" className="text-[#8B5A2B] hover:text-[#5C3A21] font-bold">← Back to Profile</Link>
         </div>
         <div className="mb-6">
-          <input 
-            type="text" 
-            placeholder="Search missives by sender or content..." 
-            value={searchQuery} 
-            onChange={(e) => setSearchQuery(e.target.value)} 
+          <input
+            type="text"
+            placeholder="Search missives by sender or content..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-[#FDF5E6] border-2 border-[#D2B48C] p-3 rounded focus:outline-none focus:border-[#8B5A2B] text-lg font-serif italic shadow-inner"
           />
         </div>
@@ -628,20 +692,95 @@ function MyMailbox() {
           <p className="text-center text-[#8B5A2B] italic py-8">Thy mailbox is currently empty.</p>
         ) : (
           <div className="space-y-4">
-            {myMailbox.filter(l => 
-              l.content?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+            {myMailbox.filter(l =>
+              l.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
               l.senderRef?.name?.toLowerCase().includes(searchQuery.toLowerCase())
             ).map((l: any, i) => (
               <div key={i} className="bg-[#FDF5E6] p-4 rounded border border-[#D2B48C]">
-                <p className="font-bold text-[#5C3A21]">
-                  Letter from {l.senderRef?.name || 'Unknown'}
-                </p>
-                <p className="text-sm italic text-[#8B5A2B]">Received on: {new Date(l.deliveredAt).toLocaleDateString()}</p>
-                <div className="mt-4 p-4 bg-white border-2 border-[#D2B48C] rounded text-lg font-serif whitespace-pre-wrap shadow-inner">{l.content}</div>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div>
+                    <p className="font-bold text-[#5C3A21] flex items-center flex-wrap gap-2">
+                      Letter from {l.senderRef?.name || 'Unknown'}
+                      {l.burnAfterReading && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-red-50 text-red-700 border border-red-300 px-2 py-0.5 rounded-full">
+                          <Flame className="w-3 h-3" /> Burns after reading
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-sm italic text-[#8B5A2B]">
+                      {l.status === 'burned' ? 'This letter has burned to ash' : `Received on: ${new Date(l.deliveredAt).toLocaleDateString()}`}
+                    </p>
+                  </div>
+                  {l.status !== 'burned' && (
+                    <button onClick={() => openLetterView(l)} className="w-full sm:w-auto px-4 py-2 bg-[#8B5A2B] text-white rounded text-sm font-bold shadow hover:bg-[#5C3A21] whitespace-nowrap">Open Missive</button>
+                  )}
+                </div>
+                {l.status === 'burned' && (
+                  <div className="mt-3 p-4 bg-black bg-opacity-5 border-2 border-dashed border-gray-400 rounded text-center italic text-gray-500 flex items-center justify-center gap-2">
+                    <Flame className="w-5 h-5 text-orange-400" /> {l.content}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         )}
+      </div>
+
+      <AnimatePresence>
+        {openLetter && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <div className="bg-[#FAF0E6] p-8 rounded-lg max-w-lg w-full relative border-4 border-[#8B5A2B] shadow-2xl">
+              <button onClick={closeLetterView} className="absolute top-2 right-2 text-[#8B5A2B] hover:text-[#5C3A21]"><X className="w-8 h-8" /></button>
+              <h3 className="text-2xl font-bold text-[#5C3A21] mb-2 font-serif">Letter from {openLetter.senderRef?.name || 'Unknown'}</h3>
+              {openLetter.burnAfterReading && (
+                <p className="text-red-700 text-sm italic mb-4 flex items-center gap-1">
+                  <Flame className="w-4 h-4" /> This missive is burning as thou readeth — {Math.max(0, Math.ceil(60 * (1 - fadeProgress)))}s remain.
+                </p>
+              )}
+              <motion.div animate={{ opacity: openLetter.burnAfterReading ? 1 - fadeProgress : 1 }} className="p-4 bg-white border-2 border-[#D2B48C] rounded text-lg font-serif whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto">
+                {openLetter.content}
+              </motion.div>
+              {openLetter.burnAfterReading && (
+                <div className="mt-4 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div className="bg-orange-500 h-2 transition-all" style={{ width: `${fadeProgress * 100}%` }} />
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ============================================
+// REAL-TIME DISPATCH TRACKING (Feature 6)
+// ============================================
+function DispatchTimeline({ letter, onClose }: { letter: any; onClose: () => void }) {
+  const stages = [
+    { key: 'drafted', label: 'Drafted', time: letter.createdAt },
+    { key: 'sealed', label: 'Sealed & Dispatched', time: letter.sealedAt },
+    { key: 'transit', label: 'In-Transit', time: letter.pickedUpAt },
+    { key: 'delivered', label: 'Delivered', time: letter.deliveredAt },
+  ];
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#FAF0E6] p-8 rounded-lg max-w-md w-full relative border-4 border-[#8B5A2B] shadow-2xl">
+        <button onClick={onClose} className="absolute top-2 right-2 text-[#8B5A2B] hover:text-[#5C3A21]"><X className="w-8 h-8" /></button>
+        <h3 className="text-2xl font-bold text-[#5C3A21] mb-6 font-serif flex items-center gap-2"><Clock className="w-6 h-6" /> Thy Letter's Journey</h3>
+        <div className="space-y-4">
+          {stages.map((s, i) => (
+            <div key={s.key} className="flex items-start gap-3 relative">
+              {i < stages.length - 1 && <div className={`absolute left-[7px] top-5 w-0.5 h-8 ${s.time ? 'bg-[#8B5A2B]' : 'bg-[#D2B48C]'}`} />}
+              <div className={`w-4 h-4 rounded-full mt-1 border-2 flex-shrink-0 ${s.time ? 'bg-[#8B5A2B] border-[#5C3A21]' : 'bg-transparent border-[#D2B48C]'}`} />
+              <div>
+                <p className={`font-bold ${s.time ? 'text-[#5C3A21]' : 'text-gray-400'}`}>{s.label}</p>
+                <p className="text-xs italic text-[#8B5A2B]">{s.time ? new Date(s.time).toLocaleString() : 'Awaiting...'}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </motion.div>
   );
@@ -655,6 +794,7 @@ function SentLetters() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [createdQR, setCreatedQR] = useState('');
+  const [trackingLetter, setTrackingLetter] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -731,6 +871,9 @@ function SentLetters() {
                   {l.status === 'pending' && (
                     <button onClick={() => setCreatedQR(l.qrCodeToken)} className="w-full sm:w-auto px-4 py-2 bg-[#8B5A2B] text-[#FDF5E6] rounded shadow hover:bg-[#5C3A21]">Show QR</button>
                   )}
+                  {l.status !== 'draft' && (
+                    <button onClick={() => setTrackingLetter(l)} className="w-full sm:w-auto px-4 py-2 bg-[#FAF0E6] text-[#8B5A2B] border border-[#D2B48C] rounded shadow hover:bg-[#FDF5E6] flex items-center justify-center gap-1"><Clock className="w-4 h-4" /> Track</button>
+                  )}
                 </div>
               </div>
             ))}
@@ -751,6 +894,10 @@ function SentLetters() {
             </div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {trackingLetter && <DispatchTimeline letter={trackingLetter} onClose={() => setTrackingLetter(null)} />}
       </AnimatePresence>
     </motion.div>
   );
@@ -799,7 +946,7 @@ function MailmanDashboard({ user }: { user: any }) {
     }
   };
 
-  const xp = liveUser.reputation || 0;
+  const xp = liveUser.xp || 0;
   const deliveries = liveUser.deliveriesCompleted || 0;
   const { currentRank, earnedCount } = getRankFromXP(xp);
 
@@ -879,6 +1026,66 @@ function MailmanDashboard({ user }: { user: any }) {
           </motion.div>
         )}
       </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ============================================
+// GUILD LEADERBOARDS (Feature 11)
+// ============================================
+function Leaderboard() {
+  const [data, setData] = useState<{ mailmanOfTheMonth: any; topMailmen: any[]; topSenders: any[] } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getLeaderboard().then(setData).catch(console.error).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="text-center p-8 text-[#5C3A21] animate-pulse">Consulting the Guild Ledger...</div>;
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto space-y-8">
+      <div className="text-center">
+        <h2 className="text-4xl font-bold text-[#5C3A21] italic flex items-center justify-center gap-3"><Trophy className="w-9 h-9" /> Guild Leaderboards</h2>
+        <p className="text-[#8B5A2B] italic mt-2">Public appreciation for the realm's finest carriers and correspondents.</p>
+      </div>
+
+      {data?.mailmanOfTheMonth && (
+        <div className="bg-gradient-to-br from-[#F5DEB3] to-[#FAF0E6] p-8 rounded-lg shadow-2xl border-4 border-[#8B5A2B] text-center">
+          <Crown className="w-12 h-12 mx-auto text-[#8B5A2B] mb-2" />
+          <p className="uppercase tracking-widest text-sm text-[#8B5A2B] font-bold">Mailman of the Month</p>
+          <h3 className="text-3xl font-bold text-[#5C3A21] mt-1">{data.mailmanOfTheMonth.name}</h3>
+          <p className="italic text-[#8B5A2B] mt-1">{data.mailmanOfTheMonth.rank} • {data.mailmanOfTheMonth.xp} XP • {data.mailmanOfTheMonth.deliveriesCompleted} deliveries</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="bg-[#FAF0E6] p-6 rounded-lg shadow-xl border border-[#D2B48C]">
+          <h4 className="text-xl font-bold text-[#5C3A21] mb-4 flex items-center gap-2"><Feather className="w-5 h-5" /> Top Mailmen (by XP)</h4>
+          <div className="space-y-2">
+            {(data?.topMailmen ?? []).length === 0 && <p className="italic text-[#8B5A2B] text-sm">No mailmen have earned XP yet.</p>}
+            {(data?.topMailmen ?? []).map((m: any, i: number) => (
+              <div key={m._id} className="flex items-center justify-between bg-[#FDF5E6] px-4 py-2 rounded border border-[#D2B48C]">
+                <span className="font-bold text-[#5C3A21]">#{i + 1} {m.name}</span>
+                <span className="text-sm text-[#8B5A2B] font-semibold">{m.xp} XP</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-[#FAF0E6] p-6 rounded-lg shadow-xl border border-[#D2B48C]">
+          <h4 className="text-xl font-bold text-[#5C3A21] mb-4 flex items-center gap-2"><Award className="w-5 h-5" /> Top Senders (by Reputation)</h4>
+          <div className="space-y-2">
+            {(data?.topSenders ?? []).length === 0 && <p className="italic text-[#8B5A2B] text-sm">No senders have earned reputation yet.</p>}
+            {(data?.topSenders ?? []).map((s: any, i: number) => (
+              <div key={s._id} className="flex items-center justify-between bg-[#FDF5E6] px-4 py-2 rounded border border-[#D2B48C]">
+                <span className="font-bold text-[#5C3A21]">#{i + 1} {s.name}</span>
+                <span className="text-sm text-[#8B5A2B] font-semibold">{s.reputationScore} pts</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -1024,11 +1231,26 @@ function MapTracker() {
 }
 
 function Gallery({ user }: { user: any }) {
+  const [liveUser, setLiveUser] = useState<any>(user);
+
+  useEffect(() => {
+    getUserProfile(user.id || user._id).then(setLiveUser).catch(() => {});
+  }, []);
+
+  // Feature 8: Sender Reputation Score — a free stamp unlocks for every letter dispatched
+  const unlockedCount = Math.min(30, liveUser?.lettersSent || 0);
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
         <h2 className="text-4xl font-bold text-center mb-2 text-[#5C3A21] italic">The Royal Stamp Gallery</h2>
-        <p className="text-center text-[#8B5A2B] italic mb-8">Collect stamps from thy travels across the realm.</p>
+        <p className="text-center text-[#8B5A2B] italic mb-2">Collect stamps from thy travels across the realm.</p>
+        {user?.role !== 'mailman' && (
+          <p className="text-center text-sm mb-8 text-[#5C3A21] font-semibold flex items-center justify-center gap-2">
+            <Award className="w-4 h-4 text-[#8B5A2B]" /> Reputation: {liveUser?.reputationScore ?? 0} • {unlockedCount}/30 stamps unlocked
+          </p>
+        )}
+        {user?.role === 'mailman' && <div className="mb-8" />}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { name: 'Novice Seal', desc: 'First letter sent', emoji: '📜', earned: false },
@@ -1061,14 +1283,17 @@ function Gallery({ user }: { user: any }) {
             { name: 'Parchment Hoarder', desc: 'Collected 100 letters', emoji: '📚', earned: false },
             { name: 'Golden Compass', desc: 'Perfect navigation score', emoji: '🧭', earned: false },
             { name: 'Mythic Carrier', desc: 'Legendary status achieved', emoji: '🦄', earned: false }
-          ].map((stamp, i) => (
-            <motion.div key={i} whileHover={{ scale: 1.05, rotate: 2 }} className={`p-4 rounded-lg border-2 text-center transition-all ${stamp.earned ? 'border-[#8B5A2B] bg-[#FDF5E6] shadow-lg' : 'border-[#D2B48C] bg-[#FAF0E6] opacity-50'}`}>
-              <span className="text-3xl block mb-2">{stamp.emoji}</span>
-              <p className="font-bold text-[#5C3A21] text-sm leading-tight">{stamp.name}</p>
-              <p className="text-[10px] italic text-[#8B5A2B] mt-1 leading-tight">{stamp.desc}</p>
-              {!stamp.earned && <p className="text-[10px] font-bold text-[#D2B48C] mt-2">🔒 LOCKED</p>}
-            </motion.div>
-          ))}
+          ].map((stamp, i) => {
+            const earned = i < unlockedCount;
+            return (
+              <motion.div key={i} whileHover={{ scale: 1.05, rotate: 2 }} className={`p-4 rounded-lg border-2 text-center transition-all ${earned ? 'border-[#8B5A2B] bg-[#FDF5E6] shadow-lg' : 'border-[#D2B48C] bg-[#FAF0E6] opacity-50'}`}>
+                <span className="text-3xl block mb-2">{stamp.emoji}</span>
+                <p className="font-bold text-[#5C3A21] text-sm leading-tight">{stamp.name}</p>
+                <p className="text-[10px] italic text-[#8B5A2B] mt-1 leading-tight">{stamp.desc}</p>
+                {!earned && <p className="text-[10px] font-bold text-[#D2B48C] mt-2">🔒 LOCKED</p>}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
       {user?.role !== 'mailman' && <HierarchyBadges />}
