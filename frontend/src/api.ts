@@ -67,9 +67,17 @@ export async function sendLetter(receiverRef: string, content: string, type: str
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
 
+  // Grab sender's GPS location when sending
+  const senderLocation = await new Promise<{lat: number, lng: number} | null>((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => resolve(null)
+    );
+  });
+
   return await apiRequest('/letters', {
     method: 'POST',
-    body: JSON.stringify({ senderRef: user.id, receiverRef, content, type, status, burnAfterReading }),
+    body: JSON.stringify({ senderRef: user.id, receiverRef, content, type, status, burnAfterReading, senderLocation }),
   });
 }
 

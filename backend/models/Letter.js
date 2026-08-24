@@ -30,6 +30,10 @@ const letterSchema = new mongoose.Schema({
   weatherDelayEvents: [{ type: String }],
   qrCodeToken: { type: String }, // Token to verify delivery
   burnAfterReading: { type: Boolean, default: false }, // Feature 22: ink fades & letter is destroyed after reading
+  senderLocation: {
+    lat: { type: Number },
+    lng: { type: Number }
+  },
 
 }, { timestamps: true });
 

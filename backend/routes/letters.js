@@ -291,4 +291,33 @@ router.post('/scan', async (req, res) => {
   }
 });
 
+// Feature 2: Letter Pickup Radius — find pending letters near a mailman's location
+router.get('/nearby', async (req, res) => {
+  try {
+    const { lat, lng, radius = 500 } = req.query;
+    if (!lat || !lng) return res.status(400).json({ message: 'Location required' });
+
+    const letters = await Letter.find({ status: 'pending' })
+      .populate('senderRef', 'name')
+      .populate('receiverRef', 'name');
+
+    const R = 6371000;
+    const nearby = letters.filter(letter => {
+      if (!letter.senderLocation?.lat || !letter.senderLocation?.lng) return false;
+      const dLat = (letter.senderLocation.lat - parseFloat(lat)) * Math.PI / 180;
+      const dLng = (letter.senderLocation.lng - parseFloat(lng)) * Math.PI / 180;
+      const a = Math.sin(dLat/2) ** 2 +
+                Math.cos(parseFloat(lat) * Math.PI / 180) *
+                Math.cos(letter.senderLocation.lat * Math.PI / 180) *
+                Math.sin(dLng/2) ** 2;
+      const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return distance <= parseFloat(radius);
+    });
+
+    res.json(nearby);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching nearby letters' });
+  }
+});
 module.exports = router;
