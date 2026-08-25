@@ -1,7 +1,7 @@
 import AdminDashboard from './AdminDashboard';
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -292,7 +292,12 @@ function App() {
   if (!user) return (
     <>
       <CustomCursor />
-      <AuthPage onAuth={setUser} />
+      <AuthPage onAuth={(loggedInUser) => {
+        if (loggedInUser.role === 'admin') {
+          window.history.pushState({}, '', '/admin');
+        }
+        setUser(loggedInUser);
+      }} />
     </>
   );
 
@@ -307,16 +312,23 @@ function App() {
             <h1 className="text-2xl md:text-3xl font-bold tracking-widest text-[#5C3A21] uppercase text-center">The Postmaster's Guild</h1>
           </div>
           <div className="flex flex-wrap justify-center items-center gap-4 md:gap-0 md:space-x-6 text-base md:text-lg">
+            
+            {user.role === 'admin' && (
+              <Link to="/admin" className="flex items-center space-x-2 text-red-700 hover:text-red-900 font-bold transition-colors">
+                <Shield className="w-5 h-5" /> <span>Admin Panel</span>
+              </Link>
+            )}
+
             <Link to="/" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><User className="w-5 h-5" /> <span>My Profile</span></Link>
             <Link to="/scanner" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scan className="w-5 h-5" /> <span>Scan Wax Seal</span></Link>
-            {user.role === 'mailman' && <Link to="/map" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Feather className="w-5 h-5" /> <span>Letter Map</span></Link>}
+            {user.role === 'mailman' && <Link to="/mailman" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Feather className="w-5 h-5" /> <span>Guild Dashboard</span></Link>}
             <Link to="/directory" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Crown className="w-5 h-5" /> <span>Guild Roster</span></Link>
             <Link to="/leaderboard" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Trophy className="w-5 h-5" /> <span>Leaderboards</span></Link>
             <Link to="/gallery" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scroll className="w-5 h-5" /> <span>Gallery & Stamps</span></Link>
 
             <div className="flex items-center space-x-3 md:ml-4 md:pl-4 border-l-0 md:border-l-2 border-[#D2B48C]">
               <div className="flex items-center space-x-2 bg-[#FAF0E6] px-3 py-1 rounded border border-[#D2B48C]">
-                {user.role === 'mailman' ? <Crown className="w-4 h-4 text-[#8B5A2B]" /> : <User className="w-4 h-4 text-[#8B5A2B]" />}
+                {user.role === 'admin' ? <Shield className="w-4 h-4 text-red-700" /> : (user.role === 'mailman' ? <Crown className="w-4 h-4 text-[#8B5A2B]" /> : <User className="w-4 h-4 text-[#8B5A2B]" />)}
                 <span className="text-sm font-semibold text-[#5C3A21]">{user.name}</span>
                 <span className="text-xs italic text-[#8B5A2B]">({user.role})</span>
               </div>
@@ -327,7 +339,7 @@ function App() {
 
         <main className="container mx-auto p-8">
           <Routes>
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" />} />
             <Route path="/" element={<UserProfile user={user} />} />
             <Route path="/compose" element={<ComposeLetter />} />
             <Route path="/mailbox" element={<MyMailbox />} />
@@ -357,7 +369,6 @@ function UserProfile({ user }: { user: any }) {
     getUserProfile(user.id || user._id).then(setLiveUser).catch(() => {});
   }, []);
 
-  // Check if the user is currently banned based on their restrictedUntil date
   const isBanned = liveUser?.restrictedUntil && new Date(liveUser.restrictedUntil) > new Date();
 
   return (
@@ -365,7 +376,6 @@ function UserProfile({ user }: { user: any }) {
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C] relative overflow-hidden text-center">
         <QuillAnimation />
 
-        {/* --- NEW: THE RED BAN RIBBON --- */}
         {isBanned && (
           <div className="bg-red-700 text-white p-4 rounded shadow-inner border-2 border-red-900 mb-6 flex flex-col items-center justify-center animate-pulse">
             <span className="font-bold text-lg tracking-widest uppercase flex items-center gap-2">
@@ -381,7 +391,6 @@ function UserProfile({ user }: { user: any }) {
             </span>
           </div>
         )}
-        {/* ------------------------------- */}
 
         <h2 className="text-4xl font-bold text-[#5C3A21] italic mb-2">Welcome back, <span className="text-[#8B5A2B]">{user.name}</span></h2>
         <p className="text-[#D2B48C] text-lg mt-1 italic mb-4">May thy quill be sharp and thy ink plentiful.</p>
@@ -396,7 +405,6 @@ function UserProfile({ user }: { user: any }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
           
-          {/* --- NEW: GREYED OUT COMPOSE BUTTON --- */}
           {isBanned ? (
             <div className="w-full bg-gray-300 text-gray-500 p-4 rounded text-lg font-bold tracking-wider shadow-inner border border-gray-400 flex flex-col items-center justify-center text-center cursor-not-allowed opacity-70">
               <span className="text-3xl mb-2">🔒</span>
@@ -408,7 +416,6 @@ function UserProfile({ user }: { user: any }) {
               Compose Thy Epistle
             </Link>
           )}
-          {/* -------------------------------------- */}
 
           <Link to="/mailbox" className="w-full bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] p-4 rounded text-lg font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] flex flex-col items-center justify-center text-center">
             <span className="text-3xl mb-2">📬</span>
@@ -440,7 +447,6 @@ function ComposeLetter() {
   const [error, setError] = useState('');
   const [currentDraftId, setCurrentDraftId] = useState('');
   
-  // NEW: Fetch user to prevent banned users from bypassing the UI by typing /compose
   const [liveUser, setLiveUser] = useState<any>(null);
   
   const navigate = useNavigate();
@@ -463,7 +469,6 @@ function ComposeLetter() {
     }
   }, [location]);
 
-  // Check ban status on this page too
   const isBanned = liveUser?.restrictedUntil && new Date(liveUser.restrictedUntil) > new Date();
 
   const handleSend = async () => {
@@ -515,7 +520,6 @@ function ComposeLetter() {
         <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 border-[#8B5A2B] m-4 opacity-50"></div>
         <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-[#8B5A2B] m-4 opacity-50"></div>
 
-        {/* --- NEW: RED BAN RIBBON ON COMPOSE PAGE --- */}
         {isBanned && (
           <div className="bg-red-700 text-white p-4 rounded shadow-inner border-2 border-red-900 mb-6 text-center">
             <span className="font-bold text-lg uppercase flex items-center justify-center gap-2">
@@ -526,7 +530,6 @@ function ComposeLetter() {
             </p>
           </div>
         )}
-        {/* ------------------------------------------- */}
 
         <h2 className="text-4xl font-bold text-center mb-8 text-[#5C3A21] italic">Compose Thine Epistle</h2>
         <div className="space-y-6">
@@ -1275,120 +1278,20 @@ function QRScanner() {
 // MAP TRACKER & GALLERY (Unchanged)
 // ============================================
 function MapTracker() {
-  const [position, setPosition] = useState<[number, number] | null>(null);
-  const [letters, setLetters] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const user = getStoredUser();
-  const PICKUP_RADIUS = 500;
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => setPosition([pos.coords.latitude, pos.coords.longitude]),
-      () => setError("Could not locate thee. Please allow location access.")
-    );
-  }, []);
-
-  useEffect(() => {
-    if (!position) return;
-    fetch(`/api/letters/nearby?lat=${position[0]}&lng=${position[1]}&radius=${PICKUP_RADIUS}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('postmaster_token')}` }
-    })
-      .then(r => r.json())
-      .then(setLetters)
-      .catch(() => {});
-  }, [position]);
-
-  const claimLetter = async (letter: any) => {
-    try {
-      const res = await scanLetter(letter.qrCodeToken);
-      alert(res.message || 'Letter claimed!');
-      if (position) {
-        fetch(`/api/letters/nearby?lat=${position[0]}&lng=${position[1]}&radius=${PICKUP_RADIUS}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('postmaster_token')}` }
-        }).then(r => r.json()).then(setLetters);
-      }
-    } catch (e: any) {
-      alert(e.message || 'Could not claim letter.');
-    }
-  };
-
-  // Fix Leaflet marker icon bug with Vite
-  useEffect(() => {
-    import('leaflet').then(L => {
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      });
-    });
-  }, []);
-
+  const defaultPosition: [number, number] = [51.505, -0.09];
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="bg-[#FAF0E6] p-6 rounded-lg shadow-2xl border border-[#D2B48C]">
-      <h2 className="text-3xl font-bold text-center mb-2 text-[#5C3A21] italic">The Mailman's Journey</h2>
-      <p className="text-center text-[#8B5A2B] italic mb-6">Letters awaiting collection within {PICKUP_RADIUS}m of thy position.</p>
-
-      {error && <p className="text-center text-red-700 italic mb-4">{error}</p>}
-      {!position && !error && <p className="text-center text-[#8B5A2B] italic mb-4">Locating thee upon the realm...</p>}
-
-      {position && (
-        <>
-          <div className="h-[600px] w-full rounded-lg overflow-hidden border-4 border-[#8B5A2B] shadow-inner relative">
-            <MapContainer center={position} zoom={15} scrollWheelZoom={true} className="h-full w-full">
-              <TileLayer
-                url={`https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key=${import.meta.env.VITE_STADIA_KEY}`}
-                attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
-              />
-              {/* Your position */}
-              <Marker position={position}>
-                <Popup>
-                  <div className="font-serif text-[#5C3A21] text-center">
-                    <strong>Thou art here</strong>
-                  </div>
-                </Popup>
-              </Marker>
-              {/* Pickup radius circle - import Circle from react-leaflet at top */}
-              <Circle
-                center={position}
-                radius={PICKUP_RADIUS}
-                pathOptions={{ color: '#92400e', fillColor: '#D2B48C', fillOpacity: 0.15 }}
-              />
-              {/* Nearby letter pins */}
-              {letters.map((letter: any) => (
-                letter.senderLocation?.lat && (
-                  <Marker key={letter._id} position={[letter.senderLocation.lat, letter.senderLocation.lng]}>
-                    <Popup>
-                      <div className="font-serif text-[#5C3A21]">
-                        <p><strong>Letter awaits</strong></p>
-                        <p>From: {letter.senderRef?.name || 'Unknown'}</p>
-                        {letter.receiverRef && <p>To: {letter.receiverRef?.name || 'Unknown'}</p>}
-                        {user?.role === 'mailman' && (
-                          <button
-                            onClick={() => claimLetter(letter)}
-                            style={{ marginTop: 8, padding: '4px 12px', background: '#92400e', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontFamily: 'serif' }}
-                          >
-                            Claim this missive
-                          </button>
-                        )}
-                      </div>
-                    </Popup>
-                  </Marker>
-                )
-              ))}
-            </MapContainer>
-          </div>
-
-          {letters.length > 0 && (
-            <div className="mt-4 p-4 bg-[#FDF5E6] border border-[#D2B48C] rounded">
-              <p className="font-bold text-[#5C3A21]">{letters.length} letter{letters.length !== 1 ? 's' : ''} awaiting collection nearby</p>
-            </div>
-          )}
-          {letters.length === 0 && (
-            <p className="text-center text-[#8B5A2B] italic mt-4">No letters await collection in thy vicinity.</p>
-          )}
-        </>
-      )}
+      <h2 className="text-3xl font-bold text-center mb-6 text-[#5C3A21] italic">The Mailman's Journey</h2>
+      <div className="h-[600px] w-full rounded-lg overflow-hidden border-4 border-[#8B5A2B] shadow-inner relative">
+        <MapContainer {...{ center: defaultPosition, zoom: 13, scrollWheelZoom: false } as any} className="h-full w-full">
+          <TileLayer {...{ attribution: '© OpenStreetMap contributors', url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" } as any} />
+          <Marker position={defaultPosition}>
+            <Popup><div className="font-serif text-[#5C3A21] text-center"><strong>Thy Letter Carrier</strong><br />Currently en route.</div></Popup>
+          </Marker>
+        </MapContainer>
+        <div className="absolute inset-0 pointer-events-none bg-[#D2B48C] mix-blend-color opacity-30"></div>
+        <div className="absolute inset-0 pointer-events-none border-[12px] border-[#FAF0E6] opacity-50"></div>
+      </div>
     </motion.div>
   );
 }
