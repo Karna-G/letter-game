@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['sender', 'receiver', 'mailman', 'admin'], default: 'sender' },
+  restrictedUntil: { type: Date, default: null }, //fahim's additional code for feature 7: User Restriction System
   
   // Geospatial location
   location: {

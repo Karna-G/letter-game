@@ -1,3 +1,4 @@
+import AdminDashboard from './AdminDashboard';
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -209,7 +210,7 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
 }
 
 // ============================================
-// REACT CUSTOM CURSOR (Guaranteed to work)
+// REACT CUSTOM CURSOR
 // ============================================
 const CustomCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -218,7 +219,6 @@ const CustomCursor = () => {
   const [hasMouse, setHasMouse] = useState(false);
 
   useEffect(() => {
-    // Only activate if the device actually has a hovering pointer (mouse/trackpad)
     if (!window.matchMedia('(any-hover: hover)').matches) {
       return;
     }
@@ -264,13 +264,8 @@ const CustomCursor = () => {
       }}
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" className="drop-shadow-xl">
-        {/* The wooden body of the pen */}
         <path d="M11 7 L24 20 L20 24 L7 11 Z" fill={isHovering ? "#8B5A2B" : "#5C3A21"} stroke="#3E2723" strokeWidth="1" />
-        
-        {/* The gold connecting band */}
         <path d="M7 11 L11 7 L9 5 L5 9 Z" fill="#D2B48C" stroke="#3E2723" strokeWidth="1" />
-        
-        {/* The silver/steel nib pointing to the top-left (0,0) */}
         <path d="M5 9 L9 5 L0 0 Z" fill="#E5E7EB" stroke="#3E2723" strokeWidth="1" />
         <line x1="0" y1="0" x2="5" y2="5" stroke="#3E2723" strokeWidth="1" />
         <circle cx="5" cy="5" r="0.5" fill="#3E2723" />
@@ -332,6 +327,7 @@ function App() {
 
         <main className="container mx-auto p-8">
           <Routes>
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/" element={<UserProfile user={user} />} />
             <Route path="/compose" element={<ComposeLetter />} />
             <Route path="/mailbox" element={<MyMailbox />} />
@@ -361,10 +357,32 @@ function UserProfile({ user }: { user: any }) {
     getUserProfile(user.id || user._id).then(setLiveUser).catch(() => {});
   }, []);
 
+  // Check if the user is currently banned based on their restrictedUntil date
+  const isBanned = liveUser?.restrictedUntil && new Date(liveUser.restrictedUntil) > new Date();
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto space-y-8">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C] relative overflow-hidden text-center">
         <QuillAnimation />
+
+        {/* --- NEW: THE RED BAN RIBBON --- */}
+        {isBanned && (
+          <div className="bg-red-700 text-white p-4 rounded shadow-inner border-2 border-red-900 mb-6 flex flex-col items-center justify-center animate-pulse">
+            <span className="font-bold text-lg tracking-widest uppercase flex items-center gap-2">
+              <Flame className="w-6 h-6 text-orange-400" />
+              Guild Sanction Imposed
+              <Flame className="w-6 h-6 text-orange-400" />
+            </span>
+            <span className="mt-2 text-red-100 italic">
+              Thou art forbidden from sending missives until: <br/>
+              <strong className="text-white bg-red-800 px-3 py-1 rounded mt-2 inline-block shadow">
+                {new Date(liveUser.restrictedUntil).toLocaleString()}
+              </strong>
+            </span>
+          </div>
+        )}
+        {/* ------------------------------- */}
+
         <h2 className="text-4xl font-bold text-[#5C3A21] italic mb-2">Welcome back, <span className="text-[#8B5A2B]">{user.name}</span></h2>
         <p className="text-[#D2B48C] text-lg mt-1 italic mb-4">May thy quill be sharp and thy ink plentiful.</p>
 
@@ -377,10 +395,21 @@ function UserProfile({ user }: { user: any }) {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-          <Link to="/compose" className="w-full bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] p-4 rounded text-lg font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723] flex flex-col items-center justify-center text-center">
-            <span className="text-3xl mb-2">✍️</span>
-            Compose Thy Epistle
-          </Link>
+          
+          {/* --- NEW: GREYED OUT COMPOSE BUTTON --- */}
+          {isBanned ? (
+            <div className="w-full bg-gray-300 text-gray-500 p-4 rounded text-lg font-bold tracking-wider shadow-inner border border-gray-400 flex flex-col items-center justify-center text-center cursor-not-allowed opacity-70">
+              <span className="text-3xl mb-2">🔒</span>
+              Compose Locked
+            </div>
+          ) : (
+            <Link to="/compose" className="w-full bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] p-4 rounded text-lg font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723] flex flex-col items-center justify-center text-center">
+              <span className="text-3xl mb-2">✍️</span>
+              Compose Thy Epistle
+            </Link>
+          )}
+          {/* -------------------------------------- */}
+
           <Link to="/mailbox" className="w-full bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] p-4 rounded text-lg font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] flex flex-col items-center justify-center text-center">
             <span className="text-3xl mb-2">📬</span>
             Thy Mailbox
@@ -410,10 +439,17 @@ function ComposeLetter() {
   const [createdQR, setCreatedQR] = useState('');
   const [error, setError] = useState('');
   const [currentDraftId, setCurrentDraftId] = useState('');
+  
+  // NEW: Fetch user to prevent banned users from bypassing the UI by typing /compose
+  const [liveUser, setLiveUser] = useState<any>(null);
+  
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    const u = getStoredUser();
+    if (u) getUserProfile(u.id || u._id).then(setLiveUser).catch(() => {});
+
     if (location.state?.draft) {
       const draft = location.state.draft;
       setContent(draft.content || '');
@@ -426,6 +462,9 @@ function ComposeLetter() {
       setCurrentDraftId(draft._id);
     }
   }, [location]);
+
+  // Check ban status on this page too
+  const isBanned = liveUser?.restrictedUntil && new Date(liveUser.restrictedUntil) > new Date();
 
   const handleSend = async () => {
     if (!content.trim()) { setError('The missive cannot be empty.'); return; }
@@ -476,18 +515,45 @@ function ComposeLetter() {
         <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 border-[#8B5A2B] m-4 opacity-50"></div>
         <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-[#8B5A2B] m-4 opacity-50"></div>
 
+        {/* --- NEW: RED BAN RIBBON ON COMPOSE PAGE --- */}
+        {isBanned && (
+          <div className="bg-red-700 text-white p-4 rounded shadow-inner border-2 border-red-900 mb-6 text-center">
+            <span className="font-bold text-lg uppercase flex items-center justify-center gap-2">
+              <Flame className="w-6 h-6 text-orange-400" /> Guild Sanction Active <Flame className="w-6 h-6 text-orange-400" />
+            </span>
+            <p className="mt-2 text-red-100 italic">
+              Thy parchment and quill have been confiscated until {new Date(liveUser.restrictedUntil).toLocaleString()}
+            </p>
+          </div>
+        )}
+        {/* ------------------------------------------- */}
+
         <h2 className="text-4xl font-bold text-center mb-8 text-[#5C3A21] italic">Compose Thine Epistle</h2>
         <div className="space-y-6">
           <div>
             <label className="block text-lg font-semibold mb-2 text-[#8B5A2B]">To Whom It May Concern (User ID / Email / Open):</label>
-            <input type="text" value={receiverRef} onChange={(e) => setReceiverRef(e.target.value)} className="w-full bg-transparent border-b-2 border-[#D2B48C] p-2 focus:outline-none focus:border-[#8B5A2B] text-xl font-serif italic" placeholder="Recipient's Name or Address (Optional)" />
+            <input 
+              type="text" 
+              value={receiverRef} 
+              onChange={(e) => setReceiverRef(e.target.value)} 
+              disabled={isBanned}
+              className={`w-full p-2 focus:outline-none focus:border-[#8B5A2B] text-xl font-serif italic border-b-2 border-[#D2B48C] ${isBanned ? 'bg-gray-300 opacity-50 cursor-not-allowed' : 'bg-transparent'}`} 
+              placeholder="Recipient's Name or Address (Optional)" 
+            />
           </div>
           <div>
             <label className="block text-lg font-semibold mb-2 text-[#8B5A2B]">The Missive:</label>
-            <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} className="w-full bg-[#FDF5E6] border-2 border-[#D2B48C] p-4 rounded focus:outline-none focus:border-[#8B5A2B] text-lg font-serif resize-none shadow-inner" placeholder="Write thy words of wisdom..."></textarea>
+            <textarea 
+              value={content} 
+              onChange={(e) => setContent(e.target.value)} 
+              rows={6} 
+              disabled={isBanned}
+              className={`w-full border-2 border-[#D2B48C] p-4 rounded focus:outline-none focus:border-[#8B5A2B] text-lg font-serif resize-none shadow-inner ${isBanned ? 'bg-gray-300 opacity-50 cursor-not-allowed' : 'bg-[#FDF5E6]'}`} 
+              placeholder="Write thy words of wisdom..."
+            ></textarea>
           </div>
-          <label className="flex items-center gap-3 bg-[#FDF5E6] border-2 border-[#D2B48C] p-3 rounded cursor-pointer">
-            <input type="checkbox" checked={burnAfterReading} onChange={(e) => setBurnAfterReading(e.target.checked)} className="w-5 h-5 accent-[#8B5A2B]" />
+          <label className={`flex items-center gap-3 border-2 border-[#D2B48C] p-3 rounded ${isBanned ? 'bg-gray-300 opacity-50 cursor-not-allowed' : 'bg-[#FDF5E6] cursor-pointer'}`}>
+            <input type="checkbox" checked={burnAfterReading} disabled={isBanned} onChange={(e) => setBurnAfterReading(e.target.checked)} className="w-5 h-5 accent-[#8B5A2B]" />
             <Flame className="w-5 h-5 text-red-700" />
             <span className="text-[#5C3A21] font-semibold">Burn After Reading — the ink fades to ash 60 seconds after the receiver opens it</span>
           </label>
@@ -495,10 +561,10 @@ function ComposeLetter() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-6 gap-4">
             <div className="flex items-center space-x-2 text-[#8B5A2B]"><Shield className="w-5 h-5" /><span className="text-sm font-semibold">Wax Seal Required</span></div>
             <div className="flex flex-col sm:flex-row w-full md:w-auto space-y-3 sm:space-y-0 sm:space-x-4">
-              <button onClick={handleSaveDraft} disabled={loading} className="w-full sm:w-auto bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B] px-6 py-3 rounded text-lg font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C]">
+              <button onClick={handleSaveDraft} disabled={loading || isBanned} className={`w-full sm:w-auto px-6 py-3 rounded text-lg font-bold tracking-wider transition-colors shadow border-2 border-[#D2B48C] ${isBanned ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-[#FAF0E6] hover:bg-[#FDF5E6] text-[#8B5A2B]'}`}>
                 {loading && !createdQR ? 'Saving...' : 'Save Draft'}
               </button>
-              <button onClick={handleSend} disabled={loading} className="w-full sm:w-auto bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6] px-8 py-3 rounded text-lg font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723]">
+              <button onClick={handleSend} disabled={loading || isBanned} className={`w-full sm:w-auto px-8 py-3 rounded text-lg font-bold tracking-wider transition-colors shadow-lg border border-[#3E2723] ${isBanned ? 'bg-gray-400 text-gray-600 cursor-not-allowed' : 'bg-[#8B5A2B] hover:bg-[#5C3A21] text-[#FDF5E6]'}`}>
                 {loading && createdQR ? 'Sealing...' : 'Seal & Dispatch'}
               </button>
             </div>
@@ -667,7 +733,6 @@ function MyMailbox() {
   };
 
   const closeLetterView = () => {
-    // Closing the viewer does not stop the burn — the ink keeps fading once reading has begun.
     setOpenLetter(null);
     fetchMyMailbox();
   };
@@ -824,8 +889,6 @@ function SentLetters() {
   };
 
   const loadDraft = (letter: any) => {
-    // Navigate to compose and pass state (or we can just let Compose handle it if we passed draft ID via URL. 
-    // For simplicity without changing routing logic, we can pass it via router state)
     navigate('/compose', { state: { draft: letter } });
   };
 

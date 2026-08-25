@@ -31,6 +31,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/letters', require('./routes/letters'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/test', require('./routes/test'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Basic status route
 app.get('/api/status', (req, res) => {
