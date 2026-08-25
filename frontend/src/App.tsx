@@ -1,7 +1,7 @@
 import AdminDashboard from './AdminDashboard';
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -309,7 +309,7 @@ function App() {
           <div className="flex flex-wrap justify-center items-center gap-4 md:gap-0 md:space-x-6 text-base md:text-lg">
             <Link to="/" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><User className="w-5 h-5" /> <span>My Profile</span></Link>
             <Link to="/scanner" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scan className="w-5 h-5" /> <span>Scan Wax Seal</span></Link>
-            {user.role === 'mailman' && <Link to="/mailman" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Feather className="w-5 h-5" /> <span>Guild Dashboard</span></Link>}
+            {user.role === 'mailman' && <Link to="/map" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Feather className="w-5 h-5" /> <span>Letter Map</span></Link>}
             <Link to="/directory" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Crown className="w-5 h-5" /> <span>Guild Roster</span></Link>
             <Link to="/leaderboard" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Trophy className="w-5 h-5" /> <span>Leaderboards</span></Link>
             <Link to="/gallery" className="flex items-center space-x-2 hover:text-[#8B5A2B] transition-colors"><Scroll className="w-5 h-5" /> <span>Gallery & Stamps</span></Link>
@@ -1275,20 +1275,120 @@ function QRScanner() {
 // MAP TRACKER & GALLERY (Unchanged)
 // ============================================
 function MapTracker() {
-  const defaultPosition: [number, number] = [51.505, -0.09];
+  const [position, setPosition] = useState<[number, number] | null>(null);
+  const [letters, setLetters] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const user = getStoredUser();
+  const PICKUP_RADIUS = 500;
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setPosition([pos.coords.latitude, pos.coords.longitude]),
+      () => setError("Could not locate thee. Please allow location access.")
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!position) return;
+    fetch(`/api/letters/nearby?lat=${position[0]}&lng=${position[1]}&radius=${PICKUP_RADIUS}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('postmaster_token')}` }
+    })
+      .then(r => r.json())
+      .then(setLetters)
+      .catch(() => {});
+  }, [position]);
+
+  const claimLetter = async (letter: any) => {
+    try {
+      const res = await scanLetter(letter.qrCodeToken);
+      alert(res.message || 'Letter claimed!');
+      if (position) {
+        fetch(`/api/letters/nearby?lat=${position[0]}&lng=${position[1]}&radius=${PICKUP_RADIUS}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('postmaster_token')}` }
+        }).then(r => r.json()).then(setLetters);
+      }
+    } catch (e: any) {
+      alert(e.message || 'Could not claim letter.');
+    }
+  };
+
+  // Fix Leaflet marker icon bug with Vite
+  useEffect(() => {
+    import('leaflet').then(L => {
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+    });
+  }, []);
+
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="bg-[#FAF0E6] p-6 rounded-lg shadow-2xl border border-[#D2B48C]">
-      <h2 className="text-3xl font-bold text-center mb-6 text-[#5C3A21] italic">The Mailman's Journey</h2>
-      <div className="h-[600px] w-full rounded-lg overflow-hidden border-4 border-[#8B5A2B] shadow-inner relative">
-        <MapContainer {...{ center: defaultPosition, zoom: 13, scrollWheelZoom: false } as any} className="h-full w-full">
-          <TileLayer {...{ attribution: '© OpenStreetMap contributors', url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" } as any} />
-          <Marker position={defaultPosition}>
-            <Popup><div className="font-serif text-[#5C3A21] text-center"><strong>Thy Letter Carrier</strong><br />Currently en route.</div></Popup>
-          </Marker>
-        </MapContainer>
-        <div className="absolute inset-0 pointer-events-none bg-[#D2B48C] mix-blend-color opacity-30"></div>
-        <div className="absolute inset-0 pointer-events-none border-[12px] border-[#FAF0E6] opacity-50"></div>
-      </div>
+      <h2 className="text-3xl font-bold text-center mb-2 text-[#5C3A21] italic">The Mailman's Journey</h2>
+      <p className="text-center text-[#8B5A2B] italic mb-6">Letters awaiting collection within {PICKUP_RADIUS}m of thy position.</p>
+
+      {error && <p className="text-center text-red-700 italic mb-4">{error}</p>}
+      {!position && !error && <p className="text-center text-[#8B5A2B] italic mb-4">Locating thee upon the realm...</p>}
+
+      {position && (
+        <>
+          <div className="h-[600px] w-full rounded-lg overflow-hidden border-4 border-[#8B5A2B] shadow-inner relative">
+            <MapContainer center={position} zoom={15} scrollWheelZoom={true} className="h-full w-full">
+              <TileLayer
+                url={`https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key=${import.meta.env.VITE_STADIA_KEY}`}
+                attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
+              />
+              {/* Your position */}
+              <Marker position={position}>
+                <Popup>
+                  <div className="font-serif text-[#5C3A21] text-center">
+                    <strong>Thou art here</strong>
+                  </div>
+                </Popup>
+              </Marker>
+              {/* Pickup radius circle - import Circle from react-leaflet at top */}
+              <Circle
+                center={position}
+                radius={PICKUP_RADIUS}
+                pathOptions={{ color: '#92400e', fillColor: '#D2B48C', fillOpacity: 0.15 }}
+              />
+              {/* Nearby letter pins */}
+              {letters.map((letter: any) => (
+                letter.senderLocation?.lat && (
+                  <Marker key={letter._id} position={[letter.senderLocation.lat, letter.senderLocation.lng]}>
+                    <Popup>
+                      <div className="font-serif text-[#5C3A21]">
+                        <p><strong>Letter awaits</strong></p>
+                        <p>From: {letter.senderRef?.name || 'Unknown'}</p>
+                        {letter.receiverRef && <p>To: {letter.receiverRef?.name || 'Unknown'}</p>}
+                        {user?.role === 'mailman' && (
+                          <button
+                            onClick={() => claimLetter(letter)}
+                            style={{ marginTop: 8, padding: '4px 12px', background: '#92400e', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontFamily: 'serif' }}
+                          >
+                            Claim this missive
+                          </button>
+                        )}
+                      </div>
+                    </Popup>
+                  </Marker>
+                )
+              ))}
+            </MapContainer>
+          </div>
+
+          {letters.length > 0 && (
+            <div className="mt-4 p-4 bg-[#FDF5E6] border border-[#D2B48C] rounded">
+              <p className="font-bold text-[#5C3A21]">{letters.length} letter{letters.length !== 1 ? 's' : ''} awaiting collection nearby</p>
+            </div>
+          )}
+          {letters.length === 0 && (
+            <p className="text-center text-[#8B5A2B] italic mt-4">No letters await collection in thy vicinity.</p>
+          )}
+        </>
+      )}
     </motion.div>
   );
 }
