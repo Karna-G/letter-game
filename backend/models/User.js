@@ -26,7 +26,11 @@ const userSchema = new mongoose.Schema({
   
   // Social/Community
   noteStatus: { type: String, default: '' },
-  lastLogin: { type: Date, default: Date.now }
+  lastLogin: { type: Date, default: Date.now },
+  
+  // --- NEW: THE FRIENDS SYSTEM ---
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  // -------------------------------
 }, { timestamps: true });
 
 userSchema.index({ location: '2dsphere' });
