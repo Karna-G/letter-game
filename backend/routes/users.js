@@ -95,6 +95,55 @@ router.post('/report', async (req, res) => {
   }
 });
 
+// Admin: Fetch all reports for the Tribunal
+router.get('/reports/all', async (req, res) => {
+  try {
+    // We 'populate' so the Admin sees actual names, not just random ID numbers
+    const reports = await Report.find()
+      .populate('reporter', 'name email')
+      .populate('reportedUser', 'name email role')
+      .sort({ createdAt: -1 });
+    res.json(reports);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching reports' });
+  }
+});
+
+// Admin: Resolve or Dismiss a report
+// Admin: Verdict Delivery
+router.post('/reports/:id/verdict', async (req, res) => {
+  try {
+    const Letter = require('../models/Letter');
+    const Report = require('../models/Report');
+    const User = require('../models/User'); // We need the User blueprint!
+    
+    const { message, reporterId } = req.body;
+    
+    // 1. Completely ignore the browser. Find the REAL Admin in the database!
+    const adminUser = await User.findOne({ role: 'admin' });
+    if (!adminUser) return res.status(500).json({ error: 'No Admin account found in DB!' });
+
+    // 2. Force create the letter using the Admin's true ID
+    const newLetter = new Letter({
+      senderRef: adminUser._id,
+      receiverRef: reporterId,
+      content: message, // Sending exactly what you typed!
+      type: 'standard',
+      status: 'delivered',
+      deliveredAt: new Date()
+    });
+    await newLetter.save();
+    
+    // 3. Mark the report as resolved
+    await Report.findByIdAndUpdate(req.params.id, { status: 'resolved' });
+    
+    res.json({ message: 'God Mode Verdict Delivered' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error sending verdict' });
+  }
+});
 // ============================================
 // --- NEW: THE FRIENDS SYSTEM ---
 // ============================================
@@ -113,9 +162,11 @@ router.get('/:id/friends', async (req, res) => {
 });
 
 // 2. Add a new friend via ID code or Email
+// 2. Add a new friend via ID code or Email (MUTUAL FRIENDSHIP ENABLED)
 router.post('/:id/friends/add', async (req, res) => {
   try {
-    const { friendCode } = req.body; 
+    // We use .trim() to destroy any invisible spaces you accidentally pasted!
+    const friendCode = req.body.friendCode.trim(); 
     const user = await User.findById(req.params.id);
     
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -130,20 +181,33 @@ router.post('/:id/friends/add', async (req, res) => {
 
     // Safety checks
     if (!friend) return res.status(404).json({ message: 'No traveller found with that code or scroll address.' });
-    if (friend._id.toString() === user._id.toString()) return res.status(400).json({ message: 'Thou cannot add thyself as a friend.' });
-    if (user.friends.includes(friend._id)) return res.status(400).json({ message: 'This traveller is already in thy fellowship.' });
+    
+    // Strict comparison to prevent the "add thyself" bug
+    if (friend._id.toString() === user._id.toString()) {
+      return res.status(400).json({ message: 'Thou cannot add thyself! (Make sure you copied your friend\'s code, not yours!)' });
+    }
+    
+    if (user.friends.includes(friend._id)) {
+      return res.status(400).json({ message: 'This traveller is already in thy fellowship.' });
+    }
 
-    // Add friend to array and save
+    // --- MUTUAL UPGRADE ---
+    // 1. Add friend to YOUR array
     user.friends.push(friend._id);
     await user.save();
 
-    res.json({ message: 'Friend added to thy fellowship!', friend: { _id: friend._id, name: friend.name, email: friend.email } });
+    // 2. Automatically add YOU to THEIR array!
+    if (!friend.friends.includes(user._id)) {
+      friend.friends.push(user._id);
+      await friend.save();
+    }
+
+    res.json({ message: 'Friendship forged! Ye are mutually bound.', friend: { _id: friend._id, name: friend.name, email: friend.email } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error adding friend' });
   }
 });
-
 // ============================================
 // Get user profile by ID (Must remain at bottom)
 // ============================================
