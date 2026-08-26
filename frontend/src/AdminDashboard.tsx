@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
-// Added updateLetter so the Admin can force-deliver the message!
-import { getAllReports, updateReportStatus, sendLetter, updateLetter } from './api';
+import { useEffect, useState } from 'react';
+import { getAllReports, updateReportStatus } from './api';
 import { Shield } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);

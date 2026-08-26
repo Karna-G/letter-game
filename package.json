@@ -12,6 +12,7 @@
     "dev:frontend": "cd frontend && npm run dev"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.22",
     "concurrently": "^9.1.2"
   }
 }
