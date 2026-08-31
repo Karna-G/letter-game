@@ -78,26 +78,19 @@ export default function AdminDashboard() {
     } catch (error) { console.error("Error restricting user:", error); }
   };
 
-  const handleUnban = async (userId: string) => {
+  const handleStatusChange = async (reportId: string, newStatus: string) => {
     try {
-      const response = await fetch(`${API_BASE}/api/admin/users/${userId}/unban`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (response.ok) fetchAdminData();
-    } catch (error) { console.error("Error unbanning user:", error); }
+      await updateReportStatus(reportId, newStatus);
+      fetchAdminData();
+    } catch(e) { console.error("Failed to update status", e); }
   };
 
-  const handleVerdict = async (status: 'warning' | 'dismissed') => {
+  const handleSendMessage = async () => {
     if (!messageModal) return;
     try {
       const adminUser = JSON.parse(localStorage.getItem('postmaster_user') || '{}');
-      const fullMessage = `📜 Postmaster Warning Issued:\n\n${messageContent}\n\nSigned,\nThe Postmaster Tribunal`;
+      const fullMessage = messageContent;
 
-      // Updates Report Database & adds it to the report's chat history!
-      await updateReportStatus(messageModal.reportId, status, fullMessage);
-
-      // Now sends message directly into recipient's live backend inbox
       const response = await fetch(`${API_BASE}/api/admin/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -108,8 +101,9 @@ export default function AdminDashboard() {
         })
       });
 
-      if (!response.ok) throw new Error("Backend blocked the verdict!");
-      
+      if (!response.ok) throw new Error("Backend blocked the message!");
+
+      await updateReportStatus(messageModal.reportId, 'resolved');
       setMessageModal(null);
       setMessageContent("");
       fetchAdminData();

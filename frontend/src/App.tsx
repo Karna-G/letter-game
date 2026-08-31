@@ -4,7 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award, Users, AlertTriangle, Compass, Radio, UserPlus, UserCheck, UserX, Trash2, BookOpen, RotateCcw, Inbox, Send, Type, Ghost, Sparkles, Lock, Atom, Box, Eye, Waves, Scissors, Package, CheckSquare, Square, Archive, Megaphone, Bell, Pin, Edit3 } from 'lucide-react';
+import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award, Users, AlertTriangle, Compass, Radio, UserPlus, UserCheck, UserX, Trash2, BookOpen, RotateCcw, Inbox, Send, Type, Ghost, Sparkles, Lock, Atom, Box, Eye, Waves, Scissors, Package, CheckSquare, Square, Archive, Megaphone, Pin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, getUserProfile, markLetterRead, toggleLetterRead, batchMarkRead, batchTrashLetters, batchRestoreLetters, batchBurnPermanent, burnLetter, getLeaderboard, getMyFriends, reportUser, getActiveMapUsers, getFriendRequests, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, cancelFriendRequest, removeFriend, removeLetterToTrash, restoreLetterFromTrash, getTrashedLetters, emptyTrash, burnLetterPermanent, summonDybbukLetter, toggleDybbukMode, checkDybbukAutoDelivery, summonSchrodingerLetter, collapseSchrodingerLetter, uncorkBottleMessage, getPostmasterRiddle, attemptRecallLetter, abandonLetter, batchAbandonLetters, updateNoteStatus, getNotices, postNotice, togglePinNotice, deleteNotice } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -6261,7 +6261,6 @@ function CommunityNoticeBoard({ user }: { user: any }) {
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   // New notice form state (Admins only)
   const [newTitle, setNewTitle] = useState('');
@@ -6318,15 +6317,13 @@ function CommunityNoticeBoard({ user }: { user: any }) {
     }
     setSubmitting(true);
     setError('');
-    setSuccess('');
     try {
-      const res = await postNotice({
+      await postNotice({
         title: newTitle.trim(),
         content: newContent.trim(),
         category: newCategory,
         isPinned: newIsPinned
       });
-      setSuccess(res.message || 'Decree proclaimed across the realm!');
       setNewTitle('');
       setNewContent('');
       setNewCategory('announcement');
@@ -6404,7 +6401,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
 
           {isAdmin ? (
             <button
-              onClick={() => { setError(''); setSuccess(''); setShowDraftModal(true); }}
+              onClick={() => { setError(''); setShowDraftModal(true); }}
               className="btn-velvet-burgundy text-xs py-1.5 px-4 font-bold flex items-center gap-2 shadow-lg"
               style={{ fontFamily: "'Cinzel', serif" }}
             >
