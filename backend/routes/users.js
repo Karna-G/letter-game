@@ -634,7 +634,8 @@ router.put('/:id/note-status', async (req, res) => {
   }
 });
 
-// Fetch active users / mailmen for MapTracker (Only actively connected users)
+// Fetch active users / mailmen for MapTracker (Actively connected users + all registered mailmen in realm)
+// Fetch active users / mailmen for MapTracker (Actively connected users in the realm)
 router.get('/map/active-users', async (req, res) => {
   try {
     const { lat, lng, radius, viewerId } = req.query;
@@ -665,12 +666,13 @@ router.get('/map/active-users', async (req, res) => {
       const R = 6371000;
       const userLat = parseFloat(lat);
       const userLng = parseFloat(lng);
-      const rad = radius ? parseFloat(radius) : Infinity;
+      const rad = (radius && !isNaN(parseFloat(radius))) ? parseFloat(radius) : Infinity;
 
-      const filtered = [];
+      const computed = [];
       sanitizedUsers.forEach(u => {
-        const uLat = u.lat ?? u.location?.coordinates?.[1];
-        const uLng = u.lng ?? u.location?.coordinates?.[0];
+        let uLat = u.lat ?? u.location?.coordinates?.[1];
+        let uLng = u.lng ?? u.location?.coordinates?.[0];
+
         if (typeof uLat !== 'number' || typeof uLng !== 'number' || (uLat === 0 && uLng === 0)) return;
 
         const dLat = (uLat - userLat) * Math.PI / 180;
@@ -680,11 +682,12 @@ router.get('/map/active-users', async (req, res) => {
                   Math.cos(uLat * Math.PI / 180) *
                   Math.sin(dLng/2) ** 2;
         const distance = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+        
         if (distance <= rad) {
-          filtered.push({ ...u, distanceMeters: distance });
+          computed.push({ ...u, lat: uLat, lng: uLng, distanceMeters: distance });
         }
       });
-      return res.json(filtered);
+      return res.json(computed);
     }
 
     res.json(sanitizedUsers);
@@ -711,6 +714,55 @@ router.put('/:id/dybbuk-mode', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error updating Dybbuk Mode' });
+  }
+});
+
+// Feature: Letter Pickup Radius Alerts Preferences
+router.get('/:id/pickup-alert-settings', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('pickupAlertSettings');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    const defaultSettings = {
+      enabled: true,
+      radiusMeters: 250,
+      soundEnabled: true,
+      notifyAllCouriers: false
+    };
+    res.json(user.pickupAlertSettings || defaultSettings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error fetching pickup alert settings' });
+  }
+});
+
+router.put('/:id/pickup-alert-settings', async (req, res) => {
+  try {
+    const { enabled, radiusMeters, soundEnabled, notifyAllCouriers } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (!user.pickupAlertSettings) {
+      user.pickupAlertSettings = {
+        enabled: true,
+        radiusMeters: 250,
+        soundEnabled: true,
+        notifyAllCouriers: false
+      };
+    }
+
+    if (typeof enabled === 'boolean') user.pickupAlertSettings.enabled = enabled;
+    if (typeof radiusMeters === 'number' && radiusMeters > 0) user.pickupAlertSettings.radiusMeters = radiusMeters;
+    if (typeof soundEnabled === 'boolean') user.pickupAlertSettings.soundEnabled = soundEnabled;
+    if (typeof notifyAllCouriers === 'boolean') user.pickupAlertSettings.notifyAllCouriers = notifyAllCouriers;
+
+    await user.save();
+    res.json({
+      message: 'Perimeter alert settings synchronized with the Royal Courier Guild.',
+      pickupAlertSettings: user.pickupAlertSettings
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error updating pickup alert settings' });
   }
 });
 

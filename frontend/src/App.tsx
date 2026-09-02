@@ -2,9 +2,10 @@ import AdminDashboard from './AdminDashboard'; // Added for Admin Tribunal
 import React, { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award, Users, AlertTriangle, Compass, Radio, UserPlus, UserCheck, UserX, Trash2, BookOpen, RotateCcw, Inbox, Send, Type, Ghost, Sparkles, Lock, Atom, Box, Eye, Waves, Scissors, Package, CheckSquare, Square, Archive, Megaphone, Pin } from 'lucide-react';
+import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award, Users, AlertTriangle, Compass, Radio, UserPlus, UserCheck, UserX, Trash2, BookOpen, RotateCcw, Inbox, Send, Type, Ghost, Sparkles, Lock, Atom, Box, Eye, Waves, Scissors, Package, CheckSquare, Square, Archive, Megaphone, Pin, MapPin, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, getUserProfile, markLetterRead, toggleLetterRead, batchMarkRead, batchTrashLetters, batchRestoreLetters, batchBurnPermanent, burnLetter, getLeaderboard, getMyFriends, reportUser, getActiveMapUsers, getFriendRequests, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, cancelFriendRequest, removeFriend, removeLetterToTrash, restoreLetterFromTrash, getTrashedLetters, emptyTrash, burnLetterPermanent, summonDybbukLetter, toggleDybbukMode, checkDybbukAutoDelivery, summonSchrodingerLetter, collapseSchrodingerLetter, uncorkBottleMessage, getPostmasterRiddle, attemptRecallLetter, abandonLetter, batchAbandonLetters, updateNoteStatus, getNotices, postNotice, togglePinNotice, deleteNotice } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -14,11 +15,15 @@ import DybbukSeancePage from './pages/DybbukSeancePage';
 import SchrodingerVaultPage from './pages/SchrodingerVaultPage';
 import BottleOceanPage from './pages/BottleOceanPage';
 import DeadLetterOfficePage from './pages/DeadLetterOfficePage';
+import WaxSealRevealModal from './components/WaxSealRevealModal';
+import SocialTeaserModal from './components/SocialTeaserModal';
+import { formatLocalDateTime } from './utils/storyCanvasRenderer';
 import LetterTransferModal, { type HandoverData } from './components/LetterTransferModal';
+import { PickupRadiusAlertToast, type PickupAlertData } from './components/PickupRadiusAlertToast';
+import { PickupAlertSettingsCard } from './components/PickupAlertSettingsCard';
 import { waxSealAudio, initGlobalUiClickSound } from './utils/waxSealAudio';
 import manuscriptQuillDesk from './assets/manuscript_quill_desk.jpg';
 import antiqueScrollsPile from './assets/antique_scrolls_pile.jpg';
-import antiqueCartographyMap from './assets/antique_cartography_map.jpg';
 import royalCrestGold from './assets/royal_crest_gold.jpg';
 import mailboxChamberBg from './assets/mailbox_chamber_bg.jpg';
 import grandArchiveLibraryBg from './assets/grand_archive_library_bg.jpg';
@@ -876,6 +881,15 @@ const CustomCursor = () => {
   );
 };
 
+// Helper to open Royal Story Herald Studio from anywhere in the realm
+export function openStoryHeraldStudio(letterData?: any) {
+  if (typeof window !== 'undefined') {
+    waxSealAudio.playParchmentUnroll();
+    window.dispatchEvent(new CustomEvent('open-story-herald', { detail: letterData || null }));
+  }
+}
+export const openSocialTeaserStudio = openStoryHeraldStudio;
+
 // ============================================
 // MAIN APP (shown after login)
 // ============================================
@@ -883,6 +897,30 @@ function App() {
   const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [handoverPrompt, setHandoverPrompt] = useState<HandoverData | null>(null);
+  const [activePickupAlert, setActivePickupAlert] = useState<PickupAlertData | null>(null);
+  const [incomingPickupRequest, setIncomingPickupRequest] = useState<any | null>(null);
+  const [presentQrModal, setPresentQrModal] = useState<{ token: string; title: string } | null>(null);
+  const [socialTeaserLetter, setSocialTeaserLetter] = useState<any | null>(null);
+  const [showStoryStudio, setShowStoryStudio] = useState<boolean>(false);
+  const alertedMailmenRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    const handleOpenStoryHeraldEvent = (e: any) => {
+      if (e.detail) {
+        setSocialTeaserLetter(e.detail);
+        setShowStoryStudio(true);
+      } else {
+        setSocialTeaserLetter(null);
+        setShowStoryStudio(true);
+      }
+    };
+    window.addEventListener('open-story-herald', handleOpenStoryHeraldEvent);
+    window.addEventListener('open-social-teaser', handleOpenStoryHeraldEvent);
+    return () => {
+      window.removeEventListener('open-story-herald', handleOpenStoryHeraldEvent);
+      window.removeEventListener('open-social-teaser', handleOpenStoryHeraldEvent);
+    };
+  }, []);
 
   useEffect(() => {
     initGlobalUiClickSound();
@@ -892,14 +930,83 @@ function App() {
     setAuthChecked(true);
   }, []);
 
+  const handleMailmanRespondPickup = (accepted: boolean) => {
+    if (!incomingPickupRequest || !user) return;
+    const socket: Socket = io();
+    socket.emit('mailman-respond-pickup', {
+      requestId: incomingPickupRequest.requestId,
+      senderId: incomingPickupRequest.senderId,
+      mailmanId: user.id || user._id,
+      mailmanName: user.name,
+      letterId: incomingPickupRequest.letterId,
+      accepted: accepted
+    });
+    setTimeout(() => socket.disconnect(), 200);
+    setIncomingPickupRequest(null);
+  };
+
   useEffect(() => {
     if (!user) return;
     const socket: Socket = io();
+
+    // Register user presence across the realm immediately upon login
+    socket.emit('register-user', {
+      userId: user.id || user._id,
+      name: user.name,
+      role: user.role
+    });
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          socket.emit('register-user', {
+            userId: user.id || user._id,
+            name: user.name,
+            role: user.role,
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          });
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 10000 }
+      );
+    }
+    
     socket.on('letter-handover-animated', (data: HandoverData) => {
       const myId = (user.id || user._id)?.toString();
       if (!myId || data.senderId === myId || data.receiverId === myId || data.mailmanId === myId) {
         setHandoverPrompt(data);
+        setPresentQrModal(null); // Auto-close QR modal when scanned
       }
+    });
+
+    // Proximity alert: ONLY for Scribes/Senders, and triggers ONLY ONCE per encounter
+    socket.on('pickup-radius-alert', (alertData: PickupAlertData) => {
+      if (user.role === 'mailman') return; // Mailmen NEVER receive proximity pings
+
+      const mailmanKey = String(alertData.mailmanId);
+      if (alertedMailmenRef.current.has(mailmanKey)) {
+        return; // Deduplicate: ping happens strictly once per encounter
+      }
+      alertedMailmenRef.current.add(mailmanKey);
+
+      console.log('Received single encounter pickup-radius-alert:', alertData);
+      setActivePickupAlert(alertData);
+    });
+
+    // Feature: Mailman receives a live Pickup Handover Request from a Scribe
+    socket.on('courier-received-pickup-request', (requestData: any) => {
+      console.log('Mailman received courier-received-pickup-request:', requestData);
+      if (user.role === 'mailman') {
+        waxSealAudio.playCourierProximityChime();
+        setIncomingPickupRequest(requestData);
+      }
+    });
+
+    // Feature: Scribe receives Mailman's decision (Accepted or Declined)
+    socket.on('scribe-pickup-response', (responseData: any) => {
+      console.log('Scribe received scribe-pickup-response:', responseData);
+      waxSealAudio.playCourierProximityChime();
     });
 
     return () => {
@@ -925,6 +1032,124 @@ function App() {
     <>
     <CustomCursor />
     <LetterTransferModal handover={handoverPrompt} onClose={() => setHandoverPrompt(null)} />
+    <SocialTeaserModal
+      isOpen={showStoryStudio || !!socialTeaserLetter}
+      letter={socialTeaserLetter}
+      onClose={() => {
+        setSocialTeaserLetter(null);
+        setShowStoryStudio(false);
+      }}
+      onUpdateScheduledTime={(newDate) => {
+        if (socialTeaserLetter) {
+          socialTeaserLetter.scheduledFor = newDate.toISOString();
+        }
+      }}
+    />
+
+    {/* Scribe Presentation QR Modal (Hold up for Mailman to scan physically) */}
+    <AnimatePresence>
+      {presentQrModal && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+          <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="max-w-sm w-full theatrical-card p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden border-2 border-amber-500 text-center" style={{
+            background: 'linear-gradient(160deg, #1C1814 0%, #100E0C 100%)',
+            boxShadow: '0 0 50px rgba(212, 175, 55, 0.45)'
+          }}>
+            <button onClick={() => setPresentQrModal(null)} className="absolute top-3 right-3 text-amber-300 hover:text-white p-1">
+              <X className="w-5 h-5" />
+            </button>
+
+            <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-amber-400 block mb-1" style={{ fontFamily: "'Cinzel', serif" }}>
+              Present to Royal Mailman
+            </span>
+            <h3 className="text-xl font-bold mb-4" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel Decorative', serif" }}>
+              {presentQrModal.title}
+            </h3>
+
+            <div className="bg-white p-4 rounded-sm inline-block mx-auto shadow-inner border-4 border-amber-800/40 mb-4">
+              <QRCodeCanvas value={presentQrModal.token} size={220} fgColor="#1A1A1A" />
+            </div>
+
+            <p className="text-xs italic text-amber-200/90 font-serif leading-relaxed">
+              Hold up this seal for the Mailman to scan with their device. Custody will transfer once physically scanned!
+            </p>
+
+            <button onClick={() => setPresentQrModal(null)} className="btn-gold-saloon mt-5 w-full py-2.5 text-xs font-bold justify-center">
+              Done / Close
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+    {/* Mailman Interactive Pickup Request Modal */}
+    <AnimatePresence>
+      {incomingPickupRequest && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="max-w-md w-full theatrical-card p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden border-2 border-amber-500 text-center" style={{
+            background: 'linear-gradient(160deg, #1C1814 0%, #100E0C 100%)',
+            boxShadow: '0 0 40px rgba(245, 158, 11, 0.45)'
+          }}>
+            <div className="w-16 h-16 rounded-full mx-auto mb-3.5 bg-amber-950/80 border-2 border-amber-400 flex items-center justify-center shadow-lg animate-bounce">
+              <span className="text-3xl">🏇</span>
+            </div>
+
+            <span className="text-xs uppercase tracking-[0.2em] font-bold text-amber-400 block mb-1" style={{ fontFamily: "'Cinzel', serif" }}>
+              Royal Missive Handover Request
+            </span>
+            <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel Decorative', serif" }}>
+              Scribe {incomingPickupRequest.senderName}
+            </h3>
+
+            <div className="bg-white/[0.04] p-3.5 rounded-sm border border-amber-500/25 mb-4 text-left text-xs space-y-1.5 shadow-inner">
+              <p className="flex items-center justify-between text-amber-200">
+                <span className="font-semibold">Proximity:</span>
+                <span className="font-bold text-emerald-400">{incomingPickupRequest.distanceMeters}m away</span>
+              </p>
+              <p className="flex items-center justify-between text-amber-200">
+                <span className="font-semibold">Recipient:</span>
+                <span className="font-bold text-white">{incomingPickupRequest.letterRecipient}</span>
+              </p>
+              <div className="pt-2 border-t border-amber-500/20 italic text-amber-100 font-serif">
+                "{incomingPickupRequest.letterContentSnippet}"
+              </div>
+            </div>
+
+            <p className="text-xs italic text-amber-300/90 mb-5 font-serif">
+              "Noble Mailman, please accept custody of my sealed missive."
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => handleMailmanRespondPickup(false)}
+                className="py-2.5 px-4 rounded-sm font-bold text-xs border border-red-500/50 bg-red-950/70 hover:bg-red-900 text-red-200 transition-colors"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                ❌ Decline
+              </button>
+              <button
+                onClick={() => handleMailmanRespondPickup(true)}
+                className="btn-gold-saloon justify-center py-2.5 px-4 text-xs font-bold shadow-lg flex items-center gap-1.5"
+              >
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <span>✅ Agree to Meet</span>
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+
+    <PickupRadiusAlertToast 
+      alert={activePickupAlert} 
+      onDismiss={() => setActivePickupAlert(null)} 
+      onNavigateToMap={() => {
+        window.location.href = '/map';
+      }}
+      onViewLetters={() => {
+        window.location.href = '/sent';
+      }}
+    />
     <Router>
       <div className="min-h-screen" style={{ background: 'var(--bg-page)' }}>
         {/* ── Theatrical Aristocratic Navbar ── */}
@@ -950,25 +1175,42 @@ function App() {
           </Link>
 
           <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
-            {/* Admin Dashboard Link */}
-            {user.role === 'admin' && (
-              <Link to="/admin" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold" style={{ color: '#EF9A9A' }}>
-                <Shield className="w-4 h-4" /> <span>Tribunal</span>
-              </Link>
+            {/* Admin vs Non-Admin Navigation Links */}
+            {user.role === 'admin' ? (
+              <>
+                <Link to="/admin" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold" style={{ color: '#EF9A9A' }}>
+                  <Shield className="w-4 h-4" /> <span>Tribunal</span>
+                </Link>
+                <Link to="/leaderboard" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
+                  <Trophy className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Hall of Fame</span>
+                </Link>
+                <Link to="/notice-board" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
+                  <Megaphone className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Notice Board</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
+                  <User className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Thy Ledger</span>
+                </Link>
+                <Link to="/scanner" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
+                  <Scan className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Scan Seal</span>
+                </Link>
+                <Link to="/leaderboard" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
+                  <Trophy className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Hall of Fame</span>
+                </Link>
+                <Link to="/notice-board" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
+                  <Megaphone className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Notice Board</span>
+                </Link>
+                <button
+                  onClick={() => openStoryHeraldStudio()}
+                  className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-100 cursor-pointer"
+                  title="Proclaim 9:16 Royal Story Herald"
+                >
+                  <Sparkles className="w-4 h-4 text-[#D4AF37] animate-pulse" /> <span>Story Herald</span>
+                </button>
+              </>
             )}
-
-            <Link to="/" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
-              <User className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Thy Ledger</span>
-            </Link>
-            <Link to="/scanner" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
-              <Scan className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Scan Seal</span>
-            </Link>
-            <Link to="/leaderboard" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
-              <Trophy className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Hall of Fame</span>
-            </Link>
-            <Link to="/notice-board" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
-              <Megaphone className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Notice Board</span>
-            </Link>
 
             <div className="flex items-center space-x-3 md:ml-3 md:pl-4" style={{ borderLeft: '1px solid rgba(212,175,55,0.25)' }}>
               <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-sm" style={{ background: 'linear-gradient(135deg, #221D19 0%, #141210 100%)', border: '1px solid rgba(212,175,55,0.3)' }}>
@@ -1092,6 +1334,14 @@ function UserProfile({ user }: { user: any }) {
               <Link to="/sent?tab=drafts" className="btn-gold-saloon text-sm sm:text-base py-2.5 px-4 flex items-center gap-1.5" title="Access thy preserved drafts in Scriptorium">
                 <Scroll className="w-4 h-4 text-amber-400" /> <span>📜 Drafts</span>
               </Link>
+
+              <button
+                onClick={() => openStoryHeraldStudio()}
+                className="btn-gold-saloon text-sm sm:text-base py-2.5 px-4 flex items-center gap-1.5 cursor-pointer"
+                title="Proclaim 9:16 Royal Story Herald"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" /> <span>Story Herald</span>
+              </button>
             </div>
 
             {/* ── Cartographic Note Status Proclamation Banner ── */}
@@ -1186,10 +1436,10 @@ function UserProfile({ user }: { user: any }) {
                   return (
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
-                        {/* Courier Rank & Badge */}
+                        {/* Mailman Rank & Badge */}
                         <div className="p-3 rounded-sm" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.3)' }}>
                           <span className="text-[10px] uppercase tracking-wider block font-bold" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
-                            Carrier Rank & Badge
+                            Mailman Rank & Badge
                           </span>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-2xl animate-float-gentle">{currentRank.icon}</span>
@@ -1270,7 +1520,7 @@ function UserProfile({ user }: { user: any }) {
               <div className="mt-4 pt-3 flex justify-between items-center text-sm" style={{ borderTop: '1px dashed rgba(212,175,55,0.2)' }}>
                 <span className="italic" style={{ color: 'var(--parchment-dark)' }}>“Verba volant, scripta manent.”</span>
                 <Link to={user.role === 'mailman' ? "/mailman" : "/directory"} className="underline hover:text-white font-bold text-xs sm:text-sm" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                  {user.role === 'mailman' ? "Carrier Ledger →" : "Inspect Roster →"}
+                  {user.role === 'mailman' ? "Mailman Ledger →" : "Inspect Roster →"}
                 </Link>
               </div>
             </div>
@@ -1614,6 +1864,9 @@ function UserProfile({ user }: { user: any }) {
           </Link>
         </div>
       </div>
+
+      {/* Feature: Letter Pickup Radius Alerts Preferences & Vicinity Controls */}
+      <PickupAlertSettingsCard userId={user.id || user._id} />
 
       {/* Feature: Live Active Realm Travellers directly in Profile */}
       <ProfileActiveTravellers currentUser={user} />
@@ -1968,6 +2221,23 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
                 <QRCodeCanvas value={selectedQR.token} size={240} fgColor="#1A140E" />
               </div>
 
+              {/* Copyable Token Box */}
+              <div className="flex items-center justify-between p-2.5 rounded-sm bg-black/75 border border-amber-500/40 mb-4 text-xs">
+                <span className="font-mono text-xs text-amber-200 truncate mr-2">{selectedQR.token}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.clipboard) {
+                      navigator.clipboard.writeText(selectedQR.token);
+                    }
+                  }}
+                  className="btn-gold-saloon text-[10px] py-1 px-2.5 flex items-center gap-1 flex-shrink-0"
+                >
+                  <Copy className="w-3 h-3" />
+                  <span>Copy Code</span>
+                </button>
+              </div>
+
               <div>
                 <button
                   onClick={() => setSelectedQR(null)}
@@ -1998,8 +2268,12 @@ function ComposeLetter() {
   const [burnAfterReading, setBurnAfterReading] = useState(false);
   const [burnDuration, setBurnDuration] = useState(60);
   const [burnUnit, setBurnUnit] = useState<'seconds' | 'minutes'>('seconds');
+  const [isTimeCapsule, setIsTimeCapsule] = useState(false);
+  const [scheduledFor, setScheduledFor] = useState('');
+  const [copiedQR, setCopiedQR] = useState(false);
   const [loading, setLoading] = useState(false);
   const [createdQR, setCreatedQR] = useState('');
+  const [createdLetterId, setCreatedLetterId] = useState('');
   const [error, setError] = useState('');
   const [currentDraftId, setCurrentDraftId] = useState('');
   
@@ -2032,6 +2306,10 @@ function ComposeLetter() {
           setBurnUnit('seconds');
         }
       }
+      if (draft.scheduledFor) {
+        setIsTimeCapsule(true);
+        setScheduledFor(formatLocalDateTime(new Date(draft.scheduledFor)));
+      }
       setCurrentDraftId(draft._id);
     }
   }, [location]);
@@ -2043,12 +2321,14 @@ function ComposeLetter() {
     if (!content.trim()) { setError('The missive cannot be empty.'); return; }
     setLoading(true); setError('');
     try {
+      const schedValue = isTimeCapsule && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
       let res;
       if (currentDraftId) {
-        res = await updateLetter(currentDraftId, receiverRef, content, 'pending', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize);
+        res = await updateLetter(currentDraftId, receiverRef, content, 'pending', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize, schedValue);
       } else {
-        res = await sendLetter(receiverRef, content, 'standard', 'pending', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize);
+        res = await sendLetter(receiverRef, content, 'standard', 'pending', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize, undefined, schedValue);
       }
+      setCreatedLetterId(res?._id || currentDraftId || '');
       setCreatedQR(res.qrCodeToken);
     } catch (e: any) {
       setError(e.message || 'Failed to dispatch letter');
@@ -2060,10 +2340,11 @@ function ComposeLetter() {
     if (!content.trim()) { setError('Cannot save an empty draft.'); return; }
     setLoading(true); setError('');
     try {
+      const schedValue = isTimeCapsule && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
       if (currentDraftId) {
-        await updateLetter(currentDraftId, receiverRef, content, 'draft', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize);
+        await updateLetter(currentDraftId, receiverRef, content, 'draft', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize, schedValue);
       } else {
-        const res = await sendLetter(receiverRef, content, 'standard', 'draft', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize);
+        const res = await sendLetter(receiverRef, content, 'standard', 'draft', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize, undefined, schedValue);
         setCurrentDraftId(res._id);
       }
       setError('Draft saved to thy archives successfully!');
@@ -2320,6 +2601,118 @@ function ComposeLetter() {
               )}
             </div>
 
+            {/* FEATURE: Sealed Until (Time Capsule Timer) */}
+            <div className={`p-4 rounded-sm space-y-3 transition-all ${isTimeCapsule ? 'bg-amber-950/30 border-2 border-amber-500/70 shadow-lg' : 'bg-[rgba(212,175,55,0.06)] border border-[rgba(212,175,55,0.3)]'}`}>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center space-x-2.5">
+                  <div className={`p-2 rounded-full ${isTimeCapsule ? 'bg-amber-500/20 text-amber-300 animate-pulse' : 'bg-stone-800 text-stone-400'}`}>
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm" style={{ fontFamily: "'Cinzel', serif", color: 'var(--antique-gold)' }}>
+                        Sealed Until (Time Lock)
+                      </span>
+                      {isTimeCapsule && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold border border-amber-400/30">
+                          Active Lock
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
+                      The recipient receives the sealed epistle, but its inner contents remain locked until thy appointed timer reaches zero.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      waxSealAudio.playWaxCrack();
+                      const nextState = !isTimeCapsule;
+                      setIsTimeCapsule(nextState);
+                      if (nextState && !scheduledFor) {
+                        const d = new Date(Date.now() + 60 * 60 * 1000); // default +1 hour
+                        setScheduledFor(formatLocalDateTime(d));
+                      }
+                    }}
+                    className={`text-xs py-1.5 px-3.5 rounded-sm font-bold transition-all flex items-center gap-1.5 ${
+                      isTimeCapsule 
+                        ? 'btn-velvet-burgundy shadow-md animate-glow-pulse' 
+                        : 'btn-gold-saloon'
+                    }`}
+                  >
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{isTimeCapsule ? 'Sealed Until: ON' : 'Set Sealed Until'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {isTimeCapsule && (
+                <div className="space-y-3 pt-3 border-t border-amber-500/30">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-xs text-amber-200 font-bold mr-1">Quick Presets:</span>
+                    {[
+                      { label: '+5m', mins: 5 },
+                      { label: '+15m', mins: 15 },
+                      { label: '+30m', mins: 30 },
+                      { label: '+1h', mins: 60 },
+                      { label: '+6h', mins: 360 },
+                      { label: '+24h', mins: 1440 },
+                      { label: '+3d', mins: 4320 },
+                      { label: '+7d', mins: 10080 }
+                    ].map((p) => (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() => {
+                          waxSealAudio.playWaxCrack();
+                          const d = new Date(Date.now() + p.mins * 60 * 1000);
+                          setScheduledFor(formatLocalDateTime(d));
+                        }}
+                        className="px-2.5 py-1 rounded-sm text-xs font-bold bg-amber-950/80 hover:bg-amber-800 text-amber-200 border border-amber-500/40 transition-colors shadow-sm"
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                    <div className="sm:col-span-8">
+                      <label className="block text-xs font-bold text-amber-300 mb-1">
+                        Exact Unlock Date & Time:
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={scheduledFor}
+                        onChange={(e) => setScheduledFor(e.target.value)}
+                        className="w-full p-2.5 rounded-sm text-sm bg-[#1A120B] text-amber-100 border border-amber-500/50 focus:outline-none focus:border-amber-400 font-mono shadow-inner"
+                      />
+                    </div>
+                    <div className="sm:col-span-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          openStoryHeraldStudio({
+                            _id: currentDraftId || 'draft-preview',
+                            receiverRef: { name: receiverRef || 'Noble Scribe' },
+                            scheduledFor: scheduledFor ? new Date(scheduledFor) : new Date(Date.now() + 60 * 60 * 1000),
+                            sealColor: '#DC2626',
+                            isAnonymous: false
+                          });
+                        }}
+                        className="btn-gold-saloon text-xs w-full py-2.5 justify-center font-bold flex items-center gap-1.5 shadow"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Story Herald</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {error && <p className={`font-bold italic text-sm p-3 rounded-sm ${error.includes('successfully') ? 'bg-green-950 text-green-200 border border-green-800' : 'bg-red-950 text-red-200 border border-red-800'}`}>⚠ {error}</p>}
 
             {/* Action Bar (Fluid Stacking on Mobile) */}
@@ -2369,11 +2762,54 @@ function ComposeLetter() {
                 <QRCodeCanvas value={createdQR} size={220} fgColor="#1A1A1A" />
               </div>
               
-              <p className="font-mono text-xs p-2 rounded-sm break-all" style={{ background: 'rgba(0,0,0,0.6)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)' }}>
-                {createdQR}
-              </p>
+              {/* Copyable Token Box */}
+              <div className="flex items-center justify-between p-2.5 rounded-sm bg-black/75 border border-amber-500/40 mb-4 text-xs">
+                <span className="font-mono text-xs text-amber-200 truncate mr-2">{createdQR}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.clipboard) {
+                      navigator.clipboard.writeText(createdQR);
+                      setCopiedQR(true);
+                      setTimeout(() => setCopiedQR(false), 2500);
+                    }
+                  }}
+                  className="btn-gold-saloon text-[10px] py-1 px-2.5 flex items-center gap-1 flex-shrink-0"
+                >
+                  {copiedQR ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedQR ? 'Copied' : 'Copy Code'}</span>
+                </button>
+              </div>
 
-              <div className="mt-5">
+              <div className="mt-5 space-y-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    openStoryHeraldStudio({
+                      _id: createdLetterId,
+                      receiverRef: { name: receiverRef || 'Noble Scribe' },
+                      scheduledFor: isTimeCapsule && scheduledFor ? new Date(scheduledFor) : undefined,
+                      sealColor: '#DC2626',
+                      isAnonymous: false
+                    });
+                  }}
+                  className="btn-gold-saloon text-xs w-full justify-center py-2.5 font-bold flex items-center gap-2 shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #831843 0%, #581C87 50%, #92400E 100%)', color: '#FFF', border: '1px solid #D4AF37' }}
+                >
+                  <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                  <span>📜 Proclaim Royal Story Herald</span>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setCreatedQR('');
+                    navigate('/map', { state: { letterId: createdLetterId, letterToken: createdQR } });
+                  }} 
+                  className="btn-gold-saloon text-xs w-full justify-center py-3 font-bold flex items-center gap-2 shadow-lg animate-glow-pulse"
+                >
+                  <Compass className="w-4 h-4 text-amber-300" />
+                  <span>🏇 Hand Over to Mailman</span>
+                </button>
                 <button onClick={handleQRClose} className="btn-velvet-burgundy text-xs w-full justify-center">
                   Dismiss & View Dispatched Missives →
                 </button>
@@ -2831,17 +3267,29 @@ function LetterArchive() {
                           )}
                         </p>
                       </div>
-                      <div 
-                        className="text-base whitespace-pre-wrap line-clamp-4 p-3 rounded-sm shadow-inner mb-4 leading-relaxed"
-                        style={{
-                          background: '#FFFDF9',
-                          color: '#1A1A1A',
-                          border: '1px solid var(--border-subtle)',
-                          fontFamily: getFontFamily(l.font)
-                        }}
-                      >
-                        {l.content}
-                      </div>
+                      {(l.scheduledFor && new Date(l.scheduledFor).getTime() > Date.now()) ? (
+                        <div className="p-4 rounded-sm bg-black/60 border border-amber-500/40 text-center space-y-1.5 mb-4">
+                          <div className="flex items-center justify-center gap-2 text-amber-300 font-bold text-xs uppercase tracking-wider font-mono">
+                            <Lock className="w-4 h-4 text-amber-400 animate-pulse" />
+                            <span>⏳ Sealed in Time Capsule</span>
+                          </div>
+                          <p className="text-xs italic text-amber-200/80 font-serif">
+                            Contents locked until: <strong className="text-amber-100">{new Date(l.scheduledFor).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</strong>
+                          </p>
+                        </div>
+                      ) : (
+                        <div 
+                          className="text-base whitespace-pre-wrap line-clamp-4 p-3 rounded-sm shadow-inner mb-4 leading-relaxed"
+                          style={{
+                            background: '#FFFDF9',
+                            color: '#1A1A1A',
+                            border: '1px solid var(--border-subtle)',
+                            fontFamily: getFontFamily(l.font)
+                          }}
+                        >
+                          {l.content}
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 pt-3 mt-auto" style={{ borderTop: '1px solid rgba(212,175,55,0.2)' }}>
@@ -2849,12 +3297,18 @@ function LetterArchive() {
                         onClick={() => handleOpenLetter(l)}
                         className="flex-1 py-1.5 px-3 text-xs font-bold rounded-sm flex items-center justify-center gap-1.5 transition-all shadow"
                         style={{
-                          background: isDybbuk ? '#7E22CE' : (isSchrodinger ? '#0284C7' : (isBottle ? '#059669' : 'var(--burgundy)')),
+                          background: (l.scheduledFor && new Date(l.scheduledFor).getTime() > Date.now())
+                            ? '#78350F'
+                            : isDybbuk ? '#7E22CE' : (isSchrodinger ? '#0284C7' : (isBottle ? '#059669' : 'var(--burgundy)')),
                           color: '#FFF',
                           fontFamily: "'Cinzel', serif"
                         }}
                       >
-                        <BookOpen className="w-3.5 h-3.5" /> Read
+                        {(l.scheduledFor && new Date(l.scheduledFor).getTime() > Date.now()) ? (
+                          <><Lock className="w-3.5 h-3.5 text-amber-300 animate-pulse" /> <span>⏳ Sealed Capsule</span></>
+                        ) : (
+                          <><BookOpen className="w-3.5 h-3.5" /> <span>Read</span></>
+                        )}
                       </button>
 
                       <button
@@ -2883,6 +3337,21 @@ function LetterArchive() {
                         title="Abandon to The Dead Letter Office (Public Realm Archive)"
                       >
                         <Archive className="w-3.5 h-3.5 text-amber-400" />
+                      </button>
+
+                      <button
+                        onClick={() => openStoryHeraldStudio(l)}
+                        className="py-1.5 px-2.5 text-xs font-bold rounded-sm flex items-center justify-center gap-1 transition-all"
+                        style={{
+                          background: 'rgba(212,175,55,0.15)',
+                          color: 'var(--antique-gold)',
+                          border: '1px solid rgba(212,175,55,0.4)',
+                          fontFamily: "'Cinzel', serif"
+                        }}
+                        title="Proclaim 9:16 Royal Story Herald"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Herald</span>
                       </button>
 
                       <button
@@ -2943,7 +3412,14 @@ function LetterArchive() {
 
       {/* Reader Modal with Smooth Parchment Scroll Unfurling & Roll-Down Closing Animation */}
       <AnimatePresence>
-        {openLetter && (
+        {openLetter && openLetter.scheduledFor && new Date(openLetter.scheduledFor).getTime() > Date.now() ? (
+          <WaxSealRevealModal
+            isOpen={!!openLetter}
+            letter={openLetter}
+            onClose={handleCloseLetter}
+            onTrash={(id) => handleRemoveLetter(id, 'Archived')}
+          />
+        ) : openLetter && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4">
             <div className={`max-w-lg w-full relative ${isClosingScroll ? 'animate-scroll-roll-close' : 'animate-scroll-unroll'}`}>
               {/* Top Wooden Rod */}
@@ -3257,15 +3733,16 @@ function MyMailbox() {
     setIsClosingScroll(false);
     setFadeProgress(0);
 
-    // Auto mark as read in background
-    if (!letter.isRead && !letter.firstReadAt && letter._id) {
+    // Auto mark as read in background only if unlocked
+    const isLocked = letter.scheduledFor && new Date(letter.scheduledFor).getTime() > Date.now();
+    if (!isLocked && !letter.isRead && !letter.firstReadAt && letter._id) {
       try {
         await markLetterRead(letter._id);
         setMyMailbox(prev => prev.map(l => l._id === letter._id ? { ...l, isRead: true, firstReadAt: Date.now() } : l));
       } catch (_) {}
     }
 
-    if (letter.burnAfterReading && letter.status === 'delivered') { 
+    if (!isLocked && letter.burnAfterReading && letter.status === 'delivered') { 
       try { 
         const updated = await markLetterRead(letter._id); 
         startFadeTimer(letter._id, new Date(updated.firstReadAt).getTime(), letter.burnTimerSeconds || 60); 
@@ -3681,6 +4158,13 @@ function MyMailbox() {
                               Burns in {l.burnTimerSeconds ? (l.burnTimerSeconds >= 60 ? Math.round(l.burnTimerSeconds / 60) + ' min' : l.burnTimerSeconds + 's') : '60s'}
                             </span>
                           )}
+
+                          {l.scheduledFor && new Date(l.scheduledFor).getTime() > Date.now() && (
+                            <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-amber-950 text-amber-200 border border-amber-500/60 animate-pulse font-mono">
+                              <Lock className="w-3.5 h-3.5 text-amber-400" />
+                              Sealed Until {new Date(l.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          )}
                         </p>
                         <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
                           {isDybbuk ? (
@@ -3730,10 +4214,20 @@ function MyMailbox() {
                             }
                             openLetterView(l);
                           }} 
-                          className={isDybbuk ? 'btn-astral text-xs py-1.5 px-3' : isBottle ? 'btn-quantum text-xs py-1.5 px-3' : 'btn-velvet-burgundy text-xs py-1.5 px-3'}
+                          className={l.scheduledFor && new Date(l.scheduledFor).getTime() > Date.now() ? 'btn-gold-saloon text-xs py-1.5 px-3 flex items-center gap-1.5 font-bold shadow-md' : isDybbuk ? 'btn-astral text-xs py-1.5 px-3' : isBottle ? 'btn-quantum text-xs py-1.5 px-3' : 'btn-velvet-burgundy text-xs py-1.5 px-3'}
                           style={isBottle ? { background: '#065F46', border: '1px solid #10B981' } : {}}
                         >
-                          {isDybbuk ? '✦ Unveil Spectral' : isSchrodinger ? '✦ Read Collapsed' : isBottle ? '✦ Uncork & Read' : '✦ Read Missive'}
+                          {l.scheduledFor && new Date(l.scheduledFor).getTime() > Date.now() ? (
+                            <><Lock className="w-3.5 h-3.5 text-amber-300 animate-pulse" /> <span>⏳ Sealed Capsule</span></>
+                          ) : isDybbuk ? (
+                            '✦ Unveil Spectral'
+                          ) : isSchrodinger ? (
+                            '✦ Read Collapsed'
+                          ) : isBottle ? (
+                            '✦ Uncork & Read'
+                          ) : (
+                            '✦ Read Missive'
+                          )}
                         </button>
                       )}
 
@@ -3752,6 +4246,20 @@ function MyMailbox() {
                         title="Abandon to The Dead Letter Office (Public Realm Archive)"
                       >
                         <Archive className="w-3.5 h-3.5 text-amber-400" />
+                      </button>
+
+                      <button 
+                        onClick={() => openStoryHeraldStudio(l)} 
+                        className="btn-gold-saloon text-xs py-1.5 px-2.5 flex items-center gap-1"
+                        style={{
+                          background: 'rgba(212,175,55,0.15)',
+                          color: 'var(--antique-gold)',
+                          border: '1px solid rgba(212,175,55,0.4)'
+                        }}
+                        title="Proclaim 9:16 Royal Story Herald"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Herald</span>
                       </button>
 
                       <button onClick={() => handleRemoveInboxLetter(l._id)} className="btn-gold-saloon text-xs py-1.5 px-2.5 flex items-center gap-1" title="Move to Wastebin">
@@ -3915,7 +4423,20 @@ function MyMailbox() {
 
       {/* Reader Modal with Smooth Parchment Scroll Unfurling & Roll-Down Closing Animation */}
       <AnimatePresence>
-        {openLetter && (
+        {openLetter && openLetter.scheduledFor && new Date(openLetter.scheduledFor).getTime() > Date.now() ? (
+          <WaxSealRevealModal
+            isOpen={!!openLetter}
+            letter={openLetter}
+            onClose={() => setOpenLetter(null)}
+            onTrash={handleRemoveInboxLetter}
+            onReport={(letObj) => setReportingUser({
+              _id: letObj.senderRef?._id || letObj.senderRef || 'anonymous',
+              name: letObj.isBottle ? (letObj.isAnonymous ? `Anonymous Bottle ("${letObj.bottleMoniker || 'Ocean Relic'}")` : (letObj.senderRef?.name || 'Mariner')) : (letObj.senderRef?.name || 'Scribe'),
+              letterId: letObj._id,
+              isBottle: letObj.type === 'bottle'
+            })}
+          />
+        ) : openLetter && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4">
             <div className={`max-w-lg w-full relative ${isClosingScroll ? 'animate-scroll-roll-close' : 'animate-scroll-unroll'}`}>
               {/* Top Wooden Rod */}
@@ -4733,6 +5254,13 @@ function SentLetters() {
                             <span>Status: <span className="font-bold uppercase tracking-wider text-amber-300">{l.status}</span> {l.qrCodeToken ? `| Token: ${l.qrCodeToken.substring(0, 8)}...` : ''}</span>
                           )}
                         </p>
+
+                        {l.scheduledFor && new Date(l.scheduledFor).getTime() > Date.now() && (
+                          <div className="mt-1.5 flex items-center gap-1.5 text-xs text-amber-300 bg-amber-950/70 border border-amber-500/50 px-2.5 py-1 rounded-sm w-fit font-serif">
+                            <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                            <span>⏳ Time Capsule Locked until <strong>{new Date(l.scheduledFor).toLocaleString()}</strong></span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -4741,7 +5269,11 @@ function SentLetters() {
                         onClick={() => handleOpenLetter(l)} 
                         className="btn-gold-saloon text-xs py-1.5 px-3 flex items-center gap-1 shadow"
                       >
-                        <BookOpen className="w-3.5 h-3.5" /> Read
+                        {(l.scheduledFor && new Date(l.scheduledFor).getTime() > Date.now()) ? (
+                          <><Lock className="w-3.5 h-3.5 text-amber-300 animate-pulse" /> <span>⏳ Sealed Capsule</span></>
+                        ) : (
+                          <><BookOpen className="w-3.5 h-3.5" /> <span>Read</span></>
+                        )}
                       </button>
 
                       <button
@@ -4780,6 +5312,20 @@ function SentLetters() {
                         title="Abandon to The Dead Letter Office (Public Realm Archive)"
                       >
                         <Archive className="w-3.5 h-3.5 text-amber-400" />
+                      </button>
+
+                      <button 
+                        onClick={() => openStoryHeraldStudio(l)} 
+                        className="btn-gold-saloon text-xs py-1.5 px-2.5 flex items-center gap-1"
+                        style={{
+                          background: 'rgba(212,175,55,0.15)',
+                          color: 'var(--antique-gold)',
+                          border: '1px solid rgba(212,175,55,0.4)'
+                        }}
+                        title="Proclaim 9:16 Royal Story Herald"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Herald</span>
                       </button>
 
                       <button onClick={() => handleRemoveSentLetter(l._id, isDraft)} disabled={loading} className="btn-gold-saloon text-xs py-1.5 px-2.5 flex items-center gap-1" title="Move to Wastebin">
@@ -4830,7 +5376,14 @@ function SentLetters() {
 
       {/* Reader Modal with Smooth Parchment Scroll Unfurling & Roll-Down Closing Animation */}
       <AnimatePresence>
-        {openLetter && (
+        {openLetter && openLetter.scheduledFor && new Date(openLetter.scheduledFor).getTime() > Date.now() ? (
+          <WaxSealRevealModal
+            isOpen={!!openLetter}
+            letter={openLetter}
+            onClose={handleCloseLetter}
+            onTrash={(id) => handleRemoveSentLetter(id, false)}
+          />
+        ) : openLetter && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4">
             <div className={`max-w-lg w-full relative ${isClosingScroll ? 'animate-scroll-roll-close' : 'animate-scroll-unroll'}`}>
               {/* Top Wooden Rod */}
@@ -7173,6 +7726,17 @@ function MapRecenter({ center, zoom }: { center: [number, number]; zoom: number 
   return null;
 }
 
+function MapClickHandler({ onMapClick, enabled }: { onMapClick: (coords: [number, number]) => void; enabled: boolean }) {
+  useMapEvents({
+    click(e) {
+      if (enabled) {
+        onMapClick([e.latlng.lat, e.latlng.lng]);
+      }
+    }
+  });
+  return null;
+}
+
 function calculateDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -7184,23 +7748,50 @@ function calculateDistanceMeters(lat1: number, lon1: number, lat2: number, lon2:
   return Math.round(R * c);
 }
 
+// Leaflet DivIcons for distinct realm entities
+const createRealmDivIcon = (type: 'self' | 'mailman' | 'sender' | 'letter', inVicinity: boolean = false) => {
+  let html = '';
+  if (type === 'self') {
+    html = `<div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle,#1D4ED8 0%,#0F172A 100%);border:2.5px solid #93C5FD;box-shadow:0 0 16px rgba(59,130,246,0.9);color:#FFF;font-size:18px;cursor:pointer;">📍</div>`;
+  } else if (type === 'mailman') {
+    html = `<div class="${inVicinity ? 'courier-beacon-active' : ''}" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,#B45309 0%,#1C1917 100%);border:2.5px solid #F59E0B;box-shadow:0 0 20px rgba(245,158,11,0.95);color:#FEF08A;font-size:20px;cursor:pointer;">🏇</div>`;
+  } else if (type === 'sender') {
+    html = `<div style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#047857 0%,#064E3B 100%);border:2px solid #34D399;box-shadow:0 0 14px rgba(52,211,153,0.8);color:#A7F3D0;font-size:16px;cursor:pointer;">🪶</div>`;
+  } else {
+    html = `<div style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#701A75 0%,#3B0764 100%);border:2px solid #E879F9;box-shadow:0 0 14px rgba(232,121,249,0.8);color:#FDF4FF;font-size:16px;cursor:pointer;">📜</div>`;
+  }
+  return L.divIcon({
+    className: 'custom-realm-pin',
+    html: html,
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -20]
+  });
+};
+
 function MapTracker() {
-  const [position, setPosition] = useState<[number, number] | null>(null);
+  const DEFAULT_COORDS: [number, number] = [51.5074, -0.1278]; // Imperial Postal Hub
+  const [position, setPosition] = useState<[number, number]>(DEFAULT_COORDS);
   const [letters, setLetters] = useState<any[]>([]);
   const [activeUsers, setActiveUsers] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [vicinityRadius, setVicinityRadius] = useState<number>(50);
+  const [vicinityRadius, setVicinityRadius] = useState<number>(250);
   const [refreshing, setRefreshing] = useState(false);
   const [locating, setLocating] = useState(false);
   const [locatingSuccess, setLocatingSuccess] = useState<string | null>(null);
   const [isSharingLocation, setIsSharingLocation] = useState<boolean>(true);
+  const [clickToMoveEnabled, setClickToMoveEnabled] = useState<boolean>(false);
+  const [requestingMailmanId, setRequestingMailmanId] = useState<string | null>(null);
+  const [showRadarDispatchBox, setShowRadarDispatchBox] = useState<boolean>(true);
+  const [dispatchedRequestMailman, setDispatchedRequestMailman] = useState<{ id: string; name: string; status: 'pending' | 'accepted' | 'declined' | 'dispatched'; letterToken?: string; message?: string } | null>(null);
+  const [presentQrModal, setPresentQrModal] = useState<{ token: string; title: string } | null>(null);
   const user = getStoredUser();
   const [liveUser, setLiveUser] = useState<any>(user);
 
   const socketRef = useRef<Socket | null>(null);
   const watchIdRef = useRef<number | null>(null);
-  const positionRef = useRef<[number, number] | null>(null);
-  const vicinityRadiusRef = useRef<number>(50);
+  const positionRef = useRef<[number, number]>(DEFAULT_COORDS);
+  const vicinityRadiusRef = useRef<number>(250);
 
   useEffect(() => {
     positionRef.current = position;
@@ -7210,7 +7801,7 @@ function MapTracker() {
     vicinityRadiusRef.current = vicinityRadius;
   }, [vicinityRadius]);
 
-  const VICINITY_OPTIONS = [5, 10, 25, 50, 100, 250];
+  const VICINITY_OPTIONS = [5, 10, 25, 50, 100, 250, 500, 1000];
 
   const getZoomForVicinity = (radius: number) => {
     if (radius <= 5) return 21;
@@ -7218,12 +7809,24 @@ function MapTracker() {
     if (radius <= 25) return 19;
     if (radius <= 50) return 18;
     if (radius <= 100) return 17;
-    return 16;
+    if (radius <= 250) return 16;
+    if (radius <= 500) return 15;
+    return 14;
   };
 
   useEffect(() => {
     if (user?.id || user?._id) {
-      getUserProfile(user.id || user._id).then(setLiveUser).catch(() => {});
+      getUserProfile(user.id || user._id).then((profile) => {
+        setLiveUser(profile);
+        if (profile?.pickupAlertSettings?.radiusMeters) {
+          setVicinityRadius(profile.pickupAlertSettings.radiusMeters);
+        }
+        if (profile?.location?.coordinates && (profile.location.coordinates[0] !== 0 || profile.location.coordinates[1] !== 0)) {
+          const userSavedCoords: [number, number] = [profile.location.coordinates[1], profile.location.coordinates[0]];
+          setPosition(userSavedCoords);
+          emitJoinMap(userSavedCoords);
+        }
+      }).catch(() => {});
     }
   }, []);
 
@@ -7239,14 +7842,14 @@ function MapTracker() {
       }
     });
 
-    // Real-time instant addition when a user grants location or joins
+    // Real-time instant new user join
     socket.on('user-joined-map', (newUser: any) => {
-      if (newUser && (newUser.userId || newUser._id || newUser.id)) {
-        const newId = String(newUser.userId || newUser._id || newUser.id);
-        setActiveUsers(prev => [
-          ...prev.filter(u => String(u.userId || u._id || u.id) !== newId),
-          newUser
-        ]);
+      if (newUser && newUser.userId) {
+        const newId = String(newUser.userId);
+        setActiveUsers(prev => {
+          const filtered = prev.filter(u => String(u.userId || u._id || u.id) !== newId);
+          return [...filtered, newUser];
+        });
       }
     });
 
@@ -7295,6 +7898,55 @@ function MapTracker() {
       }
     });
 
+    // Scribe receives pickup response directly in MapTracker
+    socket.on('scribe-pickup-response', (responseData: any) => {
+      console.log('MapTracker received scribe-pickup-response:', responseData);
+      if (responseData.accepted) {
+        setDispatchedRequestMailman({
+          id: responseData.mailmanId,
+          name: responseData.mailmanName || 'Royal Mailman',
+          status: 'accepted',
+          letterToken: responseData.letterToken
+        });
+        setShowRadarDispatchBox(true);
+      } else {
+        setDispatchedRequestMailman({
+          id: responseData.mailmanId,
+          name: responseData.mailmanName || 'Royal Mailman',
+          status: 'declined'
+        });
+        setShowRadarDispatchBox(true);
+      }
+    });
+
+    // Real-time physical scan and handover completed
+    socket.on('letter-handover-animated', (handoverData: any) => {
+      console.log('MapTracker received letter-handover-animated:', handoverData);
+      const myId = String(user?.id || user?._id);
+      if (!myId) return;
+
+      const isMyLetter = String(handoverData.senderId) === myId || (presentQrModal && presentQrModal.token === handoverData.token);
+
+      if (isMyLetter) {
+        // 1. Automatically close the QR Presentation Modal!
+        setPresentQrModal(null);
+
+        // 2. Display the Dispatched Proof in the Upper-Middle HUD!
+        setDispatchedRequestMailman({
+          id: handoverData.mailmanId || '',
+          name: handoverData.mailmanName || 'Royal Mailman',
+          status: 'dispatched',
+          message: `📜 Missive Successfully Dispatched & Transferred to Mailman ${handoverData.mailmanName}'s Saddlebag!`
+        });
+        setShowRadarDispatchBox(true);
+
+        // 3. Automatically disappear after 10 seconds!
+        setTimeout(() => {
+          setDispatchedRequestMailman(prev => (prev?.status === 'dispatched' ? null : prev));
+        }, 10000);
+      }
+    });
+
     // Real-time letters update (when dispatched, picked up, or delivered)
     socket.on('letters-updated', () => {
       if (positionRef.current) {
@@ -7307,7 +7959,6 @@ function MapTracker() {
     });
 
     return () => {
-      // Clean up and emit leave-map on component unmount
       if (socket) {
         socket.emit('leave-map', { userId: user?.id || user?._id });
         socket.disconnect();
@@ -7338,9 +7989,29 @@ function MapTracker() {
     }
   };
 
+  const updateCoordinates = (newCoords: [number, number], message?: string) => {
+    setPosition(newCoords);
+    setIsSharingLocation(true);
+    setLocating(false);
+    setError(null);
+    setLocatingSuccess(message || `Coordinates synchronized: (${newCoords[0].toFixed(4)}, ${newCoords[1].toFixed(4)})`);
+    setTimeout(() => setLocatingSuccess(null), 4500);
+
+    emitJoinMap(newCoords);
+
+    if (socketRef.current && (user?.id || user?._id)) {
+      socketRef.current.emit('update-location', {
+        userId: user.id || user._id,
+        lat: newCoords[0],
+        lng: newCoords[1]
+      });
+    }
+  };
+
   const fetchLocation = () => {
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by thy browser.");
+      setError("Browser Geolocation is not supported. Thou canst click on the map to set thy coordinates manually.");
+      updateCoordinates(DEFAULT_COORDS, "Using Imperial Postal Hub coordinates.");
       return;
     }
     setLocating(true);
@@ -7350,16 +8021,8 @@ function MapTracker() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-        setPosition(coords);
-        setIsSharingLocation(true);
-        setLocating(false);
-        setError(null);
-        setLocatingSuccess(`Coordinates synchronized: (${coords[0].toFixed(4)}, ${coords[1].toFixed(4)})`);
-        setTimeout(() => setLocatingSuccess(null), 4500);
+        updateCoordinates(coords);
 
-        emitJoinMap(coords);
-
-        // Start continuous live GPS position watch
         if (watchIdRef.current === null) {
           watchIdRef.current = navigator.geolocation.watchPosition(
             (watchPos) => {
@@ -7379,12 +8042,13 @@ function MapTracker() {
         }
       },
       (err) => {
-        console.warn('Geolocation error:', err);
+        console.warn('Geolocation warning (using default/fallback):', err);
         setLocating(false);
         setLocatingSuccess(null);
-        setError("Could not locate thee upon the realm. Please ensure browser location permissions are granted.");
+        setError("GPS signal unreached (using Realm coordinates). Thou canst click anywhere on the map to reposition thy pin.");
+        updateCoordinates(DEFAULT_COORDS, "Realm Coordinates active upon map.");
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
   };
 
@@ -7397,7 +8061,6 @@ function MapTracker() {
       socketRef.current.emit('leave-map', { userId: user.id || user._id });
     }
     setIsSharingLocation(false);
-    setPosition(null);
     setLocatingSuccess("Location sharing paused. Thou art now cloaked from the realm.");
     setTimeout(() => setLocatingSuccess(null), 4500);
   };
@@ -7407,18 +8070,17 @@ function MapTracker() {
   }, []);
 
   const refreshMapData = async () => {
-    if (!position) return;
     setRefreshing(true);
     try {
       const [nearbyRes, mapUsers] = await Promise.all([
         fetch(`/api/letters/nearby?lat=${position[0]}&lng=${position[1]}&radius=${vicinityRadius}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('postmaster_token')}` }
-        }).then(r => r.json()),
-        getActiveMapUsers().catch(() => [])
+        }).then(r => r.json()).catch(() => []),
+        getActiveMapUsers(position[0], position[1], vicinityRadius, user?.id || user?._id).catch(() => [])
       ]);
 
       if (Array.isArray(nearbyRes)) setLetters(nearbyRes);
-      if (Array.isArray(mapUsers) && mapUsers.length > 0) setActiveUsers(mapUsers);
+      if (Array.isArray(mapUsers)) setActiveUsers(mapUsers);
     } catch (e) {
       console.error(e);
     } finally {
@@ -7427,7 +8089,7 @@ function MapTracker() {
   };
 
   useEffect(() => {
-    if (position) refreshMapData();
+    refreshMapData();
   }, [position, vicinityRadius]);
 
   const claimLetter = async (letter: any) => {
@@ -7440,17 +8102,34 @@ function MapTracker() {
     }
   };
 
-  // Fix Leaflet marker icon URLs for production
-  useEffect(() => {
-    import('leaflet').then(L => {
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      });
+  // Feature: Scribe sends a Pickup Request Ping to a real Mailman
+  const handleRequestPickupFromCourier = (targetCourier: any) => {
+    if (!socketRef.current || !user) return;
+    const courierId = String(targetCourier.userId || targetCourier._id);
+    const courierName = targetCourier.name || 'Royal Mailman';
+
+    setRequestingMailmanId(courierId);
+    setDispatchedRequestMailman({
+      id: courierId,
+      name: courierName,
+      status: 'pending'
     });
-  }, []);
+    setShowRadarDispatchBox(true);
+    setLocatingSuccess(`⏳ Herald dispatched to ${courierName}! Awaiting mailman's response...`);
+    setTimeout(() => setLocatingSuccess(null), 6000);
+
+    const letterToHandover = (lettersInVicinity.length > 0 ? lettersInVicinity[0] : null);
+
+    socketRef.current.emit('scribe-request-pickup', {
+      senderId: user.id || user._id,
+      senderName: user.name,
+      mailmanId: courierId,
+      letterId: letterToHandover?._id || '',
+      letterToken: letterToHandover?.qrCodeToken || '',
+      distanceMeters: targetCourier.calculatedDist,
+      message: "Noble Mailman, please accept custody of my sealed missive."
+    });
+  };
 
   // Filter letters within chosen vicinity and compute exact distance
   const lettersInVicinity = letters.map((l: any) => {
@@ -7460,25 +8139,33 @@ function MapTracker() {
     return { ...l, calculatedDist: dist };
   }).filter((l: any) => l.calculatedDist <= vicinityRadius);
 
-  // Map ALL active members (excluding self) with distance calculation
+  // Map active real members who are strictly within the user's defined vicinity radius
   const allOtherActiveUsers = activeUsers.map((u: any) => {
     const uid = String(u._id || u.userId || u.id);
     const currentId = String(user?.id || user?._id);
+
+    if (uid === currentId) {
+      return null;
+    }
+
     const uLat = u.lat ?? u.location?.coordinates?.[1];
     const uLng = u.lng ?? u.location?.coordinates?.[0];
 
-    if (uid === currentId || typeof uLat !== 'number' || typeof uLng !== 'number' || (uLat === 0 && uLng === 0)) {
+    if (typeof uLat !== 'number' || typeof uLng !== 'number' || (uLat === 0 && uLng === 0)) {
       return null;
     }
-    const dist = position ? calculateDistanceMeters(position[0], position[1], uLat, uLng) : 0;
-    const inVicinity = position ? dist <= vicinityRadius : true;
-    return { ...u, calculatedDist: dist, lat: uLat, lng: uLng, inVicinity };
+
+    const dist = calculateDistanceMeters(position[0], position[1], uLat, uLng);
+    const inVicinity = dist <= vicinityRadius;
+    if (!inVicinity) {
+      return null;
+    }
+
+    return { ...u, calculatedDist: dist, lat: uLat, lng: uLng, inVicinity: true };
   }).filter((u: any) => u !== null);
 
-  const nearbyCarriers = allOtherActiveUsers.filter(u => u.role === 'mailman' && u.inVicinity);
-  const nearbySenders = allOtherActiveUsers.filter(u => u.role !== 'mailman' && u.inVicinity);
-  const totalCarriers = allOtherActiveUsers.filter(u => u.role === 'mailman');
-  const totalSenders = allOtherActiveUsers.filter(u => u.role !== 'mailman');
+  const nearbyMailmen = allOtherActiveUsers.filter(u => u.role === 'mailman');
+  const nearbySenders = allOtherActiveUsers.filter(u => u.role !== 'mailman');
 
   return (
     <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="max-w-6xl mx-auto theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
@@ -7489,6 +8176,41 @@ function MapTracker() {
       {/* Top Gold Rule */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
+      {/* Presentation QR Code Modal */}
+      <AnimatePresence>
+        {presentQrModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="max-w-sm w-full theatrical-card p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden border-2 border-amber-500 text-center" style={{
+              background: 'linear-gradient(160deg, #1C1814 0%, #100E0C 100%)',
+              boxShadow: '0 0 50px rgba(212, 175, 55, 0.45)'
+            }}>
+              <button onClick={() => setPresentQrModal(null)} className="absolute top-3 right-3 text-amber-300 hover:text-white p-1">
+                <X className="w-5 h-5" />
+              </button>
+
+              <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-amber-400 block mb-1" style={{ fontFamily: "'Cinzel', serif" }}>
+                Present to Royal Mailman
+              </span>
+              <h3 className="text-xl font-bold mb-4" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel Decorative', serif" }}>
+                {presentQrModal.title}
+              </h3>
+
+              <div className="bg-white p-4 rounded-sm inline-block mx-auto shadow-inner border-4 border-amber-800/40 mb-4">
+                <QRCodeCanvas value={presentQrModal.token} size={220} fgColor="#1A1A1A" />
+              </div>
+
+              <p className="text-xs italic text-amber-200/90 font-serif leading-relaxed">
+                Hold up this seal for the Mailman to scan with their device camera / scanner. Custody will officially transfer once scanned!
+              </p>
+
+              <button onClick={() => setPresentQrModal(null)} className="btn-gold-saloon mt-5 w-full py-2.5 text-xs font-bold justify-center">
+                Done / Close Seal
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
         <div>
           <div className="flex items-center gap-3">
@@ -7496,7 +8218,7 @@ function MapTracker() {
               <span>🧭 Cartographer's Scriptorium</span>
             </div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ background: 'rgba(16,185,129,0.15)', color: '#34D399', border: '1px solid rgba(16,185,129,0.4)', fontFamily: "'Cinzel', serif" }}>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Realm ({allOtherActiveUsers.length + (position ? 1 : 0)})
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Realm ({allOtherActiveUsers.length + 1})
             </span>
           </div>
 
@@ -7506,11 +8228,41 @@ function MapTracker() {
           </h2>
           <p className="text-sm sm:text-base italic mt-1" style={{ color: 'var(--gold-muted)' }}>
             {user?.role === 'mailman' 
-              ? 'Real-time radar: Claim nearby missives and see active carriers & senders instantly as they traverse the realm.'
-              : 'Real-time radar: Track nearby royal carriers and fellow senders live across the realm.'}
+              ? 'Real-time radar: Claim nearby missives and see active senders live across the realm.'
+              : 'Real-time radar: Track nearby royal mailmen and ping mailmen to accept custody of thy missives.'}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Dispatch HUD Toggle */}
+          <button
+            onClick={() => setShowRadarDispatchBox(!showRadarDispatchBox)}
+            className={`px-3 py-2 rounded-sm font-bold text-xs shadow flex items-center gap-1.5 transition-all border ${
+              showRadarDispatchBox 
+                ? 'bg-amber-600 text-white border-amber-300' 
+                : 'bg-white/5 text-amber-200 border-amber-500/30 hover:bg-white/10'
+            }`}
+            style={{ fontFamily: "'Cinzel', serif" }}
+            title="Toggle Mailman Dispatch HUD"
+          >
+            <Radio className="w-3.5 h-3.5 text-amber-300" />
+            <span>{showRadarDispatchBox ? 'Hide Dispatch HUD' : 'Show Dispatch HUD'}</span>
+          </button>
+
+          {/* Click to Pin / Reposition Toggle */}
+          <button 
+            onClick={() => setClickToMoveEnabled(!clickToMoveEnabled)}
+            className={`px-3 py-2 rounded-sm font-bold text-xs shadow flex items-center gap-1.5 transition-all border ${
+              clickToMoveEnabled 
+                ? 'bg-amber-600 text-white border-amber-300 animate-pulse' 
+                : 'bg-white/5 text-amber-200/80 border-amber-500/30 hover:bg-white/10'
+            }`}
+            style={{ fontFamily: "'Cinzel', serif" }}
+            title="Click anywhere on the map to reposition thy pin"
+          >
+            <MapPin className="w-3.5 h-3.5 text-amber-400" />
+            <span>{clickToMoveEnabled ? 'Click Map to Move' : 'Reposition Pin'}</span>
+          </button>
+
           {isSharingLocation ? (
             <button 
               onClick={stopSharingLocation}
@@ -7518,7 +8270,7 @@ function MapTracker() {
               style={{ background: '#7F1D1D', border: '1px solid #DC2626', fontFamily: "'Cinzel', serif" }}
               title="Cloak thy position and stop sharing GPS location"
             >
-              <X className="w-3.5 h-3.5" /> Cloak Position
+              <X className="w-3.5 h-3.5" /> Cloak
             </button>
           ) : (
             <button 
@@ -7538,7 +8290,7 @@ function MapTracker() {
             title="Update celestial GPS coordinates"
           >
             <Radio className={`w-4 h-4 text-emerald-400 ${locating ? 'animate-spin' : 'animate-pulse'}`} /> 
-            {locating ? 'Relocating...' : 'Relocate Me'}
+            {locating ? 'Locating...' : 'GPS Relocate'}
           </button>
           <button 
             onClick={refreshMapData} 
@@ -7546,10 +8298,207 @@ function MapTracker() {
             className="btn-velvet-burgundy text-xs py-2 px-4 flex items-center gap-1.5"
           >
             <Feather className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} /> 
-            {refreshing ? 'Scanning...' : 'Refresh Realm'}
+            {refreshing ? 'Scanning...' : 'Refresh'}
           </button>
         </div>
       </div>
+
+      {/* Upper-Middle Realm Radar Dispatch HUD Box */}
+      <AnimatePresence>
+        {showRadarDispatchBox && (
+          <motion.div 
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            className="mb-6 p-4 sm:p-5 rounded-sm shadow-2xl relative overflow-hidden animate-curtain-reveal"
+            style={{
+              background: 'linear-gradient(135deg, rgba(28,24,20,0.97) 0%, rgba(18,16,14,0.98) 100%)',
+              border: '2px solid var(--antique-gold)',
+              boxShadow: '0 10px 35px rgba(0,0,0,0.7), 0 0 20px rgba(212,175,55,0.2)'
+            }}
+          >
+            {/* Top Gold Trim */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
+
+            <div className="flex items-center justify-between border-b border-amber-500/25 pb-3 mb-3.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center">
+                  <Radio className="w-4 h-4 text-amber-300 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
+                    <span>📡 Missive Dispatch Radar</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                      {vicinityRadius}m Radar
+                    </span>
+                  </h3>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowRadarDispatchBox(false)}
+                className="text-amber-400/70 hover:text-white p-1 rounded hover:bg-white/5 transition-colors"
+                title="Minimize HUD"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Body based on State */}
+            {dispatchedRequestMailman?.status === 'dispatched' ? (
+              <div className="p-4 rounded-sm bg-emerald-950/80 border-2 border-emerald-400 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-curtain-reveal">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-900 border-2 border-emerald-400 flex items-center justify-center text-xl shadow-lg animate-bounce">
+                    ✨
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-emerald-300 flex items-center gap-2" style={{ fontFamily: "'Cinzel', serif" }}>
+                      <span>📜 Missive Successfully Dispatched!</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-800/80 text-emerald-200 border border-emerald-500/50 uppercase tracking-widest font-mono">
+                        Handover Verified
+                      </span>
+                    </p>
+                    <p className="text-xs italic text-emerald-100/90 font-serif mt-0.5">
+                      {dispatchedRequestMailman.message || `Custody has been officially transferred to Mailman ${dispatchedRequestMailman.name}'s Saddlebag!`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setDispatchedRequestMailman(null)}
+                  className="px-3 py-1.5 rounded text-xs font-bold text-emerald-200 hover:text-white bg-emerald-900/90 border border-emerald-500/50 shadow whitespace-nowrap"
+                >
+                  Dismiss Proof
+                </button>
+              </div>
+            ) : dispatchedRequestMailman?.status === 'accepted' ? (
+              <div className="p-4 rounded-sm bg-emerald-950/70 border border-emerald-500/50 flex flex-col sm:flex-row items-center justify-between gap-4 animate-curtain-reveal">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">🎉</span>
+                  <div>
+                    <p className="text-sm font-bold text-emerald-300" style={{ fontFamily: "'Cinzel', serif" }}>
+                      Mailman {dispatchedRequestMailman.name} Accepted!
+                    </p>
+                    <p className="text-xs italic text-emerald-100/90 font-serif">
+                      The mailman is on their way, please wait patiently! Present thy QR Seal below for scanning:
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    onClick={() => {
+                      const token = dispatchedRequestMailman.letterToken || (lettersInVicinity[0]?.qrCodeToken) || '';
+                      setPresentQrModal({
+                        token: token,
+                        title: `Handover to Mailman ${dispatchedRequestMailman.name}`
+                      });
+                    }}
+                    className="btn-gold-saloon text-xs py-2 px-3.5 font-bold flex items-center gap-1.5 shadow-lg whitespace-nowrap"
+                  >
+                    <span>📜 Present QR Seal</span>
+                  </button>
+                  <button
+                    onClick={() => setDispatchedRequestMailman(null)}
+                    className="px-3 py-2 text-xs font-bold text-emerald-200 hover:text-white bg-emerald-900/60 rounded border border-emerald-600/40"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            ) : dispatchedRequestMailman?.status === 'pending' ? (
+              <div className="p-4 rounded-sm bg-amber-950/70 border border-amber-500/50 flex flex-col sm:flex-row items-center justify-between gap-4 animate-glow-pulse">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl animate-spin-slow">⏳</span>
+                  <div>
+                    <p className="text-sm font-bold text-amber-300" style={{ fontFamily: "'Cinzel', serif" }}>
+                      Herald Dispatched to {dispatchedRequestMailman.name}...
+                    </p>
+                    <p className="text-xs italic text-amber-200/90 font-serif">
+                      Awaiting mailman's response to take custody of thy sealed missive.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setDispatchedRequestMailman(null);
+                    setRequestingMailmanId(null);
+                  }}
+                  className="px-3 py-1.5 rounded bg-black/40 hover:bg-black/60 text-xs font-bold text-amber-300 border border-amber-500/30"
+                >
+                  Cancel Request
+                </button>
+              </div>
+            ) : dispatchedRequestMailman?.status === 'declined' ? (
+              <div className="p-4 rounded-sm bg-red-950/70 border border-red-500/50 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-bold text-red-300" style={{ fontFamily: "'Cinzel', serif" }}>
+                    Mailman {dispatchedRequestMailman.name} is currently unavailable.
+                  </p>
+                  <p className="text-xs italic text-red-200 font-serif">
+                    Thou canst select another mailman in range or wait for them to be ready.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setDispatchedRequestMailman(null)}
+                  className="px-3 py-1.5 rounded bg-red-900/80 text-xs font-bold text-white border border-red-500/40"
+                >
+                  Dismiss
+                </button>
+              </div>
+            ) : (
+              <div>
+                {user?.role === 'mailman' ? (
+                  <div className="p-3 bg-amber-900/20 rounded border border-amber-500/30 text-xs text-amber-200/90 flex items-center justify-between">
+                    <span>🏇 Royal Mailman Mode: Broadcasting celestial coordinates. Scribes in thy perimeter can send pickup pings to thee.</span>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-xs italic text-amber-200/80 mb-2.5 font-serif">
+                      {nearbyMailmen.length > 0 
+                        ? `Select an active Royal Mailman within thy ${vicinityRadius}m radar to send a pickup request:`
+                        : `No Royal Mailmen currently within thy ${vicinityRadius}m perimeter.`}
+                    </p>
+
+                    {nearbyMailmen.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {nearbyMailmen.map((m: any) => (
+                          <div key={m.userId || m._id} className="p-3 rounded-sm bg-black/40 border border-amber-500/25 flex flex-col justify-between gap-2.5 hover:border-amber-400 transition-colors">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <span className="text-sm font-bold text-amber-200 block" style={{ fontFamily: "'Cinzel', serif" }}>
+                                  {m.name}
+                                </span>
+                                <span className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                  {m.calculatedDist}m away
+                                </span>
+                              </div>
+                              <span className="text-xs px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-500/30 text-amber-300 font-mono">
+                                {m.rank || 'Mailman'}
+                              </span>
+                            </div>
+
+                            <button
+                              onClick={() => handleRequestPickupFromCourier(m)}
+                              disabled={requestingMailmanId === (m.userId || m._id)}
+                              className="btn-gold-saloon w-full py-1.5 text-xs font-bold justify-center flex items-center gap-1 shadow-md"
+                            >
+                              <Send className="w-3.5 h-3.5" />
+                              <span>{requestingMailmanId === (m.userId || m._id) ? '⏳ Dispatched...' : '🏇 Request Pickup'}</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded bg-black/30 border border-amber-500/20 text-xs text-amber-300/70 flex items-center justify-between">
+                        <span>💡 Try increasing thy radar radius above (e.g. 500m or 1000m) to reach more mailmen across the realm.</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {locatingSuccess && (
         <div className="p-3.5 mb-4 rounded-sm text-sm font-bold flex items-center gap-2 shadow-md animate-curtain-reveal" style={{ background: 'rgba(16,185,129,0.15)', color: '#6EE7B7', border: '1px solid rgba(16,185,129,0.4)' }}>
@@ -7558,8 +8507,14 @@ function MapTracker() {
       )}
 
       {error && (
-        <div className="p-4 mb-4 rounded-sm text-center italic" style={{ background: 'rgba(107,29,42,0.4)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
-          {error}
+        <div className="p-3.5 mb-4 rounded-sm text-xs text-center italic flex items-center justify-between gap-3" style={{ background: 'rgba(107,29,42,0.4)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
+          <span>{error}</span>
+          <button 
+            onClick={() => setClickToMoveEnabled(true)}
+            className="text-[11px] font-bold px-2 py-1 rounded bg-red-950/80 hover:bg-red-900 border border-red-500/50 text-white"
+          >
+            Set Pin on Map
+          </button>
         </div>
       )}
 
@@ -7589,180 +8544,211 @@ function MapTracker() {
         <div className="flex flex-wrap items-center gap-3 text-xs font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-sm" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(59,130,246,0.5)', color: '#93C5FD' }}>
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block shadow-sm"></span> 
-            Thou ({user?.name || 'Carrier'})
+            Thou ({user?.name || (user?.role === 'mailman' ? 'Mailman' : 'Scribe')})
           </span>
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-sm" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(212,175,55,0.5)', color: 'var(--antique-gold)' }}>
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shadow-sm"></span> 
             Missives ({lettersInVicinity.length})
           </span>
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-sm" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(16,185,129,0.5)', color: '#6EE7B7' }}>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shadow-sm"></span> 
-            Carriers ({nearbyCarriers.length}/{totalCarriers.length})
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-sm animate-pulse"></span> 
+            Mailmen in Radar ({nearbyMailmen.length})
           </span>
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-sm" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(168,85,247,0.5)', color: '#D8B4FE' }}>
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block shadow-sm"></span> 
-            Senders ({nearbySenders.length}/{totalSenders.length})
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shadow-sm"></span> 
+            Senders in Radar ({nearbySenders.length})
           </span>
         </div>
       </div>
 
-      {!position && !error && (
-        <div className="p-16 text-center italic flex flex-col items-center justify-center gap-3 rounded-sm" style={{ background: `linear-gradient(rgba(14,13,12,0.85), rgba(14,13,12,0.85)), url(${antiqueCartographyMap})`, backgroundSize: 'cover', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
-          <Compass className="w-14 h-14 animate-spin" style={{ color: 'var(--antique-gold)' }} />
-          <p className="text-xl font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Triangulating thy celestial coordinates upon the realm...</p>
-          <p className="text-sm">Please grant browser location permission to view thy vicinity radar.</p>
-        </div>
-      )}
+      <div className="h-[620px] w-full rounded-sm overflow-hidden shadow-2xl relative" style={{ border: '2px solid var(--antique-gold)', filter: 'sepia(15%) contrast(98%) brightness(96%)' }}>
+        <MapContainer 
+          center={position} 
+          zoom={getZoomForVicinity(vicinityRadius)} 
+          minZoom={3}
+          maxZoom={22} 
+          scrollWheelZoom={true} 
+          className="h-full w-full"
+        >
+          <MapRecenter center={position} zoom={getZoomForVicinity(vicinityRadius)} />
+          <MapClickHandler onMapClick={(coords) => updateCoordinates(coords, `Pin placed upon (${coords[0].toFixed(4)}, ${coords[1].toFixed(4)})`)} enabled={clickToMoveEnabled} />
 
-      {position && (
-        <>
-          <div className="h-[620px] w-full rounded-sm overflow-hidden shadow-2xl relative" style={{ border: '2px solid var(--antique-gold)', filter: 'sepia(20%) contrast(98%) brightness(96%)' }}>
-            <MapContainer 
-              center={position} 
-              zoom={getZoomForVicinity(vicinityRadius)} 
-              minZoom={3}
-              maxZoom={22} 
-              scrollWheelZoom={true} 
-              className="h-full w-full"
-            >
-              <MapRecenter center={position} zoom={getZoomForVicinity(vicinityRadius)} />
-
-              {/* Reliable High-Precision OpenStreetMap Tiles */}
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                maxNativeZoom={19}
-                maxZoom={22}
-              />
-              
-              {/* User's current position */}
-              <Marker position={position}>
-                <Popup>
-                  <div className="font-serif text-[#1A1A1A] text-center p-1.5 min-w-[160px]">
-                    <p className="font-bold text-base border-b border-[#D8CCA8] pb-1">📍 Thou Art Here</p>
-                    <p className="text-sm font-semibold mt-1" style={{ color: 'var(--burgundy)' }}>{user?.name}</p>
-                    <p className="text-xs italic capitalize">Role: {user?.role}</p>
-                    {liveUser?.noteStatus && !liveUser?.isNoteExpired && (
-                      <div className="text-xs italic bg-amber-50 p-1.5 rounded mt-1.5 border border-amber-200 text-left flex items-start gap-1.5 shadow-sm">
-                        <span className="text-sm flex-shrink-0">{NOTE_STATUS_MOODS[liveUser.noteStatusMood || 'quill']?.icon || '🪶'}</span>
-                        <span className="font-serif">"{liveUser.noteStatus}"</span>
-                      </div>
-                    )}
-                    <p className="text-xs text-gray-600 mt-1 bg-amber-50 p-1 rounded border border-amber-200">Active Radar: {vicinityRadius}m</p>
+          {/* Reliable High-Precision OpenStreetMap Tiles */}
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            maxNativeZoom={19}
+            maxZoom={22}
+          />
+          
+          {/* User's current position (Thou) */}
+          <Marker position={position} icon={createRealmDivIcon('self')}>
+            <Popup>
+              <div className="font-serif text-[#1A1A1A] text-center p-1.5 min-w-[170px]">
+                <p className="font-bold text-base border-b border-[#D8CCA8] pb-1">📍 Thou Art Here</p>
+                <p className="text-sm font-semibold mt-1" style={{ color: 'var(--burgundy)' }}>{user?.name}</p>
+                <p className="text-xs italic capitalize font-semibold">Role: {user?.role === 'mailman' ? '🏇 Royal Mailman' : '📜 Noble Scribe'}</p>
+                {liveUser?.noteStatus && !liveUser?.isNoteExpired && (
+                  <div className="text-xs italic bg-amber-50 p-1.5 rounded mt-1.5 border border-amber-200 text-left flex items-start gap-1.5 shadow-sm">
+                    <span className="text-sm flex-shrink-0">{NOTE_STATUS_MOODS[liveUser.noteStatusMood || 'quill']?.icon || '🪶'}</span>
+                    <span className="font-serif">"{liveUser.noteStatus}"</span>
                   </div>
-                </Popup>
-              </Marker>
-
-              {/* Vicinity radius circle */}
-              <Circle
-                center={position}
-                radius={vicinityRadius}
-                pathOptions={{ 
-                  color: '#D4AF37', 
-                  fillColor: '#D4AF37', 
-                  fillOpacity: 0.18, 
-                  weight: 2.5, 
-                  dashArray: '8, 8' 
-                }}
-              />
-
-              {/* Nearby Letters awaiting collection in vicinity */}
-              {lettersInVicinity.map((letter: any) => (
-                <Marker 
-                  key={letter._id} 
-                  position={[letter.senderLocation.lat, letter.senderLocation.lng]}
-                >
-                  <Popup>
-                    <div className="font-serif text-[#1A1A1A] p-1.5 min-w-[200px]">
-                      <div className="flex items-center justify-between border-b border-[#D8CCA8] pb-1">
-                        <p className="font-bold text-base flex items-center gap-1">📜 Missive Awaits</p>
-                        <span className="text-xs bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold">{letter.calculatedDist}m away</span>
-                      </div>
-                      <p className="text-xs mt-2"><span className="font-semibold">From:</span> {letter.senderRef?.name || 'Unknown'}</p>
-                      {letter.receiverRef && <p className="text-xs"><span className="font-semibold">To:</span> {letter.receiverRef?.name || 'Unknown'}</p>}
-                      {letter.burnAfterReading && <p className="text-xs text-red-700 font-bold mt-1">🔥 Burns in {letter.burnTimerSeconds || 60}s</p>}
-                      {user?.role === 'mailman' ? (
-                        <button
-                          onClick={() => claimLetter(letter)}
-                          className="mt-2.5 w-full py-1.5 px-3 bg-[#7A1E2E] hover:bg-[#5C1623] text-white text-xs font-bold rounded shadow transition-colors"
-                        >
-                          Claim this Missive
-                        </button>
-                      ) : (
-                        <p className="text-[11px] italic mt-2 bg-[#FAF0E6] p-1 rounded border border-[#D8CCA8] text-center">
-                          Awaiting carrier pickup
-                        </p>
-                      )}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-
-              {/* Other active Guild travellers across the realm */}
-              {allOtherActiveUsers.map((u: any) => (
-                <Marker key={u.userId || u._id || u.id} position={[u.lat, u.lng]}>
-                  <Popup>
-                    <div className="font-serif text-[#1A1A1A] text-center p-1.5 min-w-[170px]">
-                      <div className="flex items-center justify-between border-b border-[#D8CCA8] pb-1">
-                        <p className="font-bold text-base">{u.name}</p>
-                        <span className={`text-xs px-1.5 py-0.5 rounded font-bold ${u.inVicinity ? 'bg-emerald-100 text-emerald-900' : 'bg-gray-100 text-gray-800'}`}>
-                          {u.calculatedDist}m away {u.inVicinity ? '🎯' : ''}
-                        </span>
-                      </div>
-                      <p className="text-xs italic capitalize mt-1" style={{ color: 'var(--burgundy)' }}>
-                        {u.role === 'mailman' ? '🏇 Royal Mailman' : '📜 Noble Scribe'}
-                      </p>
-                      {u.role === 'mailman' && <p className="text-xs font-semibold">Rank: {u.rank || 'Novice'} • {u.xp || 0} XP</p>}
-                      {u.role !== 'mailman' && <p className="text-xs font-semibold">Reputation: {u.reputationScore || 0}</p>}
-                      {u.noteStatus && (
-                        <div className="text-xs italic bg-amber-50 p-1.5 rounded mt-1.5 border border-amber-200 text-left flex items-start gap-1.5 shadow-sm">
-                          <span className="text-sm flex-shrink-0">{NOTE_STATUS_MOODS[u.noteStatusMood || 'quill']?.icon || '🪶'}</span>
-                          <span className="font-serif">"{u.noteStatus}"</span>
-                        </div>
-                      )}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="p-4 rounded-sm shadow" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
-              <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
-                <Scroll className="w-5 h-5 text-[var(--antique-gold)]" /> 
-                {lettersInVicinity.length} Missive{lettersInVicinity.length !== 1 ? 's' : ''} in {vicinityRadius}m Radar
-              </p>
-              <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-                {lettersInVicinity.length > 0 ? 'Click pins upon the map to inspect waiting missives.' : 'No uncollected missives found within this radius.'}
-              </p>
-            </div>
-            <div className="p-4 rounded-sm shadow" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
-              <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
-                <Crown className="w-5 h-5 text-[var(--antique-gold)]" />
-                {nearbyCarriers.length} Carrier{nearbyCarriers.length !== 1 ? 's' : ''} in Radar ({totalCarriers.length} in Realm)
-              </p>
-              <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-                {totalCarriers.length > 0 ? 'Royal couriers on duty broadcasting celestial coordinates.' : 'No couriers currently active upon the realm.'}
-              </p>
-            </div>
-            <div className="p-4 rounded-sm shadow flex flex-col justify-between" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
-              <div>
-                <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
-                  <Users className="w-5 h-5 text-[var(--antique-gold)]" />
-                  {nearbySenders.length} Scribe{nearbySenders.length !== 1 ? 's' : ''} in Radar ({totalSenders.length} in Realm)
-                </p>
-                <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-                  Active scholars and senders upon the map.
-                </p>
+                )}
+                <p className="text-xs text-amber-900 font-bold mt-1.5 bg-amber-100 p-1 rounded border border-amber-300">Active Radar: {vicinityRadius}m</p>
               </div>
-              <Link to="/compose" className="btn-velvet-burgundy mt-3 text-xs justify-center py-2 px-4">
-                ✍️ Inscribe Missive Here
-              </Link>
-            </div>
+            </Popup>
+          </Marker>
+
+          {/* Vicinity radius circle */}
+          <Circle
+            center={position}
+            radius={vicinityRadius}
+            pathOptions={{ 
+              color: '#D4AF37', 
+              fillColor: '#D4AF37', 
+              fillOpacity: 0.16, 
+              weight: 2.5, 
+              dashArray: '8, 8' 
+            }}
+          />
+
+          {/* Nearby Letters awaiting collection in vicinity */}
+          {lettersInVicinity.map((letter: any) => (
+            <Marker 
+              key={letter._id} 
+              position={[letter.senderLocation.lat, letter.senderLocation.lng]}
+              icon={createRealmDivIcon('letter')}
+            >
+              <Popup>
+                <div className="font-serif text-[#1A1A1A] p-1.5 min-w-[200px]">
+                  <div className="flex items-center justify-between border-b border-[#D8CCA8] pb-1">
+                    <p className="font-bold text-base flex items-center gap-1">📜 Missive Awaits</p>
+                    <span className="text-xs bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold">{letter.calculatedDist}m away</span>
+                  </div>
+                  <p className="text-xs mt-2"><span className="font-semibold">From:</span> {letter.senderRef?.name || 'Unknown'}</p>
+                  {letter.receiverRef && <p className="text-xs"><span className="font-semibold">To:</span> {letter.receiverRef?.name || 'Unknown'}</p>}
+                  {letter.burnAfterReading && <p className="text-xs text-red-700 font-bold mt-1">🔥 Burns in {letter.burnTimerSeconds || 60}s</p>}
+                  {user?.role === 'mailman' ? (
+                    <button
+                      onClick={() => claimLetter(letter)}
+                      className="mt-2.5 w-full py-1.5 px-3 bg-[#7A1E2E] hover:bg-[#5C1623] text-white text-xs font-bold rounded shadow transition-colors"
+                    >
+                      Claim this Missive
+                    </button>
+                  ) : (
+                    <p className="text-[11px] italic mt-2 bg-[#FAF0E6] p-1 rounded border border-[#D8CCA8] text-center">
+                      Awaiting mailman pickup
+                    </p>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+          {/* Other active Guild travellers strictly within user-defined radar perimeter */}
+          {allOtherActiveUsers.map((u: any) => (
+            <Marker 
+              key={u.userId || u._id || u.id} 
+              position={[u.lat, u.lng]}
+              icon={createRealmDivIcon(u.role === 'mailman' ? 'mailman' : 'sender', u.inVicinity)}
+            >
+              <Popup>
+                <div className="font-serif text-[#1A1A1A] text-center p-1.5 min-w-[200px]">
+                  <div className="flex items-center justify-between border-b border-[#D8CCA8] pb-1">
+                    <p className="font-bold text-base">{u.name}</p>
+                    <span className={`text-xs px-1.5 py-0.5 rounded font-bold ${u.inVicinity ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-gray-100 text-gray-800'}`}>
+                      {u.calculatedDist}m away {u.inVicinity ? '🏇' : ''}
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold capitalize mt-1" style={{ color: u.role === 'mailman' ? '#B45309' : '#047857' }}>
+                    {u.role === 'mailman' ? '🏇 Royal Mailman' : '📜 Noble Scribe'}
+                  </p>
+                  {u.role === 'mailman' && <p className="text-xs font-semibold text-gray-700">Rank: {u.rank || 'Mailman'} • {u.xp || 0} XP</p>}
+                  {u.role !== 'mailman' && <p className="text-xs font-semibold text-gray-700">Reputation: {u.reputationScore || 0}</p>}
+                  {u.noteStatus && (
+                    <div className="text-xs italic bg-amber-50 p-1.5 rounded mt-1.5 border border-amber-200 text-left flex items-start gap-1.5 shadow-sm">
+                      <span className="text-sm flex-shrink-0">{NOTE_STATUS_MOODS[u.noteStatusMood || 'quill']?.icon || '🪶'}</span>
+                      <span className="font-serif">"{u.noteStatus}"</span>
+                    </div>
+                  )}
+
+                  {/* Scribe can ping this real Mailman to take letter */}
+                  {user?.role !== 'mailman' && u.role === 'mailman' && (
+                    <button
+                      onClick={() => handleRequestPickupFromCourier(u)}
+                      disabled={requestingMailmanId === (u.userId || u._id)}
+                      className="mt-3 w-full py-2 px-3 btn-gold-saloon text-xs font-bold justify-center flex items-center gap-1.5 shadow-md animate-glow-pulse"
+                      title="Send pickup request to this mailman"
+                    >
+                      <Crown className="w-3.5 h-3.5 text-amber-300" />
+                      <span>{requestingMailmanId === (u.userId || u._id) ? '⏳ Herald Sent...' : '🏇 Ping Mailman to Take Letter'}</span>
+                    </button>
+                  )}
+
+                  {u.inVicinity && u.role === 'mailman' && (
+                    <div className="mt-2 text-[10px] font-bold text-emerald-800 bg-emerald-100 py-1 px-2 rounded border border-emerald-300">
+                      🎯 Within Thy Alert Radius ({vicinityRadius}m)
+                    </div>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div className="p-4 rounded-sm shadow" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+          <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
+            <Scroll className="w-5 h-5 text-[var(--antique-gold)]" /> 
+            {lettersInVicinity.length} Missive{lettersInVicinity.length !== 1 ? 's' : ''} in {vicinityRadius}m Radar
+          </p>
+          <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
+            {lettersInVicinity.length > 0 ? 'Click pins upon the map to inspect waiting missives.' : 'No uncollected missives found within this radius.'}
+          </p>
+        </div>
+        <div className="p-4 rounded-sm shadow flex flex-col justify-between" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+          <div>
+            <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
+              <Crown className="w-5 h-5 text-[var(--antique-gold)]" />
+              {nearbyMailmen.length} Mailman{nearbyMailmen.length !== 1 ? 'men' : ''} in {vicinityRadius}m Radar
+            </p>
+            <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
+              {nearbyMailmen.length > 0 ? 'Active mailmen currently within thy radar perimeter.' : `No active mailmen within ${vicinityRadius}m.`}
+            </p>
           </div>
-        </>
-      )}
+          {user?.role !== 'mailman' && nearbyMailmen.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {nearbyMailmen.slice(0, 3).map((c: any) => (
+                <div key={c.userId || c._id} className="flex items-center justify-between p-2 rounded bg-black/40 border border-amber-500/20 text-xs">
+                  <span className="font-bold text-amber-200">{c.name} ({c.calculatedDist}m)</span>
+                  <button
+                    onClick={() => handleRequestPickupFromCourier(c)}
+                    disabled={requestingMailmanId === (c.userId || c._id)}
+                    className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white font-bold text-[11px]"
+                  >
+                    {requestingMailmanId === (c.userId || c._id) ? '⏳ Sent' : '🏇 Ping Mailman'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="p-4 rounded-sm shadow flex flex-col justify-between" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+          <div>
+            <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
+              <Users className="w-5 h-5 text-[var(--antique-gold)]" />
+              {nearbySenders.length} Scribe{nearbySenders.length !== 1 ? 's' : ''} in {vicinityRadius}m Radar
+            </p>
+            <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
+              {nearbySenders.length > 0 ? 'Active scholars and senders within thy radar.' : `No active scribes within ${vicinityRadius}m.`}
+            </p>
+          </div>
+          <Link to="/compose" className="btn-velvet-burgundy mt-3 text-xs justify-center py-2 px-4">
+            ✍️ Inscribe Missive Here
+          </Link>
+        </div>
+      </div>
     </motion.div>
   );
 }

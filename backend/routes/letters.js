@@ -4,6 +4,7 @@ const Letter = require('../models/Letter');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
+const { checkProximityForNewLetter } = require('../proximityService');
 
 // Get all letters where user is the Sender (Active, non-trashed, non-abandoned, sorted latest to oldest)
 router.get('/user/:userId', async (req, res) => {
@@ -86,6 +87,23 @@ router.post('/', async (req, res) => {
     const initialStatus = status === 'draft' ? 'draft' : 'pending';
     const qrCodeToken = initialStatus === 'pending' ? uuidv4() : undefined;
 
+    // Resolve coordinates for letter
+    let resolvedSenderLocation = (senderLocation && typeof senderLocation.lat === 'number' && typeof senderLocation.lng === 'number')
+      ? senderLocation
+      : undefined;
+
+    if (!resolvedSenderLocation && senderRef) {
+      const senderUser = await User.findById(senderRef).select('location');
+      if (senderUser?.location?.coordinates && (senderUser.location.coordinates[0] !== 0 || senderUser.location.coordinates[1] !== 0)) {
+        resolvedSenderLocation = {
+          lat: senderUser.location.coordinates[1],
+          lng: senderUser.location.coordinates[0]
+        };
+      } else {
+        resolvedSenderLocation = { lat: 51.5074, lng: -0.1278 };
+      }
+    }
+
     const letterData = {
       senderRef,
       content,
@@ -97,7 +115,7 @@ router.post('/', async (req, res) => {
       status: initialStatus,
       burnAfterReading: !!burnAfterReading,
       burnTimerSeconds: Number(burnTimerSeconds) > 0 ? Number(burnTimerSeconds) : 60,
-      senderLocation: senderLocation && typeof senderLocation.lat === 'number' ? senderLocation : undefined,
+      senderLocation: resolvedSenderLocation,
       sealedAt: initialStatus === 'pending' ? Date.now() : undefined
     };
 
@@ -131,7 +149,12 @@ router.post('/', async (req, res) => {
         $inc: { reputationScore: REPUTATION_PER_LETTER, lettersSent: 1 }
       });
       const io = req.app.get('io');
+      const activeMapUsers = req.app.get('activeMapUsers');
+      const userSocketMap = req.app.get('userSocketMap');
       if (io) io.emit('letters-updated');
+      if (io && activeMapUsers) {
+        checkProximityForNewLetter(newLetter, io, activeMapUsers, userSocketMap);
+      }
     }
 
     res.status(201).json(newLetter);
@@ -159,6 +182,7 @@ router.put('/:id', async (req, res) => {
     }
     if (typeof burnAfterReading === 'boolean') letter.burnAfterReading = burnAfterReading;
     if (Number(burnTimerSeconds) > 0) letter.burnTimerSeconds = Number(burnTimerSeconds);
+    if (req.body.scheduledFor !== undefined) letter.scheduledFor = req.body.scheduledFor;
 
     if (receiverRef && receiverRef.trim() !== '') {
       const query = receiverRef.trim();
@@ -192,6 +216,13 @@ router.put('/:id', async (req, res) => {
       await User.findByIdAndUpdate(letter.senderRef, {
         $inc: { reputationScore: REPUTATION_PER_LETTER, lettersSent: 1 }
       });
+      const io = req.app.get('io');
+      const activeMapUsers = req.app.get('activeMapUsers');
+      const userSocketMap = req.app.get('userSocketMap');
+      if (io) io.emit('letters-updated');
+      if (io && activeMapUsers) {
+        checkProximityForNewLetter(letter, io, activeMapUsers, userSocketMap);
+      }
     }
 
     res.json(letter);
@@ -206,6 +237,9 @@ router.put('/:id/read', async (req, res) => {
   try {
     const letter = await Letter.findById(req.params.id);
     if (!letter) return res.status(404).json({ message: 'Letter not found' });
+    if (letter.scheduledFor && new Date(letter.scheduledFor).getTime() > Date.now()) {
+      return res.status(403).json({ message: 'Missive is sealed in a Time Capsule until the appointed hour.' });
+    }
     letter.isRead = true;
     if (!letter.firstReadAt) {
       letter.firstReadAt = Date.now();

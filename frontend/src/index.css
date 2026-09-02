@@ -1884,4 +1884,46 @@ p, span, a, label, li {
   filter: drop-shadow(0 4px 12px rgba(185, 28, 28, 0.35));
 }
 
+/* ============================================
+   LETTER PICKUP RADIUS ALERTS & RADAR STYLES
+   ============================================ */
+
+@keyframes radar-pulse-gold {
+  0% {
+    transform: scale(0.96);
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.04);
+    box-shadow: 0 0 0 20px rgba(212, 175, 55, 0);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.96);
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    opacity: 0.8;
+  }
+}
+
+.radar-perimeter-aura {
+  animation: radar-pulse-gold 3.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes courier-proximity-beacon {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 1));
+    transform: scale(1.12);
+  }
+}
+
+.courier-beacon-active {
+  animation: courier-proximity-beacon 2s infinite ease-in-out;
+}
+
+
 

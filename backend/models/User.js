@@ -45,7 +45,15 @@ const userSchema = new mongoose.Schema({
 
   // Feature 25: Dybbuk Letter Auto-Manifestation Mode
   dybbukMode: { type: Boolean, default: false },
-  lastDybbukAt: { type: Date }
+  lastDybbukAt: { type: Date },
+
+  // Feature: Letter Pickup Radius Alerts Preferences
+  pickupAlertSettings: {
+    enabled: { type: Boolean, default: true },
+    radiusMeters: { type: Number, default: 250 },
+    soundEnabled: { type: Boolean, default: true },
+    notifyAllCouriers: { type: Boolean, default: false } // false: only when has pending letters; true: any courier
+  }
 }, { timestamps: true });
 
 userSchema.index({ location: '2dsphere' });

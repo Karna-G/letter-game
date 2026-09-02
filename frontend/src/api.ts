@@ -82,7 +82,8 @@ export async function sendLetter(
   burnTimerSeconds: number = 60, 
   font: string = 'Cinzel', 
   fontSize: string = 'medium',
-  schrodingerVariants?: any[]
+  schrodingerVariants?: any[],
+  scheduledFor?: string | Date
 ) {
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
@@ -118,6 +119,7 @@ export async function sendLetter(
       font,
       fontSize,
       schrodingerVariants,
+      scheduledFor,
       senderLocation
     };
   }
@@ -128,13 +130,13 @@ export async function sendLetter(
   });
 }
 
-export async function updateLetter(id: string, receiverRef: string, content: string, status: string = 'draft', burnAfterReading: boolean = false, burnTimerSeconds: number = 60, font: string = 'Cinzel', fontSize: string = 'medium') {
+export async function updateLetter(id: string, receiverRef: string, content: string, status: string = 'draft', burnAfterReading: boolean = false, burnTimerSeconds: number = 60, font: string = 'Cinzel', fontSize: string = 'medium', scheduledFor?: string | Date) {
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
 
   return await apiRequest(`/letters/${id}`, {
     method: 'PUT',
-    body: JSON.stringify({ receiverRef, content, status, burnAfterReading, burnTimerSeconds, font, fontSize }),
+    body: JSON.stringify({ receiverRef, content, status, burnAfterReading, burnTimerSeconds, font, fontSize, scheduledFor }),
   });
 }
 
@@ -591,4 +593,29 @@ export async function togglePinNotice(noticeId: string) {
 
 export async function deleteNotice(noticeId: string) {
   return await apiRequest(`/notices/${noticeId}`, { method: 'DELETE' });
+}
+
+// ============================================
+// Letter Pickup Radius Alert Settings APIs
+// ============================================
+
+export interface PickupAlertSettings {
+  enabled: boolean;
+  radiusMeters: number;
+  soundEnabled: boolean;
+  notifyAllCouriers: boolean;
+}
+
+export async function getPickupAlertSettings(userId: string): Promise<PickupAlertSettings> {
+  return await apiRequest(`/users/${userId}/pickup-alert-settings`);
+}
+
+export async function updatePickupAlertSettings(
+  userId: string,
+  settings: Partial<PickupAlertSettings>
+): Promise<{ message: string; pickupAlertSettings: PickupAlertSettings }> {
+  return await apiRequest(`/users/${userId}/pickup-alert-settings`, {
+    method: 'PUT',
+    body: JSON.stringify(settings),
+  });
 }

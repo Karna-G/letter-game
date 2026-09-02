@@ -5,6 +5,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "build": "cd frontend && npm install --legacy-peer-deps --include=dev && npm run build",
     "start": "NODE_ENV=production cd backend && node index.js",
     "install-backend": "cd backend && npm install",
