@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema({
   rank: { type: String, default: 'Novice' },
   badges: [{ type: String }],
   deliveriesCompleted: { type: Number, default: 0 },
+  penaltiesCount: { type: Number, default: 0 },
+  deliveryPenalties: [{
+    letterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Letter' },
+    reason: { type: String },
+    xpDeducted: { type: Number, default: 15 },
+    penalizedAt: { type: Date, default: Date.now }
+  }],
   
   // Social/Community & Feature: Interactive Cartographic Note Status
   noteStatus: { type: String, default: '' },

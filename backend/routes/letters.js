@@ -909,7 +909,41 @@ router.post('/scan', async (req, res) => {
     // Scenario 3: Receiver scans an 'in-transit' letter -> Delivers it
     if (letter.status === 'in-transit') {
       if (letter.receiverRef && letter.receiverRef.toString() !== userId) {
-        return res.status(403).json({ message: 'This letter is not addressed to thee!' });
+        // Apply penalty to mailman for misdelivery
+        let penaltyApplied = false;
+        if (letter.mailmanRef) {
+          const mailman = await User.findById(letter.mailmanRef);
+          if (mailman) {
+            mailman.xp = Math.max(0, (mailman.xp || 0) - 15);
+            mailman.penaltiesCount = (mailman.penaltiesCount || 0) + 1;
+            mailman.deliveryPenalties = mailman.deliveryPenalties || [];
+            mailman.deliveryPenalties.push({
+              reason: 'Misdelivered letter — scanned by wrong recipient',
+              xpDeducted: 15,
+              letterId: letter._id,
+              timestamp: new Date(),
+            });
+            await mailman.save();
+            penaltyApplied = true;
+
+            // Notify via socket
+            try {
+              const io = req.app.get('io');
+              if (io) {
+                io.emit('penalty-applied', {
+                  mailmanId: letter.mailmanRef.toString(),
+                  reason: 'Misdelivered letter — scanned by wrong recipient',
+                  xpDeducted: 15,
+                  letterId: letter._id,
+                });
+              }
+            } catch (_) {}
+          }
+        }
+        return res.status(403).json({
+          message: 'This letter is not addressed to thee!',
+          penaltyApplied,
+        });
       }
       
       letter.status = 'delivered';
@@ -1951,4 +1985,208 @@ router.post('/:id/bottle/uncork', async (req, res) => {
   }
 });
 
+// =======================================================
+// --- FEATURE: DELIVERY PROOF TO CENTRAL HUB & PENALTIES ---
+// =======================================================
+
+// 1. Submit Delivery Proof from Mailman / Courier to Central Hub
+router.post('/:id/delivery-proof/submit', async (req, res) => {
+  try {
+    const { mailmanId, handoverCoordinates } = req.body;
+    const letter = await Letter.findById(req.params.id)
+      .populate('senderRef', 'name email')
+      .populate('receiverRef', 'name email')
+      .populate('mailmanRef', 'name email');
+
+    if (!letter) return res.status(404).json({ message: 'Missive not found in sovereign registry' });
+
+    const authCode = `HUB-AUTH-${Date.now().toString(36).toUpperCase()}-${uuidv4().slice(0, 6).toUpperCase()}`;
+
+    letter.deliveryProof = {
+      status: 'pending_verification',
+      authenticationCode: authCode,
+      mailmanRef: mailmanId || letter.mailmanRef?._id,
+      handoverCoordinates: handoverCoordinates || { lat: 51.5074, lng: -0.1278 }
+    };
+
+    await letter.save();
+
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('letters-updated');
+      // Dispatch alert to recipient to authenticate receipt
+      const receiverId = letter.receiverRef?._id?.toString();
+      io.emit('delivery-proof-requested', {
+        letterId: letter._id,
+        authenticationCode: authCode,
+        receiverId,
+        receiverName: letter.receiverRef?.name,
+        senderName: letter.senderRef?.name,
+        mailmanId: letter.mailmanRef?._id?.toString() || mailmanId,
+        mailmanName: letter.mailmanRef?.name || 'Royal Courier',
+        submittedAt: new Date()
+      });
+    }
+
+    res.json({
+      message: '📜 Delivery proof submitted to Central Hub. Awaiting recipient authentication.',
+      deliveryProof: letter.deliveryProof,
+      letter
+    });
+  } catch (error) {
+    console.error('Error submitting delivery proof:', error);
+    res.status(500).json({ message: 'Error submitting delivery proof to Central Hub' });
+  }
+});
+
+// 2. Recipient Authenticates or Declines Delivery Proof
+router.post('/:id/delivery-proof/verify', async (req, res) => {
+  try {
+    const { userId, action, reason } = req.body; // action: 'accept' | 'decline'
+    const letter = await Letter.findById(req.params.id)
+      .populate('senderRef', 'name email')
+      .populate('receiverRef', 'name email')
+      .populate('mailmanRef', 'name email xp penaltiesCount');
+
+    if (!letter) return res.status(404).json({ message: 'Missive not found in registry' });
+
+    const io = req.app.get('io');
+    const mailmanId = letter.mailmanRef?._id || letter.deliveryProof?.mailmanRef;
+
+    if (action === 'accept') {
+      // SUCCESSFUL CENTRAL HUB AUTHENTICATION
+      letter.status = 'delivered';
+      letter.deliveredAt = new Date();
+      if (!letter.pickedUpAt) letter.pickedUpAt = new Date();
+
+      if (!letter.deliveryProof) letter.deliveryProof = {};
+      letter.deliveryProof.status = 'verified';
+      letter.deliveryProof.verifiedAt = new Date();
+      letter.deliveryProof.verifiedBy = userId;
+      if (!letter.deliveryProof.authenticationCode) {
+        letter.deliveryProof.authenticationCode = `HUB-AUTH-${Date.now().toString(36).toUpperCase()}-${uuidv4().slice(0, 6).toUpperCase()}`;
+      }
+
+      await letter.save();
+
+      // Award +20 XP to Mailman & increment deliveries completed
+      let mailmanDoc = null;
+      if (mailmanId) {
+        mailmanDoc = await User.findByIdAndUpdate(
+          mailmanId,
+          { $inc: { deliveriesCompleted: 1, xp: 20 } },
+          { new: true }
+        );
+      }
+
+      if (io) {
+        io.emit('letters-updated');
+        io.emit('delivery-proof-resolved', {
+          letterId: letter._id,
+          status: 'verified',
+          authenticationCode: letter.deliveryProof.authenticationCode,
+          receiverName: letter.receiverRef?.name,
+          mailmanName: mailmanDoc?.name || letter.mailmanRef?.name,
+          message: '✨ Central Hub authenticated delivery! Recipient verified identity.'
+        });
+
+        if (mailmanId) {
+          io.emit('mailman-notification', {
+            mailmanId: mailmanId.toString(),
+            message: `🎉 Delivery Proof Authenticated by Central Hub for Missive #${letter._id.toString().slice(-6)}! +20 XP granted.`,
+            letterId: letter._id
+          });
+        }
+      }
+
+      return res.json({
+        success: true,
+        status: 'verified',
+        message: '✨ Delivery authenticated and sealed by Central Hub!',
+        letter
+      });
+    } else {
+      // DECLINED / MISDELIVERED -> APPLY PENALTY TO MAILMAN
+      if (!letter.deliveryProof) letter.deliveryProof = {};
+      letter.deliveryProof.status = 'declined';
+      letter.deliveryProof.declinedReason = reason || 'Recipient reported incorrect delivery or declined custody.';
+      
+      let xpDeducted = 15;
+      let newMailmanXP = 0;
+
+      if (mailmanId && !letter.deliveryProof.penaltyApplied) {
+        letter.deliveryProof.penaltyApplied = true;
+        const mailman = await User.findById(mailmanId);
+        if (mailman) {
+          newMailmanXP = Math.max(0, (mailman.xp || 0) - xpDeducted);
+          mailman.xp = newMailmanXP;
+          mailman.penaltiesCount = (mailman.penaltiesCount || 0) + 1;
+          if (!mailman.deliveryPenalties) mailman.deliveryPenalties = [];
+          mailman.deliveryPenalties.push({
+            letterId: letter._id,
+            reason: letter.deliveryProof.declinedReason,
+            xpDeducted,
+            penalizedAt: new Date()
+          });
+          await mailman.save();
+        }
+      }
+
+      await letter.save();
+
+      if (io) {
+        io.emit('letters-updated');
+        io.emit('delivery-proof-resolved', {
+          letterId: letter._id,
+          status: 'declined',
+          reason: letter.deliveryProof.declinedReason,
+          mailmanId: mailmanId?.toString(),
+          message: '⚠️ Delivery Proof DECLINED by Central Hub. Mailman penalty applied.'
+        });
+
+        if (mailmanId) {
+          io.emit('mailman-notification', {
+            mailmanId: mailmanId.toString(),
+            message: `⚠️ Infraction Alert: Recipient declined delivery proof for Missive #${letter._id.toString().slice(-6)}. Penalty of -15 XP applied by Central Hub.`,
+            letterId: letter._id
+          });
+        }
+      }
+
+      return res.json({
+        success: false,
+        status: 'declined',
+        message: '⚠️ Delivery proof declined. Central Hub recorded infraction and penalized courier.',
+        penaltyApplied: true,
+        xpDeducted,
+        letter
+      });
+    }
+  } catch (error) {
+    console.error('Error verifying delivery proof:', error);
+    res.status(500).json({ message: 'Error processing Central Hub delivery verification' });
+  }
+});
+
+// 3. Central Hub Registry: Fetch all authenticated proofs, pending reviews, and courier penalty audits
+router.get('/central-hub/proofs', async (req, res) => {
+  try {
+    const proofs = await Letter.find({
+      'deliveryProof.status': { $in: ['pending_verification', 'verified', 'declined'] }
+    })
+    .populate('senderRef', 'name email role')
+    .populate('receiverRef', 'name email role')
+    .populate('mailmanRef', 'name email role xp penaltiesCount')
+    .populate('deliveryProof.verifiedBy', 'name email')
+    .sort({ updatedAt: -1, 'deliveryProof.verifiedAt': -1 })
+    .limit(100);
+
+    res.json(proofs);
+  } catch (error) {
+    console.error('Error fetching Central Hub proofs:', error);
+    res.status(500).json({ message: 'Error retrieving Central Hub delivery proofs' });
+  }
+});
+
 module.exports = router;
+

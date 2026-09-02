@@ -21,6 +21,9 @@ import { formatLocalDateTime } from './utils/storyCanvasRenderer';
 import LetterTransferModal, { type HandoverData } from './components/LetterTransferModal';
 import { PickupRadiusAlertToast, type PickupAlertData } from './components/PickupRadiusAlertToast';
 import { PickupAlertSettingsCard } from './components/PickupAlertSettingsCard';
+import DeliveryProofModal, { type DeliveryProofRequestData } from './components/DeliveryProofModal';
+import CentralHubRegistryModal from './components/CentralHubRegistryModal';
+import TomRiddlesDiaryModal from './components/TomRiddlesDiaryModal';
 import { waxSealAudio, initGlobalUiClickSound } from './utils/waxSealAudio';
 import manuscriptQuillDesk from './assets/manuscript_quill_desk.jpg';
 import antiqueScrollsPile from './assets/antique_scrolls_pile.jpg';
@@ -890,6 +893,22 @@ export function openStoryHeraldStudio(letterData?: any) {
 }
 export const openSocialTeaserStudio = openStoryHeraldStudio;
 
+// Helper to open Tom Riddle's Ephemeral Diary from anywhere in the realm
+export function openTomRiddlesDiary(partner?: { _id: string; name: string } | null) {
+  if (typeof window !== 'undefined') {
+    waxSealAudio.playParchmentUnroll();
+    window.dispatchEvent(new CustomEvent('open-tom-riddles-diary', { detail: partner || null }));
+  }
+}
+
+// Helper to open Central Hub Delivery Proofs Registry
+export function openCentralHubRegistry() {
+  if (typeof window !== 'undefined') {
+    waxSealAudio.playUiTap();
+    window.dispatchEvent(new CustomEvent('open-central-hub-registry'));
+  }
+}
+
 // ============================================
 // MAIN APP (shown after login)
 // ============================================
@@ -902,6 +921,12 @@ function App() {
   const [presentQrModal, setPresentQrModal] = useState<{ token: string; title: string } | null>(null);
   const [socialTeaserLetter, setSocialTeaserLetter] = useState<any | null>(null);
   const [showStoryStudio, setShowStoryStudio] = useState<boolean>(false);
+  const [deliveryProofRequest, setDeliveryProofRequest] = useState<DeliveryProofRequestData | null>(null);
+  const [showCentralHubRegistry, setShowCentralHubRegistry] = useState<boolean>(false);
+  const [showTomRiddlesDiary, setShowTomRiddlesDiary] = useState<boolean>(false);
+  const [diaryPartner, setDiaryPartner] = useState<{ _id: string; name: string } | null>(null);
+  const [fellowScribesList, setFellowScribesList] = useState<any[]>([]);
+  const [appSocket, setAppSocket] = useState<Socket | null>(null);
   const alertedMailmenRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -914,11 +939,24 @@ function App() {
         setShowStoryStudio(true);
       }
     };
+    const handleOpenDiaryEvent = (e: any) => {
+      setDiaryPartner(e.detail || null);
+      setShowTomRiddlesDiary(true);
+    };
+    const handleOpenHubEvent = () => {
+      setShowCentralHubRegistry(true);
+    };
+
     window.addEventListener('open-story-herald', handleOpenStoryHeraldEvent);
     window.addEventListener('open-social-teaser', handleOpenStoryHeraldEvent);
+    window.addEventListener('open-tom-riddles-diary', handleOpenDiaryEvent);
+    window.addEventListener('open-central-hub-registry', handleOpenHubEvent);
+
     return () => {
       window.removeEventListener('open-story-herald', handleOpenStoryHeraldEvent);
       window.removeEventListener('open-social-teaser', handleOpenStoryHeraldEvent);
+      window.removeEventListener('open-tom-riddles-diary', handleOpenDiaryEvent);
+      window.removeEventListener('open-central-hub-registry', handleOpenHubEvent);
     };
   }, []);
 
@@ -948,6 +986,14 @@ function App() {
   useEffect(() => {
     if (!user) return;
     const socket: Socket = io();
+    setAppSocket(socket);
+
+    // Fetch fellowship scribes for Tom Riddle's Diary
+    getMyFriends()
+      .then((friends) => {
+        if (Array.isArray(friends)) setFellowScribesList(friends);
+      })
+      .catch(() => {});
 
     // Register user presence across the realm immediately upon login
     socket.emit('register-user', {
@@ -1009,6 +1055,20 @@ function App() {
       waxSealAudio.playCourierProximityChime();
     });
 
+    // Feature: Central Hub requests Delivery Proof verification from recipient
+    socket.on('delivery-proof-requested', (data: DeliveryProofRequestData) => {
+      const myId = (user.id || user._id)?.toString();
+      if (!data.receiverId || data.receiverId === myId || user.role === 'admin') {
+        waxSealAudio.playCourierProximityChime();
+        setDeliveryProofRequest(data);
+      }
+    });
+
+    socket.on('delivery-proof-resolved', (data: any) => {
+      console.log('Delivery proof resolved:', data);
+      waxSealAudio.playWaxCrack();
+    });
+
     return () => {
       socket.disconnect();
     };
@@ -1044,6 +1104,34 @@ function App() {
           socialTeaserLetter.scheduledFor = newDate.toISOString();
         }
       }}
+    />
+
+    {/* Central Hub Delivery Proof Verification Modal */}
+    <DeliveryProofModal
+      isOpen={!!deliveryProofRequest}
+      data={deliveryProofRequest}
+      currentUser={user}
+      onClose={() => setDeliveryProofRequest(null)}
+      onSuccess={() => setDeliveryProofRequest(null)}
+    />
+
+    {/* Central Hub Proofs & Penalty Audit Registry Modal */}
+    <CentralHubRegistryModal
+      isOpen={showCentralHubRegistry}
+      onClose={() => setShowCentralHubRegistry(false)}
+    />
+
+    {/* Tom Riddle's Ephemeral Synchronous Diary Modal */}
+    <TomRiddlesDiaryModal
+      isOpen={showTomRiddlesDiary}
+      onClose={() => {
+        setShowTomRiddlesDiary(false);
+        setDiaryPartner(null);
+      }}
+      currentUser={user}
+      socket={appSocket}
+      initialPartner={diaryPartner}
+      fellowScribes={fellowScribesList}
     />
 
     {/* Scribe Presentation QR Modal (Hold up for Mailman to scan physically) */}
@@ -1174,7 +1262,7 @@ function App() {
             </div>
           </Link>
 
-          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
+          <div className="flex flex-wrap justify-center items-center gap-3 md:gap-5">
             {/* Admin vs Non-Admin Navigation Links */}
             {user.role === 'admin' ? (
               <>
@@ -1187,6 +1275,20 @@ function App() {
                 <Link to="/notice-board" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Megaphone className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Notice Board</span>
                 </Link>
+                <button
+                  onClick={() => openCentralHubRegistry()}
+                  className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-100 cursor-pointer"
+                  title="Central Hub Proofs & Penalties"
+                >
+                  <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Hub Proofs</span>
+                </button>
+                <button
+                  onClick={() => openTomRiddlesDiary()}
+                  className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-200 hover:text-amber-100 cursor-pointer"
+                  title="Tom Riddle's Ephemeral Synchronous Diary"
+                >
+                  <BookOpen className="w-4 h-4 text-[#D4AF37]" /> <span>Diary</span>
+                </button>
               </>
             ) : (
               <>
@@ -1202,6 +1304,20 @@ function App() {
                 <Link to="/notice-board" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Megaphone className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Notice Board</span>
                 </Link>
+                <button
+                  onClick={() => openTomRiddlesDiary()}
+                  className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-100 cursor-pointer"
+                  title="Tom Riddle's Ephemeral Synchronous Diary"
+                >
+                  <BookOpen className="w-4 h-4 text-[#D4AF37]" /> <span>Diary</span>
+                </button>
+                <button
+                  onClick={() => openCentralHubRegistry()}
+                  className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-[#EEDC82] hover:text-amber-100 cursor-pointer"
+                  title="Central Postal Hub Delivery Proofs"
+                >
+                  <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Hub Proofs</span>
+                </button>
                 <button
                   onClick={() => openStoryHeraldStudio()}
                   className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-100 cursor-pointer"
@@ -7522,6 +7638,8 @@ function QRScanner() {
   const [scannerError, setScannerError] = useState('');
   const [loading, setLoading] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
+  const [isMisdelivery, setIsMisdelivery] = useState(false);
+  const [penaltyApplied, setPenaltyApplied] = useState(false);
   const scannerRef = React.useRef<Html5Qrcode | null>(null);
   const navigate = useNavigate();
 
@@ -7577,6 +7695,7 @@ function QRScanner() {
     try {
       const res = await scanLetter(text);
       setMessage(res.message || 'Scan successful!');
+      setIsMisdelivery(false);
 
       const isDispatch = res.letter?.status === 'in-transit' || 
                          (res.message || '').toLowerCase().includes('picked up') || 
@@ -7592,7 +7711,17 @@ function QRScanner() {
 
       setTimeout(() => navigate('/'), 4000);
     } catch (e: any) {
-      setMessage(e.message || 'Invalid Wax Seal');
+      const errMsg = e.message || 'Invalid Wax Seal';
+      const isWrongPerson = errMsg.includes('not addressed to thee');
+      setMessage(errMsg);
+      setIsMisdelivery(isWrongPerson);
+      // Check if backend confirmed penalty was applied
+      setPenaltyApplied(e?.penaltyApplied === true || isWrongPerson);
+      if (isWrongPerson) {
+        waxSealAudio.playWaxCrack?.();
+        // Still redirect home after showing the message
+        setTimeout(() => navigate('/'), 4000);
+      }
       setLoading(false);
     }
   };
@@ -7619,8 +7748,29 @@ function QRScanner() {
         </p>
 
         {message ? (
-          <div className="p-8 rounded-sm flex flex-col items-center justify-center space-y-4 animate-curtain-reveal" style={{ background: 'rgba(212,175,55,0.12)', border: '2px solid var(--antique-gold)' }}>
-            {scanActionType === 'dispatch' ? (
+          <div className="p-8 rounded-sm flex flex-col items-center justify-center space-y-4 animate-curtain-reveal" style={{ background: isMisdelivery ? 'rgba(107,29,42,0.35)' : 'rgba(212,175,55,0.12)', border: `2px solid ${isMisdelivery ? '#EF4444' : 'var(--antique-gold)'}` }}>
+            {isMisdelivery ? (
+              /* Wrong Person / Misdelivery Penalty Panel */
+              <div className="space-y-4 flex flex-col items-center">
+                <div className="w-20 h-20 rounded-full flex items-center justify-center bg-red-950/70 border-2 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.5)] animate-pulse">
+                  <AlertTriangle className="w-10 h-10 text-red-400" />
+                </div>
+                <span className="text-[11px] uppercase tracking-widest font-mono font-bold px-3 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-500/40">
+                  ⚠ Misdelivery Detected by Central Hub ⚠
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-bold text-red-200" style={{ fontFamily: "'Cinzel', serif" }}>
+                  {message}
+                </h3>
+                <p className="text-xs italic text-red-300/80 max-w-md font-serif">
+                  The Central Postal Authority has flagged this scan. The assigned courier has been issued an official infraction.
+                </p>
+                {penaltyApplied && (
+                  <div className="px-4 py-2 rounded-xl bg-red-950/60 border border-red-500/50 text-red-300 text-sm font-bold flex items-center gap-2">
+                    <span>⚔️</span> Courier Penalty Applied: <span className="text-red-400">-15 XP</span>
+                  </div>
+                )}
+              </div>
+            ) : scanActionType === 'dispatch' ? (
               /* Courier Saddlebag Packing & Dispatch Animation */
               <div className="space-y-4 animate-glow-pulse flex flex-col items-center">
                 <div className="w-20 h-20 rounded-full flex items-center justify-center bg-amber-900/40 border-2 border-amber-400 shadow-[0_0_25px_rgba(212,175,55,0.5)] animate-float-gentle">

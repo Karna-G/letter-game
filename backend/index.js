@@ -31,11 +31,14 @@ const Letter = require('./models/Letter');
 const activeMapUsers = new Map();
 // socketId -> userId
 const userSocketMap = new Map();
+// In-memory diary sessions: roomKey -> { currentWriterId, currentWriterName, activeUsers, inkContent, inkState }
+const diarySessions = new Map();
 
 // Attach io, activeMapUsers, and userSocketMap instances to express app
 app.set('io', io);
 app.set('activeMapUsers', activeMapUsers);
 app.set('userSocketMap', userSocketMap);
+app.set('diarySessions', diarySessions);
 
 const { evaluateProximity } = require('./proximityService');
 
@@ -328,12 +331,216 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ============================================
+  // --- TOM RIDDLE'S DIARY REAL-TIME PROTOCOL ---
+  // ============================================
+
+  // Join a 1-on-1 magical diary room
+  socket.on('join-diary-session', (data) => {
+    if (!data || !data.roomKey || !data.userId) return;
+    const { roomKey, userId, userName } = data;
+    const room = `diary:${roomKey}`;
+    socket.join(room);
+
+    let session = diarySessions.get(roomKey);
+    if (!session) {
+      session = {
+        roomKey,
+        currentWriterId: null,
+        currentWriterName: null,
+        activeUsers: new Map(), // userId -> { socketId, userName, isTyping: false }
+        inkContent: '',
+        inkState: 'blank' // 'blank' | 'writing' | 'inscribed' | 'absorbing'
+      };
+      diarySessions.set(roomKey, session);
+    }
+
+    session.activeUsers.set(String(userId), {
+      socketId: socket.id,
+      userId: String(userId),
+      userName: userName || 'Fellow Scribe',
+      lastSeen: Date.now()
+    });
+
+    const activeList = Array.from(session.activeUsers.values());
+
+    // Send initial session state to user
+    socket.emit('diary-session-state', {
+      roomKey,
+      currentWriterId: session.currentWriterId,
+      currentWriterName: session.currentWriterName,
+      activeUsers: activeList,
+      inkContent: session.inkContent,
+      inkState: session.inkState
+    });
+
+    // Notify others in the room
+    socket.to(room).emit('diary-presence-update', {
+      roomKey,
+      activeUsers: activeList,
+      event: 'user-joined',
+      userName
+    });
+
+    console.log(`[DIARY] Scribe "${userName}" (${userId}) entered magical diary session "${roomKey}"`);
+  });
+
+  // Leave diary room
+  socket.on('leave-diary-session', (data) => {
+    if (!data || !data.roomKey || !data.userId) return;
+    const { roomKey, userId, userName } = data;
+    const room = `diary:${roomKey}`;
+    socket.leave(room);
+
+    const session = diarySessions.get(roomKey);
+    if (session) {
+      session.activeUsers.delete(String(userId));
+      if (session.currentWriterId === String(userId)) {
+        session.currentWriterId = null;
+        session.currentWriterName = null;
+        session.inkState = 'blank';
+        io.to(room).emit('diary-lock-released', { roomKey });
+      }
+
+      const activeList = Array.from(session.activeUsers.values());
+      socket.to(room).emit('diary-presence-update', {
+        roomKey,
+        activeUsers: activeList,
+        event: 'user-left',
+        userName
+      });
+
+      if (session.activeUsers.size === 0) {
+        diarySessions.delete(roomKey);
+      }
+    }
+  });
+
+  // Acquire quill pen lock (concurrency control: only 1 writer at a time)
+  socket.on('diary-request-lock', (data) => {
+    if (!data || !data.roomKey || !data.userId) return;
+    const { roomKey, userId, userName } = data;
+    const room = `diary:${roomKey}`;
+    const session = diarySessions.get(roomKey);
+
+    if (!session) return;
+
+    if (!session.currentWriterId || session.currentWriterId === String(userId)) {
+      session.currentWriterId = String(userId);
+      session.currentWriterName = userName || 'Fellow Scribe';
+      session.inkState = 'writing';
+
+      io.to(room).emit('diary-lock-acquired', {
+        roomKey,
+        currentWriterId: session.currentWriterId,
+        currentWriterName: session.currentWriterName
+      });
+    } else {
+      socket.emit('diary-lock-denied', {
+        roomKey,
+        heldBy: session.currentWriterName
+      });
+    }
+  });
+
+  // Release quill pen lock
+  socket.on('diary-release-lock', (data) => {
+    if (!data || !data.roomKey || !data.userId) return;
+    const { roomKey, userId } = data;
+    const room = `diary:${roomKey}`;
+    const session = diarySessions.get(roomKey);
+
+    if (session && session.currentWriterId === String(userId)) {
+      session.currentWriterId = null;
+      session.currentWriterName = null;
+      session.inkState = 'blank';
+
+      io.to(room).emit('diary-lock-released', { roomKey });
+    }
+  });
+
+  // Streaming real-time ink draft keystrokes
+  socket.on('diary-ink-update', (data) => {
+    if (!data || !data.roomKey || !data.userId) return;
+    const { roomKey, userId, inkText } = data;
+    const room = `diary:${roomKey}`;
+    const session = diarySessions.get(roomKey);
+
+    if (session && session.currentWriterId === String(userId)) {
+      session.inkContent = inkText;
+      socket.to(room).emit('diary-ink-stream', {
+        roomKey,
+        userId,
+        inkText
+      });
+    }
+  });
+
+  // Inscribe text into parchment: triggers absorption and fading animation
+  socket.on('diary-submit-ink', (data) => {
+    if (!data || !data.roomKey || !data.userId) return;
+    const { roomKey, userId, userName, inkText } = data;
+    const room = `diary:${roomKey}`;
+    const session = diarySessions.get(roomKey);
+
+    if (session && session.currentWriterId === String(userId)) {
+      session.inkContent = inkText;
+      session.inkState = 'absorbing';
+
+      io.to(room).emit('diary-ink-inscribed', {
+        roomKey,
+        authorId: userId,
+        authorName: userName || 'Fellow Scribe',
+        inkText,
+        inscribedAt: Date.now()
+      });
+    }
+  });
+
+  // Ink has finished fading & absorbing: resets page to blank and yields turn
+  socket.on('diary-ink-erased', (data) => {
+    if (!data || !data.roomKey) return;
+    const { roomKey } = data;
+    const room = `diary:${roomKey}`;
+    const session = diarySessions.get(roomKey);
+
+    if (session) {
+      session.inkContent = '';
+      session.inkState = 'blank';
+      session.currentWriterId = null;
+      session.currentWriterName = null;
+
+      io.to(room).emit('diary-page-cleared', {
+        roomKey,
+        clearedAt: Date.now()
+      });
+    }
+  });
+
   // User explicitly leaves the map, disables location, or logs out
   socket.on('leave-map', async (data) => {
     const userId = data?.userId ? String(data.userId) : userSocketMap.get(socket.id);
     if (userId) {
       activeMapUsers.delete(userId);
       userSocketMap.delete(socket.id);
+
+      // Clean up any active diary sessions this user was in
+      for (const [rKey, sess] of diarySessions.entries()) {
+        if (sess.activeUsers.has(userId)) {
+          sess.activeUsers.delete(userId);
+          if (sess.currentWriterId === userId) {
+            sess.currentWriterId = null;
+            sess.currentWriterName = null;
+            sess.inkState = 'blank';
+            io.to(`diary:${rKey}`).emit('diary-lock-released', { roomKey: rKey });
+          }
+          io.to(`diary:${rKey}`).emit('diary-presence-update', {
+            roomKey: rKey,
+            activeUsers: Array.from(sess.activeUsers.values()),
+            event: 'user-left'
+          });
+        }
+      }
 
       // Clear coordinates in DB
       try {
@@ -355,6 +562,24 @@ io.on('connection', (socket) => {
     if (userId) {
       userSocketMap.delete(socket.id);
       
+      // Clean up any active diary sessions
+      for (const [rKey, sess] of diarySessions.entries()) {
+        if (sess.activeUsers.has(userId)) {
+          sess.activeUsers.delete(userId);
+          if (sess.currentWriterId === userId) {
+            sess.currentWriterId = null;
+            sess.currentWriterName = null;
+            sess.inkState = 'blank';
+            io.to(`diary:${rKey}`).emit('diary-lock-released', { roomKey: rKey });
+          }
+          io.to(`diary:${rKey}`).emit('diary-presence-update', {
+            roomKey: rKey,
+            activeUsers: Array.from(sess.activeUsers.values()),
+            event: 'user-left'
+          });
+        }
+      }
+
       // Check if user still has another active socket (e.g. page transition or multi-tab)
       const stillActive = Array.from(userSocketMap.values()).includes(userId);
       if (!stillActive) {

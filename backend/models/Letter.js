@@ -124,7 +124,26 @@ const letterSchema = new mongoose.Schema({
   isAbandoned: { type: Boolean, default: false },
   abandonedAt: { type: Date },
   abandonedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  abandonReason: { type: String, default: 'Forsaken by recipient in mailbox' }
+  abandonReason: { type: String, default: 'Forsaken by recipient in mailbox' },
+
+  // Feature: Delivery Proof to Central Hub
+  deliveryProof: {
+    status: { 
+      type: String, 
+      enum: ['none', 'pending_verification', 'verified', 'declined'], 
+      default: 'none' 
+    },
+    authenticationCode: { type: String },
+    verifiedAt: { type: Date },
+    verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    declinedReason: { type: String },
+    penaltyApplied: { type: Boolean, default: false },
+    mailmanRef: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    handoverCoordinates: {
+      lat: { type: Number },
+      lng: { type: Number }
+    }
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Letter', letterSchema);

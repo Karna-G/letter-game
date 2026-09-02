@@ -619,3 +619,25 @@ export async function updatePickupAlertSettings(
     body: JSON.stringify(settings),
   });
 }
+
+// ============================================
+// Central Hub Delivery Proof & Authentication APIs
+// ============================================
+
+export async function submitDeliveryProof(letterId: string, mailmanId?: string, handoverCoordinates?: { lat: number; lng: number }) {
+  return await apiRequest(`/letters/${letterId}/delivery-proof/submit`, {
+    method: 'POST',
+    body: JSON.stringify({ mailmanId, handoverCoordinates }),
+  });
+}
+
+export async function authenticateDeliveryProof(letterId: string, params: { userId: string; action: 'accept' | 'decline'; reason?: string }) {
+  return await apiRequest(`/letters/${letterId}/delivery-proof/verify`, {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+}
+
+export async function getCentralHubProofs() {
+  return await apiRequest('/letters/central-hub/proofs');
+}

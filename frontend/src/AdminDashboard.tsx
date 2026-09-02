@@ -5,8 +5,10 @@ import { Shield, Megaphone, Users, Mail, Clock, Search, Eye, Flame, X, Feather, 
 import { motion, AnimatePresence } from 'framer-motion';
 import royalCrestGold from './assets/royal_crest_gold.jpg';
 import manuscriptQuillDesk from './assets/manuscript_quill_desk.jpg';
+import CentralHubRegistryModal from './components/CentralHubRegistryModal';
 
 export default function AdminDashboard() {
+  const [showHubProofsModal, setShowHubProofsModal] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [letters, setLetters] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
@@ -215,6 +217,15 @@ export default function AdminDashboard() {
 
           <div className="flex items-center gap-3">
             <button
+              onClick={() => setShowHubProofsModal(true)}
+              className="py-2 px-3.5 rounded-sm font-bold text-xs bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#C5A028] text-[#2B1B17] hover:brightness-110 shadow flex items-center gap-1.5 transition-all border border-[#FFE87C]"
+              title="Central Postal Hub Delivery Proofs Registry"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Central Hub Proofs</span>
+            </button>
+
+            <button
               onClick={fetchAdminData}
               disabled={actionLoading}
               className="btn-gold-saloon text-xs py-2 px-4 flex items-center gap-1.5 shadow"
@@ -226,6 +237,11 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      <CentralHubRegistryModal
+        isOpen={showHubProofsModal}
+        onClose={() => setShowHubProofsModal(false)}
+      />
 
       {/* ── HIGH COMMAND TABS ── */}
       <div className="flex justify-center flex-wrap gap-3 pb-2" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>

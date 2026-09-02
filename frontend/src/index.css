@@ -1925,5 +1925,44 @@ p, span, a, label, li {
   animation: courier-proximity-beacon 2s infinite ease-in-out;
 }
 
+/* ============================================
+   TOM RIDDLE'S DIARY INK ABSORPTION ANIMATIONS
+   ============================================ */
+@keyframes ink-fade-absorption {
+  0% {
+    opacity: 1;
+    filter: blur(0px) drop-shadow(0 0 1px rgba(26, 15, 8, 0.8));
+    transform: scale(1);
+  }
+  40% {
+    opacity: 0.95;
+    filter: blur(0.3px) drop-shadow(0 0 3px rgba(212, 175, 55, 0.4));
+  }
+  75% {
+    opacity: 0.4;
+    filter: blur(2px) drop-shadow(0 0 8px rgba(107, 29, 42, 0.6));
+    transform: scale(1.015);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(6px);
+    transform: scale(1.03);
+  }
+}
 
+.diary-ink-absorbing {
+  animation: ink-fade-absorption 3.8s forwards cubic-bezier(0.4, 0, 0.2, 1);
+}
 
+@keyframes quill-dip-bob {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-8deg) translateY(-4px);
+  }
+}
+
+.quill-active-bob {
+  animation: quill-dip-bob 1.5s infinite ease-in-out;
+}
