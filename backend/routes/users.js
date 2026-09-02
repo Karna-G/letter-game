@@ -767,6 +767,44 @@ router.put('/:id/pickup-alert-settings', async (req, res) => {
 });
 
 // ============================================
+// Feature: Mailbox Pet Companion Selector
+// ============================================
+router.get('/:id/mailbox-pet', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('mailboxPet name');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ mailboxPet: user.mailboxPet || 'pigeon' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error fetching mailbox pet' });
+  }
+});
+
+router.put('/:id/mailbox-pet', async (req, res) => {
+  try {
+    const { pet } = req.body;
+    const validPets = ['pigeon', 'cat', 'fox', 'owl', 'none'];
+    if (!validPets.includes(pet)) {
+      return res.status(400).json({ message: 'Invalid pet choice. Choose pigeon, cat, fox, owl, or none.' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.mailboxPet = pet;
+    await user.save();
+
+    res.json({
+      message: `Thy loyal ${pet === 'none' ? 'sentry has retired' : pet + ' companion'} is now perched at thy mailbox!`,
+      mailboxPet: user.mailboxPet
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error updating mailbox pet companion' });
+  }
+});
+
+// ============================================
 // Get user profile by ID (Must remain at bottom)
 // ============================================
 router.get('/:id', async (req, res) => {

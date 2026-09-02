@@ -105,6 +105,24 @@ const letterSchema = new mongoose.Schema({
   font: { type: String, default: 'Cinzel' },
   fontSize: { type: String, default: 'medium' },
 
+  // Feature 27: Handwritten Letters
+  isHandwritten: { type: Boolean, default: false },
+  handwritingStyle: { 
+    type: String, 
+    enum: ['elegant', 'romantic', 'calligraphy', 'casual', 'old-fashioned', 'flourish'], 
+    default: 'elegant' 
+  },
+  inkColor: { 
+    type: String, 
+    enum: ['iron-gall', 'royal-sepia', 'midnight-indigo', 'burgundy-wine', 'forest-emerald'], 
+    default: 'iron-gall' 
+  },
+  parchmentPaper: {
+    type: String,
+    enum: ['vintage-cream', 'lined-ledger', 'aged-vellum', 'royal-parchment'],
+    default: 'vintage-cream'
+  },
+
   // Postmaster's Riddle & Recall / Tearing Mechanics
   isTorn: { type: Boolean, default: false },
   tornAt: { type: Date },

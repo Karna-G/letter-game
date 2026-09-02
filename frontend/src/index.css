@@ -1611,17 +1611,17 @@ p, span, a, label, li {
   pointer-events: none;
 }
 
-.ring-1 {
+.quantum-orbit-1 {
   transform: rotateX(70deg) rotateY(15deg);
   animation: orbitSpin1 6s linear infinite;
 }
 
-.ring-2 {
+.quantum-orbit-2 {
   transform: rotateY(70deg) rotateX(25deg);
   animation: orbitSpin2 8s linear infinite reverse;
 }
 
-.ring-3 {
+.quantum-orbit-3 {
   transform: rotateZ(65deg) rotateY(45deg);
   animation: orbitSpin3 10s linear infinite;
 }
@@ -1639,6 +1639,60 @@ p, span, a, label, li {
 @keyframes orbitSpin3 {
   0% { transform: rotateZ(65deg) rotateY(45deg) rotateX(0deg); }
   100% { transform: rotateZ(65deg) rotateY(45deg) rotateX(360deg); }
+}
+
+/* ============================================
+   LUMINOUS BORDER GLOWS FOR SELECTIONS
+   ============================================ */
+@keyframes borderGlowPulseGold {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(251, 191, 36, 0.65), inset 0 0 8px rgba(251, 191, 36, 0.25);
+    border-color: #FBBF24;
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(251, 191, 36, 0.95), inset 0 0 14px rgba(251, 191, 36, 0.4);
+    border-color: #FDE68A;
+  }
+}
+
+@keyframes borderGlowPulsePurple {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(168, 85, 247, 0.65), inset 0 0 8px rgba(168, 85, 247, 0.25);
+    border-color: #C084FC;
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(168, 85, 247, 0.95), inset 0 0 14px rgba(168, 85, 247, 0.4);
+    border-color: #E9D5FF;
+  }
+}
+
+@keyframes borderGlowPulseRed {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.65), inset 0 0 8px rgba(239, 68, 68, 0.25);
+    border-color: #F87171;
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(239, 68, 68, 0.95), inset 0 0 14px rgba(239, 68, 68, 0.4);
+    border-color: #FECACA;
+  }
+}
+
+.selected-glow-gold {
+  border: 2px solid #FBBF24 !important;
+  animation: borderGlowPulseGold 2.2s infinite ease-in-out !important;
+  transform: none !important;
+}
+
+.selected-glow-purple {
+  border: 2px solid #C084FC !important;
+  animation: borderGlowPulsePurple 2.2s infinite ease-in-out !important;
+  transform: none !important;
+}
+
+.selected-glow-red {
+  border: 2px solid #F87171 !important;
+  animation: borderGlowPulseRed 2.2s infinite ease-in-out !important;
+  transform: none !important;
 }
 
 /* ============================================

@@ -333,9 +333,9 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
               </div>
 
               {/* 3D Atomic Electron Probability Rings */}
-              <div className="quantum-orbital-ring ring-1" />
-              <div className="quantum-orbital-ring ring-2" />
-              <div className="quantum-orbital-ring ring-3" />
+              <div className="quantum-orbital-ring quantum-orbit-1" />
+              <div className="quantum-orbital-ring quantum-orbit-2" />
+              <div className="quantum-orbital-ring quantum-orbit-3" />
             </div>
           </div>
 

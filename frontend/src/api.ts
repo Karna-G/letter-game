@@ -83,7 +83,11 @@ export async function sendLetter(
   font: string = 'Cinzel', 
   fontSize: string = 'medium',
   schrodingerVariants?: any[],
-  scheduledFor?: string | Date
+  scheduledFor?: string | Date,
+  isHandwritten?: boolean,
+  handwritingStyle?: string,
+  inkColor?: string,
+  parchmentPaper?: string
 ) {
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
@@ -120,7 +124,11 @@ export async function sendLetter(
       fontSize,
       schrodingerVariants,
       scheduledFor,
-      senderLocation
+      senderLocation,
+      isHandwritten,
+      handwritingStyle,
+      inkColor,
+      parchmentPaper
     };
   }
 
@@ -130,13 +138,47 @@ export async function sendLetter(
   });
 }
 
-export async function updateLetter(id: string, receiverRef: string, content: string, status: string = 'draft', burnAfterReading: boolean = false, burnTimerSeconds: number = 60, font: string = 'Cinzel', fontSize: string = 'medium', scheduledFor?: string | Date) {
+export async function updateLetter(
+  id: string, 
+  receiverRefOrParams: any, 
+  content?: string, 
+  status: string = 'draft', 
+  burnAfterReading: boolean = false, 
+  burnTimerSeconds: number = 60, 
+  font: string = 'Cinzel', 
+  fontSize: string = 'medium', 
+  scheduledFor?: string | Date,
+  isHandwritten?: boolean,
+  handwritingStyle?: string,
+  inkColor?: string,
+  parchmentPaper?: string
+) {
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
 
+  let payload: any = {};
+  if (typeof receiverRefOrParams === 'object' && receiverRefOrParams !== null) {
+    payload = receiverRefOrParams;
+  } else {
+    payload = { 
+      receiverRef: receiverRefOrParams, 
+      content, 
+      status, 
+      burnAfterReading, 
+      burnTimerSeconds, 
+      font, 
+      fontSize, 
+      scheduledFor,
+      isHandwritten,
+      handwritingStyle,
+      inkColor,
+      parchmentPaper
+    };
+  }
+
   return await apiRequest(`/letters/${id}`, {
     method: 'PUT',
-    body: JSON.stringify({ receiverRef, content, status, burnAfterReading, burnTimerSeconds, font, fontSize, scheduledFor }),
+    body: JSON.stringify(payload),
   });
 }
 
@@ -640,4 +682,109 @@ export async function authenticateDeliveryProof(letterId: string, params: { user
 
 export async function getCentralHubProofs() {
   return await apiRequest('/letters/central-hub/proofs');
+}
+
+// ============================================
+// Feature: Mailbox Pets Companion APIs
+// ============================================
+
+export type MailboxPetType = 'pigeon' | 'cat' | 'fox' | 'owl' | 'none';
+
+export async function getMailboxPet(userId: string): Promise<{ mailboxPet: MailboxPetType }> {
+  return await apiRequest(`/users/${userId}/mailbox-pet`);
+}
+
+export async function updateMailboxPet(
+  userId: string,
+  pet: MailboxPetType
+): Promise<{ message: string; mailboxPet: MailboxPetType }> {
+  const res = await apiRequest(`/users/${userId}/mailbox-pet`, {
+    method: 'PUT',
+    body: JSON.stringify({ pet }),
+  });
+
+  // Update cached local user session
+  try {
+    const stored = localStorage.getItem('postmaster_user');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      parsed.mailboxPet = pet;
+      localStorage.setItem('postmaster_user', JSON.stringify(parsed));
+    }
+  } catch (_) {}
+
+  return res;
+}
+
+// ============================================
+// Feature 17: Postmaster's Phantom Gazette APIs
+// ============================================
+
+export interface GazetteEdition {
+  _id: string;
+  userId: string;
+  editionCode: string;
+  editionNumber: number;
+  volume: string;
+  title: string;
+  headline: string;
+  subtitle?: string;
+  date: string;
+  formattedDateStr?: string;
+  category: 'Seasonal Chronicle' | 'Postal Mystery' | 'Milestone Decree' | 'Philatelic Gazette' | 'Celestial Dispatch' | 'Special Bulletin';
+  weatherForecast?: string;
+  leadStory: {
+    heading: string;
+    content: string;
+    woodcutIllustration?: string;
+  };
+  editorialQuote?: {
+    quote: string;
+    author: string;
+  };
+  communityHighlights: Array<{
+    title: string;
+    body: string;
+  }>;
+  userPostalJourney: {
+    lettersSent: number;
+    lettersReceived: number;
+    reputationScore: number;
+    deliveriesCompleted: number;
+    xp: number;
+    rank: string;
+    unreadMailboxCount: number;
+    milestoneAchieved?: string;
+  };
+  fictionalPostalClassifieds: Array<{
+    tag: string;
+    text: string;
+  }>;
+  isRead: boolean;
+  readAt?: string | null;
+  createdAt: string;
+}
+
+export async function getMyGazettes(): Promise<{ gazettes: GazetteEdition[]; unreadCount: number; totalCount: number }> {
+  return await apiRequest('/gazettes');
+}
+
+export async function getGazetteUnreadCount(): Promise<{ unreadCount: number }> {
+  return await apiRequest('/gazettes/unread-count');
+}
+
+export async function getLatestGazette(): Promise<GazetteEdition> {
+  return await apiRequest('/gazettes/latest');
+}
+
+export async function getGazetteById(id: string): Promise<GazetteEdition> {
+  return await apiRequest(`/gazettes/${id}`);
+}
+
+export async function markGazetteRead(id: string): Promise<{ message: string; gazette: GazetteEdition }> {
+  return await apiRequest(`/gazettes/${id}/read`, { method: 'PATCH' });
+}
+
+export async function generateSpecialGazette(): Promise<{ message: string; gazette: GazetteEdition }> {
+  return await apiRequest('/gazettes/generate-special', { method: 'POST' });
 }

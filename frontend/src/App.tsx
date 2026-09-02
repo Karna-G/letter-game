@@ -5,9 +5,9 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, us
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award, Users, AlertTriangle, Compass, Radio, UserPlus, UserCheck, UserX, Trash2, BookOpen, RotateCcw, Inbox, Send, Type, Ghost, Sparkles, Lock, Atom, Box, Eye, Waves, Scissors, Package, CheckSquare, Square, Archive, Megaphone, Pin, MapPin, Copy, Check } from 'lucide-react';
+import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award, Users, AlertTriangle, Compass, Radio, UserPlus, UserCheck, UserX, Trash2, BookOpen, RotateCcw, Inbox, Send, Ghost, Sparkles, Lock, Atom, Box, Eye, Waves, Scissors, Package, CheckSquare, Square, Archive, Megaphone, Pin, MapPin, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, getUserProfile, markLetterRead, toggleLetterRead, batchMarkRead, batchTrashLetters, batchRestoreLetters, batchBurnPermanent, burnLetter, getLeaderboard, getMyFriends, reportUser, getActiveMapUsers, getFriendRequests, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, cancelFriendRequest, removeFriend, removeLetterToTrash, restoreLetterFromTrash, getTrashedLetters, emptyTrash, burnLetterPermanent, summonDybbukLetter, toggleDybbukMode, checkDybbukAutoDelivery, summonSchrodingerLetter, collapseSchrodingerLetter, uncorkBottleMessage, getPostmasterRiddle, attemptRecallLetter, abandonLetter, batchAbandonLetters, updateNoteStatus, getNotices, postNotice, togglePinNotice, deleteNotice } from './api';
+import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, getUserProfile, markLetterRead, toggleLetterRead, batchMarkRead, batchTrashLetters, batchRestoreLetters, batchBurnPermanent, burnLetter, getLeaderboard, getMyFriends, reportUser, getActiveMapUsers, getFriendRequests, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, cancelFriendRequest, removeFriend, removeLetterToTrash, restoreLetterFromTrash, getTrashedLetters, emptyTrash, burnLetterPermanent, summonDybbukLetter, toggleDybbukMode, checkDybbukAutoDelivery, summonSchrodingerLetter, collapseSchrodingerLetter, uncorkBottleMessage, getPostmasterRiddle, attemptRecallLetter, abandonLetter, batchAbandonLetters, updateNoteStatus, getNotices, postNotice, togglePinNotice, deleteNotice, type MailboxPetType } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Html5Qrcode } from 'html5-qrcode';
 import MailmenDirectory from './components/MailmenDirectory';
@@ -15,6 +15,7 @@ import DybbukSeancePage from './pages/DybbukSeancePage';
 import SchrodingerVaultPage from './pages/SchrodingerVaultPage';
 import BottleOceanPage from './pages/BottleOceanPage';
 import DeadLetterOfficePage from './pages/DeadLetterOfficePage';
+import PhantomGazettePage from './pages/PhantomGazettePage';
 import WaxSealRevealModal from './components/WaxSealRevealModal';
 import SocialTeaserModal from './components/SocialTeaserModal';
 import { formatLocalDateTime } from './utils/storyCanvasRenderer';
@@ -24,6 +25,9 @@ import { PickupAlertSettingsCard } from './components/PickupAlertSettingsCard';
 import DeliveryProofModal, { type DeliveryProofRequestData } from './components/DeliveryProofModal';
 import CentralHubRegistryModal from './components/CentralHubRegistryModal';
 import TomRiddlesDiaryModal from './components/TomRiddlesDiaryModal';
+import MailboxPetCompanion, { MAILBOX_PETS } from './components/MailboxPetCompanion';
+import PhantomGazettePopup from './components/PhantomGazettePopup';
+import HandwrittenLetterPaper, { HANDWRITING_STYLES, INK_COLORS, PARCHMENT_PAPERS } from './components/HandwrittenLetterPaper';
 import { waxSealAudio, initGlobalUiClickSound } from './utils/waxSealAudio';
 import manuscriptQuillDesk from './assets/manuscript_quill_desk.jpg';
 import antiqueScrollsPile from './assets/antique_scrolls_pile.jpg';
@@ -319,12 +323,16 @@ function CartographicNoteStatusModal({
                   key={key}
                   type="button"
                   onClick={() => setMood(key)}
-                  className={`p-2 rounded-sm text-center transition-all flex flex-col items-center justify-center gap-1 ${
-                    isSelected ? 'ring-2 ring-amber-400 bg-amber-950/80 shadow-lg' : 'bg-stone-900/60 hover:bg-stone-800/80 border border-stone-800'
+                  className={`p-2 rounded-sm text-center transition-all duration-300 flex flex-col items-center justify-center gap-1 relative ${
+                    isSelected
+                      ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
+                      : 'bg-stone-900/60 hover:bg-stone-800/80 border border-stone-800 text-stone-300 hover:border-amber-700/40'
                   }`}
                 >
                   <span className="text-2xl">{item.icon}</span>
-                  <span className="text-[10px] font-serif truncate w-full text-stone-300">{item.label}</span>
+                  <span className={`text-[10px] font-serif truncate w-full ${isSelected ? 'font-bold text-amber-300' : 'text-stone-300'}`}>
+                    {item.label}
+                  </span>
                 </button>
               );
             })}
@@ -340,10 +348,10 @@ function CartographicNoteStatusModal({
             <button
               type="button"
               onClick={() => setPrivacy('public')}
-              className={`p-3 rounded-sm text-left transition-all border ${
+              className={`p-3 rounded-sm text-left transition-all duration-300 ${
                 privacy === 'public'
-                  ? 'bg-amber-950/80 border-amber-400 text-amber-200 shadow-md ring-1 ring-amber-400'
-                  : 'bg-stone-900/50 border-stone-800 text-stone-400 hover:text-stone-200'
+                  ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
+                  : 'bg-stone-900/50 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-amber-700/40'
               }`}
             >
               <div className="flex items-center gap-2 font-bold text-xs" style={{ fontFamily: "'Cinzel', serif" }}>
@@ -357,10 +365,10 @@ function CartographicNoteStatusModal({
             <button
               type="button"
               onClick={() => setPrivacy('friends')}
-              className={`p-3 rounded-sm text-left transition-all border ${
+              className={`p-3 rounded-sm text-left transition-all duration-300 ${
                 privacy === 'friends'
-                  ? 'bg-purple-950/80 border-purple-400 text-purple-200 shadow-md ring-1 ring-purple-400'
-                  : 'bg-stone-900/50 border-stone-800 text-stone-400 hover:text-stone-200'
+                  ? 'selected-glow-purple bg-purple-950/90 text-purple-200'
+                  : 'bg-stone-900/50 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-purple-700/40'
               }`}
             >
               <div className="flex items-center gap-2 font-bold text-xs" style={{ fontFamily: "'Cinzel', serif" }}>
@@ -374,10 +382,10 @@ function CartographicNoteStatusModal({
             <button
               type="button"
               onClick={() => setPrivacy('private')}
-              className={`p-3 rounded-sm text-left transition-all border ${
+              className={`p-3 rounded-sm text-left transition-all duration-300 ${
                 privacy === 'private'
-                  ? 'bg-red-950/80 border-red-400 text-red-200 shadow-md ring-1 ring-red-400'
-                  : 'bg-stone-900/50 border-stone-800 text-stone-400 hover:text-stone-200'
+                  ? 'selected-glow-red bg-red-950/90 text-red-200'
+                  : 'bg-stone-900/50 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-red-700/40'
               }`}
             >
               <div className="flex items-center gap-2 font-bold text-xs" style={{ fontFamily: "'Cinzel', serif" }}>
@@ -1364,8 +1372,13 @@ function App() {
             <Route path="/bottle" element={<BottleOceanPage user={user} />} />
             <Route path="/dead-letters" element={<DeadLetterOfficePage />} />
             <Route path="/dead-letter-office" element={<DeadLetterOfficePage />} />
+            <Route path="/gazette" element={<PhantomGazettePage />} />
+            <Route path="/phantom-gazette" element={<PhantomGazettePage />} />
           </Routes>
         </main>
+        
+        {/* Feature 17: Postmaster's Phantom Gazette Side Pop-up Broadside */}
+        <PhantomGazettePopup />
       </div>
     </Router>
     </>
@@ -1633,7 +1646,31 @@ function UserProfile({ user }: { user: any }) {
                 </div>
               )}
 
-              <div className="mt-4 pt-3 flex justify-between items-center text-sm" style={{ borderTop: '1px dashed rgba(212,175,55,0.2)' }}>
+              {/* Mailbox Companion Badge in User Ledger */}
+              <div className="mt-3 p-2.5 rounded-sm flex items-center justify-between" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.25)' }}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xl animate-float-gentle">
+                    {MAILBOX_PETS[liveUser?.mailboxPet as keyof typeof MAILBOX_PETS]?.emoji || '🐦'}
+                  </span>
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider block font-bold text-amber-400" style={{ fontFamily: "'Cinzel', serif" }}>
+                      Mailbox Companion
+                    </span>
+                    <span className="text-xs font-bold text-stone-200">
+                      {liveUser?.mailboxPet === 'none' ? 'No Companion Appointed' : `${MAILBOX_PETS[liveUser?.mailboxPet as keyof typeof MAILBOX_PETS]?.name || 'Barnaby'} (${MAILBOX_PETS[liveUser?.mailboxPet as keyof typeof MAILBOX_PETS]?.title || 'Imperial Pigeon'})`}
+                    </span>
+                  </div>
+                </div>
+
+                <Link
+                  to="/mailbox"
+                  className="text-[10px] px-2.5 py-1 rounded bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 border border-amber-600/40 font-serif flex items-center gap-1 transition-colors"
+                >
+                  <span>Visit at Mailbox →</span>
+                </Link>
+              </div>
+
+              <div className="mt-3 pt-3 flex justify-between items-center text-sm" style={{ borderTop: '1px dashed rgba(212,175,55,0.2)' }}>
                 <span className="italic" style={{ color: 'var(--parchment-dark)' }}>“Verba volant, scripta manent.”</span>
                 <Link to={user.role === 'mailman' ? "/mailman" : "/directory"} className="underline hover:text-white font-bold text-xs sm:text-sm" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
                   {user.role === 'mailman' ? "Mailman Ledger →" : "Inspect Roster →"}
@@ -2393,6 +2430,13 @@ function ComposeLetter() {
   const [error, setError] = useState('');
   const [currentDraftId, setCurrentDraftId] = useState('');
   
+  // Feature 27: Handwritten Letter Mode State
+  const [isHandwritten, setIsHandwritten] = useState(false);
+  const [handwritingStyle, setHandwritingStyle] = useState('elegant');
+  const [inkColor, setInkColor] = useState('iron-gall');
+  const [parchmentPaper, setParchmentPaper] = useState('vintage-cream');
+  const [showHandwrittenPreview, setShowHandwrittenPreview] = useState(false);
+  
   const [liveUser, setLiveUser] = useState<any>(null);
   
   const navigate = useNavigate();
@@ -2412,6 +2456,10 @@ function ComposeLetter() {
       }
       if (draft.font) setSelectedFont(draft.font);
       if (draft.fontSize) setSelectedFontSize(draft.fontSize);
+      if (typeof draft.isHandwritten === 'boolean') setIsHandwritten(draft.isHandwritten);
+      if (draft.handwritingStyle) setHandwritingStyle(draft.handwritingStyle);
+      if (draft.inkColor) setInkColor(draft.inkColor);
+      if (draft.parchmentPaper) setParchmentPaper(draft.parchmentPaper);
       setBurnAfterReading(!!draft.burnAfterReading);
       if (draft.burnTimerSeconds) {
         if (draft.burnTimerSeconds % 60 === 0 && draft.burnTimerSeconds >= 60) {
@@ -2439,10 +2487,26 @@ function ComposeLetter() {
     try {
       const schedValue = isTimeCapsule && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
       let res;
+      const letterPayload = {
+        receiverRef,
+        content,
+        type: 'standard',
+        status: 'pending',
+        burnAfterReading,
+        burnTimerSeconds: totalBurnSeconds,
+        font: isHandwritten ? (HANDWRITING_STYLES.find(h => h.id === handwritingStyle)?.fontFamily?.replace(/'/g, '').split(',')[0] || selectedFont) : selectedFont,
+        fontSize: selectedFontSize,
+        scheduledFor: schedValue,
+        isHandwritten,
+        handwritingStyle,
+        inkColor,
+        parchmentPaper
+      };
+
       if (currentDraftId) {
-        res = await updateLetter(currentDraftId, receiverRef, content, 'pending', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize, schedValue);
+        res = await updateLetter(currentDraftId, letterPayload);
       } else {
-        res = await sendLetter(receiverRef, content, 'standard', 'pending', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize, undefined, schedValue);
+        res = await sendLetter(letterPayload);
       }
       setCreatedLetterId(res?._id || currentDraftId || '');
       setCreatedQR(res.qrCodeToken);
@@ -2457,10 +2521,25 @@ function ComposeLetter() {
     setLoading(true); setError('');
     try {
       const schedValue = isTimeCapsule && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
+      const draftPayload = {
+        receiverRef,
+        content,
+        status: 'draft',
+        burnAfterReading,
+        burnTimerSeconds: totalBurnSeconds,
+        font: isHandwritten ? (HANDWRITING_STYLES.find(h => h.id === handwritingStyle)?.fontFamily?.replace(/'/g, '').split(',')[0] || selectedFont) : selectedFont,
+        fontSize: selectedFontSize,
+        scheduledFor: schedValue,
+        isHandwritten,
+        handwritingStyle,
+        inkColor,
+        parchmentPaper
+      };
+
       if (currentDraftId) {
-        await updateLetter(currentDraftId, receiverRef, content, 'draft', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize, schedValue);
+        await updateLetter(currentDraftId, draftPayload);
       } else {
-        const res = await sendLetter(receiverRef, content, 'standard', 'draft', burnAfterReading, totalBurnSeconds, selectedFont, selectedFontSize, undefined, schedValue);
+        const res = await sendLetter(draftPayload);
         setCurrentDraftId(res._id);
       }
       setError('Draft saved to thy archives successfully!');
@@ -2545,99 +2624,239 @@ function ComposeLetter() {
               />
             </div>
 
-            {/* Typography & Calligraphy Script Selector (Fully Mobile Fluid) */}
+            {/* ── LETTER STYLE: CLASSIC DIGITAL VS HANDWRITTEN (Feature 27) ── */}
             <div className="p-4 sm:p-5 rounded-sm space-y-4" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <Type className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} />
+                  <Feather className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} />
                   <span className="small-caps text-sm sm:text-base font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
-                    Calligraphic Script & Scale:
+                    Letter Style & Aesthetic:
                   </span>
                 </div>
-                
-                {/* Font Size Toggle Buttons (Touch-friendly) */}
-                <div className="flex items-center gap-1.5 p-1 rounded-sm flex-wrap" style={{ background: 'rgba(14,13,12,0.8)', border: '1px solid rgba(212,175,55,0.2)' }}>
-                  <span className="text-xs uppercase tracking-wider font-semibold mr-1 pl-1" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Scale:</span>
-                  {[
-                    { id: 'small', label: 'Modest' },
-                    { id: 'medium', label: 'Standard' },
-                    { id: 'large', label: 'Grand' },
-                    { id: 'huge', label: 'Royal' },
-                  ].map(s => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => setSelectedFontSize(s.id as any)}
-                      className="px-2.5 py-1 rounded-sm text-xs font-bold transition-all"
-                      style={{
-                        fontFamily: "'Cinzel', serif",
-                        background: selectedFontSize === s.id ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'transparent',
-                        color: selectedFontSize === s.id ? '#FFF' : 'var(--parchment-dark)',
-                        border: selectedFontSize === s.id ? '1px solid var(--antique-gold)' : '1px solid transparent',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsHandwritten(false)}
+                    className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      !isHandwritten
+                        ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
+                        : 'bg-stone-900/60 border border-stone-800 text-stone-400 hover:text-stone-200'
+                    }`}
+                    style={{ fontFamily: "'Cinzel', serif" }}
+                  >
+                    <span>🏛️</span> Classic Epistle
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsHandwritten(true)}
+                    className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      isHandwritten
+                        ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
+                        : 'bg-stone-900/60 border border-stone-800 text-stone-400 hover:text-stone-200'
+                    }`}
+                    style={{ fontFamily: "'Cinzel', serif" }}
+                  >
+                    <span>✒️</span> Handwritten Letter
+                  </button>
                 </div>
               </div>
 
-              {/* Script Family Selector Dropdown & Live Script Preview */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-center">
-                <div className="md:col-span-6">
-                  <select
-                    value={selectedFont}
-                    onChange={(e) => setSelectedFont(e.target.value)}
-                    disabled={isBanned}
-                    className="w-full p-3 rounded-sm font-semibold focus:outline-none text-base cursor-pointer"
-                    style={{
-                      background: '#FFFDF9',
-                      color: '#1A1A1A',
-                      border: '1px solid var(--border-subtle)',
-                      fontFamily: "'Cinzel', serif"
-                    }}
-                  >
-                    {GUILD_FONTS.map(f => (
-                      <option key={f.id} value={f.id}>
-                        {f.label} ({f.category})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              {/* Handwritten Customization Options */}
+              {isHandwritten ? (
+                <div className="pt-3 space-y-4 border-t border-amber-900/40">
+                  {/* 1. Penmanship Style */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs uppercase font-mono tracking-wider text-amber-300 font-bold block">
+                      Penmanship Style:
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                      {HANDWRITING_STYLES.map(style => (
+                        <button
+                          key={style.id}
+                          type="button"
+                          onClick={() => setHandwritingStyle(style.id)}
+                          className={`p-2 rounded-sm text-center border transition-all ${
+                            handwritingStyle === style.id
+                              ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
+                              : 'bg-stone-900/60 border-stone-800 text-stone-400 hover:text-stone-200'
+                          }`}
+                        >
+                          <span className="text-xs block font-bold truncate">{style.label}</span>
+                          <span className="text-[10px] text-stone-400 italic block">{style.category}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                <div className="md:col-span-6 p-3 rounded-sm text-center overflow-hidden" style={{ background: 'rgba(14,13,12,0.6)', border: '1px solid rgba(212,175,55,0.2)' }}>
-                  <span className="text-[11px] uppercase tracking-widest block mb-0.5" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Active Script Preview:</span>
-                  <span 
-                    className="text-lg sm:text-xl font-medium tracking-wide block truncate"
-                    style={{ color: 'var(--antique-gold)', fontFamily: getFontFamily(selectedFont) }}
-                  >
-                    Thy Words Carry the Wind & Fire
-                  </span>
+                  {/* 2. Ink Fluid & Parchment Paper */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                    <div className="space-y-1.5">
+                      <label className="text-xs uppercase font-mono tracking-wider text-amber-300 font-bold block">
+                        Ink Formulation:
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {INK_COLORS.map(ink => (
+                          <button
+                            key={ink.id}
+                            type="button"
+                            onClick={() => setInkColor(ink.id)}
+                            className={`px-3 py-1.5 rounded-sm text-xs font-bold flex items-center gap-1.5 border transition-all ${
+                              inkColor === ink.id
+                                ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
+                                : 'bg-stone-900/60 border-stone-800 text-stone-300 hover:border-stone-700'
+                            }`}
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full border border-stone-400" style={{ backgroundColor: ink.color }} />
+                            <span>{ink.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs uppercase font-mono tracking-wider text-amber-300 font-bold block">
+                        Parchment Paper:
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {PARCHMENT_PAPERS.map(paper => (
+                          <button
+                            key={paper.id}
+                            type="button"
+                            onClick={() => setParchmentPaper(paper.id)}
+                            className={`px-3 py-1.5 rounded-sm text-xs font-bold border transition-all ${
+                              parchmentPaper === paper.id
+                                ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
+                                : 'bg-stone-900/60 border-stone-800 text-stone-300 hover:border-stone-700'
+                            }`}
+                          >
+                            <span>{paper.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                /* Classic Typography Script Controls */
+                <div className="space-y-3 pt-2 border-t border-amber-900/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <span className="text-xs uppercase font-mono tracking-wider text-amber-300 font-bold">
+                      Select Calligraphic Script:
+                    </span>
+                    <div className="flex items-center gap-1.5 p-1 rounded-sm flex-wrap" style={{ background: 'rgba(14,13,12,0.8)', border: '1px solid rgba(212,175,55,0.2)' }}>
+                      <span className="text-xs uppercase tracking-wider font-semibold mr-1 pl-1" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Scale:</span>
+                      {[
+                        { id: 'small', label: 'Modest' },
+                        { id: 'medium', label: 'Standard' },
+                        { id: 'large', label: 'Grand' },
+                        { id: 'huge', label: 'Royal' },
+                      ].map(s => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setSelectedFontSize(s.id as any)}
+                          className="px-2.5 py-1 rounded-sm text-xs font-bold transition-all"
+                          style={{
+                            fontFamily: "'Cinzel', serif",
+                            background: selectedFontSize === s.id ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'transparent',
+                            color: selectedFontSize === s.id ? '#FFF' : 'var(--parchment-dark)',
+                            border: selectedFontSize === s.id ? '1px solid var(--antique-gold)' : '1px solid transparent',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-center">
+                    <div className="md:col-span-6">
+                      <select
+                        value={selectedFont}
+                        onChange={(e) => setSelectedFont(e.target.value)}
+                        disabled={isBanned}
+                        className="w-full p-3 rounded-sm font-semibold focus:outline-none text-base cursor-pointer"
+                        style={{
+                          background: '#FFFDF9',
+                          color: '#1A1A1A',
+                          border: '1px solid var(--border-subtle)',
+                          fontFamily: "'Cinzel', serif"
+                        }}
+                      >
+                        {GUILD_FONTS.map(f => (
+                          <option key={f.id} value={f.id}>
+                            {f.label} ({f.category})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="md:col-span-6 p-3 rounded-sm text-center overflow-hidden" style={{ background: 'rgba(14,13,12,0.6)', border: '1px solid rgba(212,175,55,0.2)' }}>
+                      <span className="text-[11px] uppercase tracking-widest block mb-0.5" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Active Script Preview:</span>
+                      <span 
+                        className="text-lg sm:text-xl font-medium tracking-wide block truncate"
+                        style={{ color: 'var(--antique-gold)', fontFamily: getFontFamily(selectedFont) }}
+                      >
+                        Thy Words Carry the Wind & Fire
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Main Manuscript Writing Area */}
+            {/* Main Manuscript Writing Area & Live Handwritten Preview */}
             <div>
-              <label className="small-caps block text-sm sm:text-base font-bold mb-2" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                The Missive Manuscript:
-              </label>
-              <textarea 
-                value={content} 
-                onChange={(e) => setContent(e.target.value)} 
-                rows={8} 
-                disabled={isBanned}
-                style={{ 
-                  fontFamily: getFontFamily(selectedFont),
-                  background: '#FFFDF9',
-                  color: '#1A1A1A',
-                  border: '1px solid var(--border-subtle)',
-                  boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.12)'
-                }}
-                className={`w-full p-4 sm:p-6 rounded-sm focus:outline-none resize-none leading-relaxed transition-all ${getFontSizeClass(selectedFontSize)} ${isBanned ? 'bg-gray-300 opacity-50 cursor-not-allowed' : ''}`} 
-                placeholder="Inscribe thy words upon the sovereign scroll..."
-              />
+              <div className="flex items-center justify-between mb-2">
+                <label className="small-caps text-sm sm:text-base font-bold" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+                  The Missive Manuscript:
+                </label>
+                {isHandwritten && (
+                  <button
+                    type="button"
+                    onClick={() => setShowHandwrittenPreview(!showHandwrittenPreview)}
+                    className="text-xs text-amber-300 hover:text-amber-100 flex items-center gap-1 font-serif underline"
+                  >
+                    <span>{showHandwrittenPreview ? '✏️ Edit Manuscript' : '👁️ View Handwritten Paper'}</span>
+                  </button>
+                )}
+              </div>
+
+              {isHandwritten && showHandwrittenPreview ? (
+                <div className="space-y-2">
+                  <HandwrittenLetterPaper
+                    content={content || '(Inscribe words in thy manuscript to preview here...)'}
+                    recipientName={receiverRef}
+                    styleId={handwritingStyle}
+                    inkId={inkColor}
+                    paperId={parchmentPaper}
+                    fontSize={selectedFontSize}
+                    dateStr={new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                    senderName={liveUser?.name || 'Thy Noble Self'}
+                  />
+                </div>
+              ) : (
+                <textarea 
+                  value={content} 
+                  onChange={(e) => setContent(e.target.value)} 
+                  rows={8} 
+                  disabled={isBanned}
+                  style={{ 
+                    fontFamily: isHandwritten ? (HANDWRITING_STYLES.find(h => h.id === handwritingStyle)?.fontFamily || "'Great Vibes', cursive") : getFontFamily(selectedFont),
+                    color: isHandwritten ? (INK_COLORS.find(i => i.id === inkColor)?.color || '#1B1816') : '#1A1A1A',
+                    background: isHandwritten ? (parchmentPaper === 'lined-ledger' ? 'repeating-linear-gradient(#FBF7EB, #FBF7EB 31px, rgba(180, 140, 70, 0.22) 32px)' : '#FFFDF9') : '#FFFDF9',
+                    border: '1px solid var(--border-subtle)',
+                    boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.12)',
+                    fontSize: isHandwritten ? '1.45rem' : undefined,
+                    lineHeight: isHandwritten ? '2.0' : undefined
+                  }}
+                  className={`w-full p-4 sm:p-6 rounded-sm focus:outline-none resize-none leading-relaxed transition-all ${getFontSizeClass(selectedFontSize)} ${isBanned ? 'bg-gray-300 opacity-50 cursor-not-allowed' : ''}`} 
+                  placeholder={isHandwritten ? "Inscribe thy handwritten letter here using delicate quill strokes..." : "Inscribe thy words upon the sovereign scroll..."}
+                />
+              )}
             </div>
             
             {/* Burn After Reading with Configurable Ash Timer */}
@@ -3591,17 +3810,33 @@ function LetterArchive() {
                   </>
                 )}
 
-                <div 
-                  style={{
-                    fontFamily: getFontFamily(openLetter.font),
-                    background: 'rgba(255, 255, 255, 0.75)',
-                    color: '#1A1A1A',
-                    border: '1px solid rgba(160, 120, 60, 0.3)'
-                  }}
-                  className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
-                >
-                  {openLetter.content}
-                </div>
+                {openLetter.isHandwritten ? (
+                  <div className="my-2 max-h-[480px] overflow-y-auto">
+                    <HandwrittenLetterPaper
+                      content={openLetter.content}
+                      senderName={openLetter.senderRef?.name || 'Thy Correspondent'}
+                      recipientName={openLetter.receiverRef?.name || openLetter.receiverRef}
+                      styleId={openLetter.handwritingStyle}
+                      inkId={openLetter.inkColor}
+                      paperId={openLetter.parchmentPaper}
+                      fontSize={openLetter.fontSize}
+                      dateStr={openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined}
+                      isAnonymous={openLetter.isAnonymous}
+                    />
+                  </div>
+                ) : (
+                  <div 
+                    style={{
+                      fontFamily: getFontFamily(openLetter.font),
+                      background: 'rgba(255, 255, 255, 0.75)',
+                      color: '#1A1A1A',
+                      border: '1px solid rgba(160, 120, 60, 0.3)'
+                    }}
+                    className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
+                  >
+                    {openLetter.content}
+                  </div>
+                )}
 
                 <div className="mt-5 text-right">
                   <button
@@ -3633,6 +3868,7 @@ function MyMailbox() {
   const [reportingUser, setReportingUser] = useState<any>(null); 
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const [dybbukMode, setDybbukMode] = useState(false);
+  const [mailboxPet, setMailboxPet] = useState<MailboxPetType>('pigeon');
   const [tone, setTone] = useState<'classical' | 'modern'>('classical');
   const [summoningDybbuk, setSummoningDybbuk] = useState(false);
   const [summoningSchrodinger, setSummoningSchrodinger] = useState(false);
@@ -3659,10 +3895,18 @@ function MyMailbox() {
   useEffect(() => { 
     const u = getStoredUser();
     if (u) {
+      if (u.mailboxPet) {
+        setMailboxPet(u.mailboxPet);
+      }
       const uid = u.id || u._id;
       getUserProfile(uid).then(prof => {
-        if (prof && typeof prof.dybbukMode === 'boolean') {
-          setDybbukMode(prof.dybbukMode);
+        if (prof) {
+          if (typeof prof.dybbukMode === 'boolean') {
+            setDybbukMode(prof.dybbukMode);
+          }
+          if (prof.mailboxPet) {
+            setMailboxPet(prof.mailboxPet);
+          }
         }
       }).catch(() => {});
 
@@ -3913,20 +4157,33 @@ function MyMailbox() {
         {/* Top Gold Rule */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3 pb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-              <span>📬 The Realm Mailbox</span>
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-5 pb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+          <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 flex-1 w-full lg:w-auto">
+            {/* 🐾 Mailbox Pet Companion Alcove */}
+            <div className="flex-shrink-0 self-center sm:self-auto p-2.5 rounded-sm bg-stone-950/50 border border-amber-900/40 shadow-inner flex items-center justify-center">
+              <MailboxPetCompanion
+                currentPet={mailboxPet}
+                userId={getStoredUser()?.id || getStoredUser()?._id || ''}
+                unreadCount={myMailbox.filter(l => !l.isRead).length}
+                onPetChanged={(newPet) => setMailboxPet(newPet)}
+              />
             </div>
-            <h2 className="text-2xl sm:text-4xl font-bold tracking-wide flex items-center gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
-              <Inbox className="w-8 h-8 flex-shrink-0" style={{ color: 'var(--antique-gold)' }} />
-              Thy Sovereign Mailbox
-            </h2>
-            <p className="text-sm sm:text-base italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-              Missives delivered to thee by royal couriers across the realm (Latest to Oldest).
-            </p>
+
+            <div className="space-y-1 text-center sm:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-1 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+                <span>📬 The Realm Mailbox</span>
+              </div>
+              <h2 className="text-2xl sm:text-4xl font-bold tracking-wide flex items-center justify-center sm:justify-start gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
+                <Inbox className="w-8 h-8 flex-shrink-0" style={{ color: 'var(--antique-gold)' }} />
+                Thy Sovereign Mailbox
+              </h2>
+              <p className="text-sm sm:text-base italic" style={{ color: 'var(--gold-muted)' }}>
+                Missives delivered to thee by royal couriers across the realm (Latest to Oldest).
+              </p>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2.5">
+
+          <div className="flex flex-wrap items-center gap-2.5 self-center lg:self-auto justify-center lg:justify-end">
             {/* Language Tone Mode Selector */}
             <div className="inline-flex items-center p-1 rounded-sm shadow-inner" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.3)' }}>
               <span className="text-[10px] uppercase tracking-wider font-bold px-2 text-amber-300" style={{ fontFamily: "'Cinzel', serif" }}>Tone:</span>
@@ -4667,18 +4924,33 @@ function MyMailbox() {
                 )}
 
                 {!openLetter.isTorn && openLetter.status !== 'torn' && (
-                  <motion.div 
-                    animate={{ opacity: openLetter.burnAfterReading ? 1 - fadeProgress : 1 }} 
-                    style={{
-                      fontFamily: getFontFamily(openLetter.font),
-                      background: 'rgba(255, 255, 255, 0.75)',
-                      color: '#1A1A1A',
-                      border: '1px solid rgba(160, 120, 60, 0.3)'
-                    }}
-                    className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
-                  >
-                    {openLetter.content}
-                  </motion.div>
+                  openLetter.isHandwritten ? (
+                    <motion.div animate={{ opacity: openLetter.burnAfterReading ? 1 - fadeProgress : 1 }} className="my-2 max-h-[480px] overflow-y-auto">
+                      <HandwrittenLetterPaper
+                        content={openLetter.content}
+                        senderName={(openLetter.senderRef?.role === 'admin' || (openLetter.senderRef?.name || '').toLowerCase().includes('guild master') || (openLetter.senderRef?.name || '').toLowerCase().includes('admin')) ? 'The Guild Master' : (openLetter.senderRef?.name || 'Thy Correspondent')}
+                        styleId={openLetter.handwritingStyle}
+                        inkId={openLetter.inkColor}
+                        paperId={openLetter.parchmentPaper}
+                        fontSize={openLetter.fontSize}
+                        dateStr={openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined}
+                        isAnonymous={openLetter.isAnonymous}
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div 
+                      animate={{ opacity: openLetter.burnAfterReading ? 1 - fadeProgress : 1 }} 
+                      style={{
+                        fontFamily: getFontFamily(openLetter.font),
+                        background: 'rgba(255, 255, 255, 0.75)',
+                        color: '#1A1A1A',
+                        border: '1px solid rgba(160, 120, 60, 0.3)'
+                      }}
+                      className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
+                    >
+                      {openLetter.content}
+                    </motion.div>
+                  )
                 )}
 
                 {openLetter.burnAfterReading && (
@@ -5611,17 +5883,33 @@ function SentLetters() {
                 )}
 
                 {!openLetter.isTorn && openLetter.status !== 'torn' && (
-                  <div 
-                    style={{
-                      fontFamily: getFontFamily(openLetter.font),
-                      background: 'rgba(255, 255, 255, 0.75)',
-                      color: '#1A1A1A',
-                      border: '1px solid rgba(160, 120, 60, 0.3)'
-                    }}
-                    className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
-                  >
-                    {openLetter.content}
-                  </div>
+                  openLetter.isHandwritten ? (
+                    <div className="my-2 max-h-[480px] overflow-y-auto">
+                      <HandwrittenLetterPaper
+                        content={openLetter.content}
+                        senderName={openLetter.senderRef?.name || getStoredUser()?.name || 'Thy Self'}
+                        recipientName={openLetter.receiverRef?.name || openLetter.receiverRef}
+                        styleId={openLetter.handwritingStyle}
+                        inkId={openLetter.inkColor}
+                        paperId={openLetter.parchmentPaper}
+                        fontSize={openLetter.fontSize}
+                        dateStr={openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined}
+                        isAnonymous={openLetter.isAnonymous}
+                      />
+                    </div>
+                  ) : (
+                    <div 
+                      style={{
+                        fontFamily: getFontFamily(openLetter.font),
+                        background: 'rgba(255, 255, 255, 0.75)',
+                        color: '#1A1A1A',
+                        border: '1px solid rgba(160, 120, 60, 0.3)'
+                      }}
+                      className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
+                    >
+                      {openLetter.content}
+                    </div>
+                  )
                 )}
 
                 <div className="mt-5 text-right">

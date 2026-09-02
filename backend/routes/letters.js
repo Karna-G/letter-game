@@ -81,7 +81,11 @@ const REPUTATION_PER_LETTER = 10;
 // Create a new letter (or draft)
 router.post('/', async (req, res) => {
   try {
-    const { senderRef, receiverRef, content, type, scheduledFor, status, burnAfterReading, burnTimerSeconds, senderLocation, font, fontSize, schrodingerVariants } = req.body;
+    const { 
+      senderRef, receiverRef, content, type, scheduledFor, status, 
+      burnAfterReading, burnTimerSeconds, senderLocation, font, fontSize, 
+      schrodingerVariants, isHandwritten, handwritingStyle, inkColor, parchmentPaper 
+    } = req.body;
 
     // Only generate QR code token if it's being immediately dispatched ('pending')
     const initialStatus = status === 'draft' ? 'draft' : 'pending';
@@ -116,7 +120,12 @@ router.post('/', async (req, res) => {
       burnAfterReading: !!burnAfterReading,
       burnTimerSeconds: Number(burnTimerSeconds) > 0 ? Number(burnTimerSeconds) : 60,
       senderLocation: resolvedSenderLocation,
-      sealedAt: initialStatus === 'pending' ? Date.now() : undefined
+      sealedAt: initialStatus === 'pending' ? Date.now() : undefined,
+      // Feature 27: Handwritten Letters
+      isHandwritten: !!isHandwritten,
+      handwritingStyle: handwritingStyle || 'elegant',
+      inkColor: inkColor || 'iron-gall',
+      parchmentPaper: parchmentPaper || 'vintage-cream'
     };
 
     if (type === 'schrodinger' && Array.isArray(schrodingerVariants) && schrodingerVariants.length > 0) {
@@ -167,7 +176,11 @@ router.post('/', async (req, res) => {
 // Update an existing letter (e.g. edit a draft, or dispatch a draft)
 router.put('/:id', async (req, res) => {
   try {
-    const { receiverRef, content, status, burnAfterReading, burnTimerSeconds, font, fontSize, type, schrodingerVariants } = req.body;
+    const { 
+      receiverRef, content, status, burnAfterReading, burnTimerSeconds, 
+      font, fontSize, type, schrodingerVariants,
+      isHandwritten, handwritingStyle, inkColor, parchmentPaper 
+    } = req.body;
     const letter = await Letter.findById(req.params.id);
 
     if (!letter) return res.status(404).json({ message: 'Letter not found' });
@@ -176,6 +189,10 @@ router.put('/:id', async (req, res) => {
     if (font) letter.font = font;
     if (fontSize) letter.fontSize = fontSize;
     if (type) letter.type = type;
+    if (typeof isHandwritten === 'boolean') letter.isHandwritten = isHandwritten;
+    if (handwritingStyle) letter.handwritingStyle = handwritingStyle;
+    if (inkColor) letter.inkColor = inkColor;
+    if (parchmentPaper) letter.parchmentPaper = parchmentPaper;
     if (Array.isArray(schrodingerVariants) && schrodingerVariants.length > 0) {
       letter.schrodingerVariants = schrodingerVariants;
       letter.schrodingerState = 'superposition';

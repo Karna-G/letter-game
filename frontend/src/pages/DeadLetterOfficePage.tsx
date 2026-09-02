@@ -5,6 +5,7 @@ import { BookOpen, Search, Feather, Ghost, Atom, Waves, Inbox, Archive, X, Clock
 import { getDeadLetters } from '../api';
 import { waxSealAudio } from '../utils/waxSealAudio';
 import deadLetterOfficeBg from '../assets/dead_letter_office_bg.jpg';
+import HandwrittenLetterPaper from '../components/HandwrittenLetterPaper';
 
 export default function DeadLetterOfficePage() {
   const [deadLetters, setDeadLetters] = useState<any[]>([]);
@@ -375,17 +376,33 @@ export default function DeadLetterOfficePage() {
                   </p>
                 </div>
 
-                <div 
-                  style={{
-                    fontFamily: getFontFamily(openLetter.font),
-                    background: 'rgba(255, 255, 255, 0.75)',
-                    color: '#1A1A1A',
-                    border: '1px solid rgba(160, 120, 60, 0.3)'
-                  }}
-                  className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
-                >
-                  {openLetter.content}
-                </div>
+                {openLetter.isHandwritten ? (
+                  <div className="my-2 max-h-[480px] overflow-y-auto">
+                    <HandwrittenLetterPaper
+                      content={openLetter.content}
+                      senderName={openLetter.senderRef?.name || openLetter.spectralSender?.name || 'A Lost Author'}
+                      recipientName={openLetter.receiverRef?.name || openLetter.receiverRef}
+                      styleId={openLetter.handwritingStyle}
+                      inkId={openLetter.inkColor}
+                      paperId={openLetter.parchmentPaper}
+                      fontSize={openLetter.fontSize}
+                      dateStr={openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined}
+                      isAnonymous={openLetter.isAnonymous}
+                    />
+                  </div>
+                ) : (
+                  <div 
+                    style={{
+                      fontFamily: getFontFamily(openLetter.font),
+                      background: 'rgba(255, 255, 255, 0.75)',
+                      color: '#1A1A1A',
+                      border: '1px solid rgba(160, 120, 60, 0.3)'
+                    }}
+                    className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
+                  >
+                    {openLetter.content}
+                  </div>
+                )}
 
                 <div className="mt-5 text-right">
                   <button

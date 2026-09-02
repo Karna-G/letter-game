@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema({
   noteStatusCreatedAt: { type: Date, default: null },
   noteStatusExpiresAt: { type: Date, default: null },
   noteStatusMood: { type: String, default: 'quill' },
+  mailboxPet: { type: String, enum: ['pigeon', 'cat', 'fox', 'owl', 'none'], default: 'pigeon' },
   lastLogin: { type: Date, default: Date.now },
   
   // --- THE FRIENDS & REQUESTS SYSTEM ---

@@ -51,6 +51,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/test', require('./routes/test'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/notices', require('./routes/notices')); // Feature: Community Notice Board
+app.use('/api/gazettes', require('./routes/gazettes')); // Feature 17: Postmaster's Phantom Gazette
 
 // Basic status route
 app.get('/api/status', (req, res) => {
