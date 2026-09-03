@@ -7,7 +7,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Feather, PenTool, Scroll, Shield, LogOut, User, Crown, Scan, X, CheckCircle, Star, Flame, Trophy, Clock, Award, Users, AlertTriangle, Compass, Radio, UserPlus, UserCheck, UserX, Trash2, BookOpen, RotateCcw, Inbox, Send, Ghost, Sparkles, Lock, Atom, Box, Eye, Waves, Scissors, Package, CheckSquare, Square, Archive, Megaphone, Pin, MapPin, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { register, login, logout, getStoredUser, getStoredToken, sendLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, getUserProfile, markLetterRead, toggleLetterRead, batchMarkRead, batchTrashLetters, batchRestoreLetters, batchBurnPermanent, burnLetter, getLeaderboard, getMyFriends, reportUser, getActiveMapUsers, getFriendRequests, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, cancelFriendRequest, removeFriend, removeLetterToTrash, restoreLetterFromTrash, getTrashedLetters, emptyTrash, burnLetterPermanent, summonDybbukLetter, toggleDybbukMode, checkDybbukAutoDelivery, summonSchrodingerLetter, collapseSchrodingerLetter, uncorkBottleMessage, getPostmasterRiddle, attemptRecallLetter, abandonLetter, batchAbandonLetters, updateNoteStatus, getNotices, postNotice, togglePinNotice, deleteNotice, type MailboxPetType } from './api';
+import { register, login, logout, getStoredUser, getStoredToken, sendLetter, sendNamelessLetter, scanLetter, getActiveQuests, getMyLetters, getMyMailbox, updateLetter, getUserProfile, markLetterRead, toggleLetterRead, batchMarkRead, batchTrashLetters, batchRestoreLetters, batchBurnPermanent, burnLetter, getLeaderboard, getMyFriends, reportUser, getActiveMapUsers, getFriendRequests, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, cancelFriendRequest, removeFriend, removeLetterToTrash, restoreLetterFromTrash, getTrashedLetters, emptyTrash, burnLetterPermanent, summonDybbukLetter, toggleDybbukMode, checkDybbukAutoDelivery, summonSchrodingerLetter, collapseSchrodingerLetter, uncorkBottleMessage, getPostmasterRiddle, attemptRecallLetter, abandonLetter, batchAbandonLetters, updateNoteStatus, getNotices, postNotice, togglePinNotice, deleteNotice, type MailboxPetType } from './api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Html5Qrcode } from 'html5-qrcode';
 import MailmenDirectory from './components/MailmenDirectory';
@@ -16,6 +16,7 @@ import SchrodingerVaultPage from './pages/SchrodingerVaultPage';
 import BottleOceanPage from './pages/BottleOceanPage';
 import DeadLetterOfficePage from './pages/DeadLetterOfficePage';
 import PhantomGazettePage from './pages/PhantomGazettePage';
+import NamelessWordsPage from './pages/NamelessWordsPage';
 import WaxSealRevealModal from './components/WaxSealRevealModal';
 import SocialTeaserModal from './components/SocialTeaserModal';
 import { formatLocalDateTime } from './utils/storyCanvasRenderer';
@@ -1099,8 +1100,8 @@ function App() {
   );
 
   return (
-    <>
-    <CustomCursor />
+    <Router>
+      <CustomCursor />
     <LetterTransferModal handover={handoverPrompt} onClose={() => setHandoverPrompt(null)} />
     <SocialTeaserModal
       isOpen={showStoryStudio || !!socialTeaserLetter}
@@ -1112,6 +1113,11 @@ function App() {
       onUpdateScheduledTime={(newDate) => {
         if (socialTeaserLetter) {
           socialTeaserLetter.scheduledFor = newDate.toISOString();
+        }
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('story-herald-time-synced', {
+            detail: { scheduledFor: newDate.toISOString() }
+          }));
         }
       }}
     />
@@ -1248,8 +1254,7 @@ function App() {
         window.location.href = '/sent';
       }}
     />
-    <Router>
-      <div className="min-h-screen" style={{ background: 'var(--bg-page)' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-page)' }}>
         {/* ── Theatrical Aristocratic Navbar ── */}
         <nav className="relative z-30 flex flex-col md:flex-row justify-between items-center px-6 py-3.5 md:px-10" style={{
           background: 'linear-gradient(180deg, #161311 0%, #0D0C0B 100%)',
@@ -1279,6 +1284,9 @@ function App() {
                 <Link to="/admin" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold" style={{ color: '#EF9A9A' }}>
                   <Shield className="w-4 h-4" /> <span>Tribunal</span>
                 </Link>
+                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFE600', textShadow: '0 0 14px rgba(255,230,0,0.6)' }} title="Chamber of Nameless Words">
+                  <Feather className="w-4 h-4" style={{ color: '#FFE600' }} /> <span style={{ color: '#FFE600' }}>Nameless Words</span>
+                </Link>
                 <Link to="/leaderboard" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Trophy className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Hall of Fame</span>
                 </Link>
@@ -1292,13 +1300,6 @@ function App() {
                 >
                   <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Hub Proofs</span>
                 </button>
-                <button
-                  onClick={() => openTomRiddlesDiary()}
-                  className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-200 hover:text-amber-100 cursor-pointer"
-                  title="Tom Riddle's Ephemeral Synchronous Diary"
-                >
-                  <BookOpen className="w-4 h-4 text-[#D4AF37]" /> <span>Diary</span>
-                </button>
               </>
             ) : (
               <>
@@ -1307,6 +1308,9 @@ function App() {
                 </Link>
                 <Link to="/scanner" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Scan className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Scan Seal</span>
+                </Link>
+                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFE600', textShadow: '0 0 14px rgba(255,230,0,0.6)' }} title="Chamber of Nameless Words">
+                  <Feather className="w-4 h-4" style={{ color: '#FFE600' }} /> <span style={{ color: '#FFE600' }}>Nameless Words</span>
                 </Link>
                 <Link to="/leaderboard" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Trophy className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Hall of Fame</span>
@@ -1327,13 +1331,6 @@ function App() {
                   title="Central Postal Hub Delivery Proofs"
                 >
                   <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Hub Proofs</span>
-                </button>
-                <button
-                  onClick={() => openStoryHeraldStudio()}
-                  className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-100 cursor-pointer"
-                  title="Proclaim 9:16 Royal Story Herald"
-                >
-                  <Sparkles className="w-4 h-4 text-[#D4AF37] animate-pulse" /> <span>Story Herald</span>
                 </button>
               </>
             )}
@@ -1356,6 +1353,7 @@ function App() {
             <Route path="/admin" element={user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" />} />
             <Route path="/" element={user.role === 'admin' ? <Navigate to="/admin" /> : <UserProfile user={user} />} />
             <Route path="/compose" element={user.role === 'admin' ? <Navigate to="/admin" /> : <ComposeLetter />} />
+            <Route path="/nameless-words" element={<NamelessWordsPage />} />
             <Route path="/mailbox" element={user.role === 'admin' ? <Navigate to="/admin" /> : <MyMailbox />} />
             <Route path="/sent" element={user.role === 'admin' ? <Navigate to="/admin" /> : <SentLetters />} />
             <Route path="/archive" element={user.role === 'admin' ? <Navigate to="/admin" /> : <LetterArchive />} />
@@ -1383,7 +1381,6 @@ function App() {
         <PhantomGazettePopup />
       </div>
     </Router>
-    </>
   );
 }
 
@@ -2438,6 +2435,10 @@ function ComposeLetter() {
   const [inkColor, setInkColor] = useState('iron-gall');
   const [parchmentPaper, setParchmentPaper] = useState('vintage-cream');
   
+  // Nameless Words Topic State
+  const [namelessTopic, setNamelessTopic] = useState('');
+  const [showNamelessModal, setShowNamelessModal] = useState(false);
+  
   const [liveUser, setLiveUser] = useState<any>(null);
   
   const navigate = useNavigate();
@@ -2481,10 +2482,44 @@ function ComposeLetter() {
     }
   }, [location]);
 
+  // Sync when letter is dispatched or timer is updated from Story Herald Studio
+  useEffect(() => {
+    const handleHeraldDispatched = (e: any) => {
+      const { letterId, qrCodeToken, scheduledFor: schedTime } = e.detail || {};
+      if (qrCodeToken) {
+        setCreatedLetterId(letterId || '');
+        setCreatedQR(qrCodeToken);
+        if (schedTime) {
+          setIsTimeCapsule(true);
+          setScheduledFor(formatLocalDateTime(new Date(schedTime)));
+        }
+      }
+    };
+
+    const handleTimeSynced = (e: any) => {
+      if (e.detail?.scheduledFor) {
+        setIsTimeCapsule(true);
+        setScheduledFor(formatLocalDateTime(new Date(e.detail.scheduledFor)));
+      }
+    };
+
+    window.addEventListener('letter-dispatched-from-herald', handleHeraldDispatched);
+    window.addEventListener('story-herald-time-synced', handleTimeSynced);
+
+    return () => {
+      window.removeEventListener('letter-dispatched-from-herald', handleHeraldDispatched);
+      window.removeEventListener('story-herald-time-synced', handleTimeSynced);
+    };
+  }, []);
+
   const isBanned = liveUser?.restrictedUntil && new Date(liveUser.restrictedUntil) > new Date();
   const totalBurnSeconds = burnUnit === 'minutes' ? burnDuration * 60 : burnDuration;
 
   const handleSend = async () => {
+    if (!receiverRef || !receiverRef.trim()) {
+      setError('A valid recipient scribe name must be provided from the Guild registry to seal and dispatch a letter. (For anonymous missives without a recipient, use "Nameless Words").');
+      return;
+    }
     if (isHandwritten) {
       if (!handwrittenPages || handwrittenPages.length === 0) {
         setError('Please write thy message on the parchment before dispatching.');
@@ -2498,7 +2533,7 @@ function ComposeLetter() {
       const schedValue = isTimeCapsule && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
       let res;
       const letterPayload = {
-        receiverRef,
+        receiverRef: receiverRef.trim(),
         content: isHandwritten ? (content || `[Physical Handwritten Letter - ${handwrittenPages.length} ${handwrittenPages.length === 1 ? 'Page' : 'Pages'}]`) : content,
         type: 'standard',
         status: 'pending',
@@ -2528,6 +2563,10 @@ function ComposeLetter() {
   };
 
   const handleSaveDraft = async () => {
+    if (!receiverRef || !receiverRef.trim()) {
+      setError('A valid recipient scribe name must be provided from the Guild registry to save a draft.');
+      return;
+    }
     if (isHandwritten) {
       if (!handwrittenPages || handwrittenPages.length === 0) {
         setError('Cannot save an empty handwritten draft.');
@@ -2540,7 +2579,7 @@ function ComposeLetter() {
     try {
       const schedValue = isTimeCapsule && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
       const draftPayload = {
-        receiverRef,
+        receiverRef: receiverRef.trim(),
         content: isHandwritten ? (content || `[Physical Handwritten Draft - ${handwrittenPages.length} ${handwrittenPages.length === 1 ? 'Page' : 'Pages'}]`) : content,
         status: 'draft',
         burnAfterReading,
@@ -2566,6 +2605,73 @@ function ComposeLetter() {
     } catch (e: any) {
       setError(e.message || 'Failed to save draft');
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenStoryHerald = () => {
+    if (!receiverRef || !receiverRef.trim()) {
+      setError('A valid recipient scribe name must be provided from the Guild registry to proclaim a Story Herald.');
+      return;
+    }
+    openStoryHeraldStudio({
+      _id: currentDraftId || undefined,
+      receiverRef: receiverRef.trim(),
+      receiverName: receiverRef.trim(),
+      content: isHandwritten ? (content || `[Physical Handwritten Letter - ${handwrittenPages.length || 1} Pages]`) : content,
+      isHandwritten,
+      handwrittenPages,
+      font: selectedFont,
+      fontSize: selectedFontSize,
+      burnAfterReading,
+      burnTimerSeconds: totalBurnSeconds,
+      inkColor,
+      parchmentPaper,
+      scheduledFor: isTimeCapsule && scheduledFor ? new Date(scheduledFor).toISOString() : new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      sealColor: '#DC2626',
+      isComposeDraft: true
+    });
+  };
+
+  const handleOpenNamelessModal = () => {
+    if (isHandwritten) {
+      if (!handwrittenPages || handwrittenPages.length === 0) {
+        setError('Please write thy message on the parchment before releasing nameless words.');
+        return;
+      }
+    } else {
+      if (!content.trim()) {
+        setError('The nameless missive cannot be empty.');
+        return;
+      }
+    }
+    setError('');
+    waxSealAudio.playWaxCrack();
+    setShowNamelessModal(true);
+  };
+
+  const handleConfirmSendNameless = async () => {
+    if (loading) return;
+    setLoading(true);
+    setError('');
+    try {
+      waxSealAudio.playWaxStampThud();
+      await sendNamelessLetter({
+        topic: namelessTopic.trim() || 'Whisper of the Realm',
+        content: isHandwritten ? (content || `[Physical Handwritten Manuscript - ${handwrittenPages.length} Pages]`) : content,
+        isHandwritten,
+        handwrittenPages: isHandwritten ? handwrittenPages : [],
+        font: selectedFont,
+        fontSize: selectedFontSize,
+        inkColor,
+        parchmentPaper,
+        sealColor: '#7A1E2E'
+      });
+      waxSealAudio.playParchmentUnroll();
+      setShowNamelessModal(false);
+      navigate('/nameless-words');
+    } catch (e: any) {
+      setError(e.message || 'Failed to release nameless words');
       setLoading(false);
     }
   };
@@ -2766,216 +2872,157 @@ function ComposeLetter() {
                   />
                 </div>
               ) : (
-                <div>
-                  <label className="small-caps block text-sm sm:text-base font-bold mb-2" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                    The Missive Manuscript:
+                <div className="space-y-2">
+                  <label className="small-caps block text-sm sm:text-base font-bold" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+                    Parchment Inscription:
                   </label>
-                  <textarea 
-                    value={content} 
-                    onChange={(e) => setContent(e.target.value)} 
-                    rows={8} 
-                    disabled={isBanned}
-                    style={{ 
-                      fontFamily: getFontFamily(selectedFont),
-                      background: '#FFFDF9',
-                      color: '#1A1A1A',
-                      border: '1px solid var(--border-subtle)',
-                      boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.12)'
-                    }}
-                    className={`w-full p-4 sm:p-6 rounded-sm focus:outline-none resize-none leading-relaxed transition-all ${getFontSizeClass(selectedFontSize)} ${isBanned ? 'bg-gray-300 opacity-50 cursor-not-allowed' : ''}`} 
-                    placeholder="Inscribe thy words upon the sovereign scroll..."
-                  />
+                  <div className="relative">
+                    <textarea 
+                      value={content} 
+                      onChange={(e) => setContent(e.target.value)} 
+                      disabled={isBanned}
+                      rows={9} 
+                      className={`w-full p-4 rounded-sm focus:outline-none transition-all resize-y ${isBanned ? 'bg-gray-300 opacity-50 cursor-not-allowed' : ''} ${getFontSizeClass(selectedFontSize)}`}
+                      style={{
+                        background: '#FFFDF9',
+                        color: '#1A1A1A',
+                        border: '1px solid var(--border-subtle)',
+                        fontFamily: getFontFamily(selectedFont),
+                        boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.08)'
+                      }}
+                      placeholder="Pen thy thoughts upon this timeless parchment..." 
+                    />
+                  </div>
                 </div>
               )}
             </div>
             
-            {/* Burn After Reading with Configurable Ash Timer */}
-            <div className="p-4 sm:p-5 rounded-sm space-y-3" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={burnAfterReading} 
-                  disabled={isBanned} 
-                  onChange={(e) => setBurnAfterReading(e.target.checked)} 
-                  className="w-5 h-5 accent-[#7A1E2E] cursor-pointer" 
-                />
-                <Flame className="w-5 h-5 text-orange-400 flex-shrink-0" />
-                <span className="text-sm sm:text-base font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
-                  Burn After Reading — Ink dissolves to ash after the recipient opens it
-                </span>
-              </label>
+            {/* Options Bar: Burn Timer & Time Capsule */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+              {/* Burn Timer */}
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2.5 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={burnAfterReading} 
+                    onChange={(e) => {
+                      waxSealAudio.playWaxCrack();
+                      setBurnAfterReading(e.target.checked);
+                    }}
+                    disabled={isBanned}
+                    className="w-4 h-4 rounded text-red-700 focus:ring-0 accent-red-700" 
+                  />
+                  <span className="small-caps text-sm font-bold flex items-center gap-1.5" style={{ color: burnAfterReading ? '#EF9A9A' : 'var(--parchment-dark)', fontFamily: "'Cinzel', serif" }}>
+                    <Flame className="w-4 h-4 text-orange-400" />
+                    <span>Incinerate Post Reading (Self-Destruct)</span>
+                  </span>
+                </label>
 
-              {burnAfterReading && (
-                <div className="pt-3 flex flex-wrap items-center gap-3 animate-curtain-reveal" style={{ borderTop: '1px solid rgba(212,175,55,0.2)' }}>
-                  <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Ash Timer:</span>
-                  <div className="flex items-center gap-2">
+                {burnAfterReading && (
+                  <div className="flex items-center space-x-2 pt-1 pl-6">
+                    <span className="text-xs" style={{ color: 'var(--gold-muted)' }}>Burn in:</span>
                     <input 
                       type="number" 
-                      min="5" 
-                      max={burnUnit === 'minutes' ? 60 : 3600} 
+                      min="1" 
+                      max="3600"
                       value={burnDuration} 
                       onChange={(e) => setBurnDuration(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-20 p-2 rounded-sm font-bold text-center text-base focus:outline-none"
-                      style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)' }}
+                      disabled={isBanned}
+                      className="w-16 p-1.5 rounded-sm text-center text-xs font-bold"
+                      style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)' }} 
                     />
-                    <select 
-                      value={burnUnit} 
-                      onChange={(e) => setBurnUnit(e.target.value as 'seconds' | 'minutes')}
-                      className="p-2 rounded-sm font-semibold text-base focus:outline-none"
-                      style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)', fontFamily: "'Cinzel', serif" }}
+                    <select
+                      value={burnUnit}
+                      onChange={(e) => setBurnUnit(e.target.value as any)}
+                      disabled={isBanned}
+                      className="p-1.5 rounded-sm text-xs font-bold"
+                      style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)' }}
                     >
                       <option value="seconds">Seconds</option>
                       <option value="minutes">Minutes</option>
                     </select>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {[15, 30, 60].map(s => (
-                      <button 
-                        key={s} 
-                        type="button" 
-                        onClick={() => { setBurnDuration(s); setBurnUnit('seconds'); }}
-                        className="px-2.5 py-1 rounded-sm text-xs font-bold transition-colors"
-                        style={{
-                          background: burnDuration === s && burnUnit === 'seconds' ? 'var(--burgundy)' : 'rgba(255,253,249,0.08)',
-                          color: burnDuration === s && burnUnit === 'seconds' ? '#FFF' : 'var(--parchment-dark)',
-                          border: '1px solid rgba(212,175,55,0.3)',
-                          fontFamily: "'Cinzel', serif"
-                        }}
-                      >
-                        {s}s
-                      </button>
-                    ))}
-                    {[2, 5, 10].map(m => (
-                      <button 
-                        key={m} 
-                        type="button" 
-                        onClick={() => { setBurnDuration(m); setBurnUnit('minutes'); }}
-                        className="px-2.5 py-1 rounded-sm text-xs font-bold transition-colors"
-                        style={{
-                          background: burnDuration === m && burnUnit === 'minutes' ? 'var(--burgundy)' : 'rgba(255,253,249,0.08)',
-                          color: burnDuration === m && burnUnit === 'minutes' ? '#FFF' : 'var(--parchment-dark)',
-                          border: '1px solid rgba(212,175,55,0.3)',
-                          fontFamily: "'Cinzel', serif"
-                        }}
-                      >
-                        {m}m
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* FEATURE: Sealed Until (Time Capsule Timer) */}
-            <div className={`p-4 rounded-sm space-y-3 transition-all ${isTimeCapsule ? 'bg-amber-950/30 border-2 border-amber-500/70 shadow-lg' : 'bg-[rgba(212,175,55,0.06)] border border-[rgba(212,175,55,0.3)]'}`}>
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center space-x-2.5">
-                  <div className={`p-2 rounded-full ${isTimeCapsule ? 'bg-amber-500/20 text-amber-300 animate-pulse' : 'bg-stone-800 text-stone-400'}`}>
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm" style={{ fontFamily: "'Cinzel', serif", color: 'var(--antique-gold)' }}>
-                        Sealed Until (Time Lock)
-                      </span>
-                      {isTimeCapsule && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold border border-amber-400/30">
-                          Active Lock
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-                      The recipient receives the sealed epistle, but its inner contents remain locked until thy appointed timer reaches zero.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      waxSealAudio.playWaxCrack();
-                      const nextState = !isTimeCapsule;
-                      setIsTimeCapsule(nextState);
-                      if (nextState && !scheduledFor) {
-                        const d = new Date(Date.now() + 60 * 60 * 1000); // default +1 hour
-                        setScheduledFor(formatLocalDateTime(d));
-                      }
-                    }}
-                    className={`text-xs py-1.5 px-3.5 rounded-sm font-bold transition-all flex items-center gap-1.5 ${
-                      isTimeCapsule 
-                        ? 'btn-velvet-burgundy shadow-md animate-glow-pulse' 
-                        : 'btn-gold-saloon'
-                    }`}
-                  >
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{isTimeCapsule ? 'Sealed Until: ON' : 'Set Sealed Until'}</span>
-                  </button>
-                </div>
+                )}
               </div>
 
-              {isTimeCapsule && (
-                <div className="space-y-3 pt-3 border-t border-amber-500/30">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs text-amber-200 font-bold mr-1">Quick Presets:</span>
-                    {[
-                      { label: '+5m', mins: 5 },
-                      { label: '+15m', mins: 15 },
-                      { label: '+30m', mins: 30 },
-                      { label: '+1h', mins: 60 },
-                      { label: '+6h', mins: 360 },
-                      { label: '+24h', mins: 1440 },
-                      { label: '+3d', mins: 4320 },
-                      { label: '+7d', mins: 10080 }
-                    ].map((p) => (
-                      <button
-                        key={p.label}
-                        type="button"
-                        onClick={() => {
-                          waxSealAudio.playWaxCrack();
-                          const d = new Date(Date.now() + p.mins * 60 * 1000);
-                          setScheduledFor(formatLocalDateTime(d));
-                        }}
-                        className="px-2.5 py-1 rounded-sm text-xs font-bold bg-amber-950/80 hover:bg-amber-800 text-amber-200 border border-amber-500/40 transition-colors shadow-sm"
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
+              {/* Time Capsule */}
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2.5 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={isTimeCapsule} 
+                    onChange={(e) => {
+                      waxSealAudio.playWaxCrack();
+                      setIsTimeCapsule(e.target.checked);
+                      if (e.target.checked && !scheduledFor) {
+                        const defaultDate = new Date(Date.now() + 60 * 60 * 1000);
+                        setScheduledFor(formatLocalDateTime(defaultDate));
+                      }
+                    }}
+                    disabled={isBanned}
+                    className="w-4 h-4 rounded text-amber-500 focus:ring-0 accent-amber-600" 
+                  />
+                  <span className="small-caps text-sm font-bold flex items-center gap-1.5" style={{ color: isTimeCapsule ? '#FFE082' : 'var(--parchment-dark)', fontFamily: "'Cinzel', serif" }}>
+                    <Clock className="w-4 h-4 text-amber-400" />
+                    <span>Time Capsule (Sealed Arrival Timer)</span>
+                  </span>
+                </label>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                    <div className="sm:col-span-8">
-                      <label className="block text-xs font-bold text-amber-300 mb-1">
-                        Exact Unlock Date & Time:
-                      </label>
-                      <input
-                        type="datetime-local"
-                        value={scheduledFor}
-                        onChange={(e) => setScheduledFor(e.target.value)}
-                        className="w-full p-2.5 rounded-sm text-sm bg-[#1A120B] text-amber-100 border border-amber-500/50 focus:outline-none focus:border-amber-400 font-mono shadow-inner"
-                      />
+                {isTimeCapsule && (
+                  <div className="space-y-3 pt-3 border-t border-amber-500/30">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-xs text-amber-200 font-bold mr-1">Quick Presets:</span>
+                      {[
+                        { label: '+5m', mins: 5 },
+                        { label: '+15m', mins: 15 },
+                        { label: '+30m', mins: 30 },
+                        { label: '+1h', mins: 60 },
+                        { label: '+6h', mins: 360 },
+                        { label: '+24h', mins: 1440 },
+                        { label: '+3d', mins: 4320 },
+                        { label: '+7d', mins: 10080 }
+                      ].map((p) => (
+                        <button
+                          key={p.label}
+                          type="button"
+                          onClick={() => {
+                            waxSealAudio.playWaxCrack();
+                            const d = new Date(Date.now() + p.mins * 60 * 1000);
+                            setScheduledFor(formatLocalDateTime(d));
+                          }}
+                          className="px-2.5 py-1 rounded-sm text-xs font-bold bg-amber-950/80 hover:bg-amber-800 text-amber-200 border border-amber-500/40 transition-colors shadow-sm"
+                        >
+                          {p.label}
+                        </button>
+                      ))}
                     </div>
-                    <div className="sm:col-span-4">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          openStoryHeraldStudio({
-                            _id: currentDraftId || 'draft-preview',
-                            receiverRef: { name: receiverRef || 'Noble Scribe' },
-                            scheduledFor: scheduledFor ? new Date(scheduledFor) : new Date(Date.now() + 60 * 60 * 1000),
-                            sealColor: '#DC2626',
-                            isAnonymous: false
-                          });
-                        }}
-                        className="btn-gold-saloon text-xs w-full py-2.5 justify-center font-bold flex items-center gap-1.5 shadow"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                        <span>Story Herald</span>
-                      </button>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                      <div className="sm:col-span-8">
+                        <label className="block text-xs font-bold text-amber-300 mb-1">
+                          Exact Unlock Date & Time:
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={scheduledFor}
+                          onChange={(e) => setScheduledFor(e.target.value)}
+                          className="w-full p-2.5 rounded-sm text-sm bg-[#1A120B] text-amber-100 border border-amber-500/50 focus:outline-none focus:border-amber-400 font-mono shadow-inner"
+                        />
+                      </div>
+                      <div className="sm:col-span-4">
+                        <button
+                          type="button"
+                          onClick={handleOpenStoryHerald}
+                          className="btn-gold-saloon text-xs w-full py-2.5 justify-center font-bold flex items-center gap-1.5 shadow"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                          <span>Story Herald</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {error && <p className={`font-bold italic text-sm p-3 rounded-sm ${error.includes('successfully') ? 'bg-green-950 text-green-200 border border-green-800' : 'bg-red-950 text-red-200 border border-red-800'}`}>⚠ {error}</p>}
@@ -2996,6 +3043,26 @@ function ComposeLetter() {
                 >
                   {loading && !createdQR ? 'Preserving...' : 'Save Draft'}
                 </button>
+                <button
+                  type="button"
+                  onClick={handleOpenNamelessModal}
+                  disabled={loading || isBanned}
+                  className="btn-gold-saloon justify-center text-sm py-3 px-6 flex items-center gap-1.5"
+                  title="Release this missive anonymously to the Chamber of Nameless Words (15-Day Lifespan)"
+                >
+                  <Feather className="w-4 h-4 text-amber-300" />
+                  <span>Nameless Words</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenStoryHerald}
+                  disabled={loading || isBanned}
+                  className="btn-gold-saloon justify-center text-sm py-3 px-6 flex items-center gap-1.5"
+                  title="Open Story Herald to design 9:16 teaser and dispatch with sealed until timer"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                  <span>Story Herald</span>
+                </button>
                 <button 
                   type="button"
                   onClick={handleSend} 
@@ -3012,6 +3079,86 @@ function ComposeLetter() {
 
         <div className="scroll-rod-bottom" />
       </div>
+
+      {/* Nameless Words Topic & Release Modal */}
+      <AnimatePresence>
+        {showNamelessModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="theatrical-card p-6 sm:p-8 max-w-md w-full relative shadow-2xl space-y-4 border-2 border-amber-500/80 rounded-2xl bg-[#1A120D]">
+              <button onClick={() => setShowNamelessModal(false)} className="absolute top-3 right-3 text-amber-400/70 hover:text-white p-1">
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="text-center space-y-1.5">
+                <div className="w-12 h-12 mx-auto rounded-full bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-2xl">
+                  🕯️
+                </div>
+                <h3 className="text-xl font-bold text-amber-100" style={{ fontFamily: "'Cinzel', serif" }}>
+                  Release Nameless Words
+                </h3>
+                <p className="text-xs italic text-amber-300/80 font-serif">
+                  Thy epistle will float anonymously in the Sanctuary for 15 days. Wandering souls may read and resonate.
+                </p>
+              </div>
+
+              {/* Topic / Subject Input */}
+              <div className="space-y-1.5 text-left pt-2">
+                <label className="block text-xs font-bold text-amber-300 uppercase tracking-wider font-serif">
+                  Epistle Topic / Subject:
+                </label>
+                <input
+                  type="text"
+                  value={namelessTopic}
+                  onChange={(e) => setNamelessTopic(e.target.value)}
+                  placeholder="e.g., Midnight Solitude, Unspoken Confession, Regret..."
+                  className="w-full p-2.5 rounded-lg text-sm bg-black/70 text-amber-100 border border-amber-500/40 focus:outline-none focus:border-amber-400 font-serif shadow-inner"
+                />
+
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {[
+                    'Midnight Solitude',
+                    'Unspoken Words',
+                    'A Quiet Confession',
+                    'Hope & Starlight',
+                    'Forsaken Thoughts'
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setNamelessTopic(preset)}
+                      className="text-[10px] px-2 py-0.5 rounded bg-amber-950/80 hover:bg-amber-900 text-amber-200 border border-amber-500/30"
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Release Actions */}
+              <div className="space-y-2 pt-3">
+                <button
+                  type="button"
+                  onClick={handleConfirmSendNameless}
+                  disabled={loading}
+                  className="btn-gold-saloon text-xs sm:text-sm w-full justify-center py-3 font-bold flex items-center gap-2 shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #7A1E2E 0%, #B38F26 100%)', color: '#FFF', border: '1px solid #D4AF37' }}
+                >
+                  <Feather className="w-4 h-4 text-amber-300" />
+                  <span>{loading ? 'Releasing to Sanctuary...' : 'Release to Nameless Words'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowNamelessModal(false)}
+                  className="w-full py-2 text-xs text-amber-400/70 hover:text-amber-200 font-serif text-center"
+                >
+                  Cancel & Return to Scriptorium
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* QR Code Dispatch Modal */}
       <AnimatePresence>

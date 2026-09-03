@@ -53,6 +53,7 @@ app.use('/api/test', require('./routes/test'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/notices', require('./routes/notices')); // Feature: Community Notice Board
 app.use('/api/gazettes', require('./routes/gazettes')); // Feature 17: Postmaster's Phantom Gazette
+app.use('/api/nameless-letters', require('./routes/namelessLetters')); // Feature: Anonymous Letter Box ("Nameless Words")
 
 // Basic status route
 app.get('/api/status', (req, res) => {

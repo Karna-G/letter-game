@@ -143,30 +143,32 @@ router.post('/', async (req, res) => {
       letterData.schrodingerState = 'superposition';
     }
 
-    // Only add receiverRef if it's explicitly provided and not an empty string
-    if (receiverRef && receiverRef.trim() !== '') {
-      const query = receiverRef.trim();
-      const user = await User.findOne({
-        $or: [{ name: query }, { email: query }]
-      });
-
-      if (user) {
-        // ── ADMIN RECEIVER GUARD: No one can send letters to an admin ──
-        if (user.role === 'admin') {
-          return res.status(403).json({ message: 'The Guild Master does not accept personal letters. Post a notice on the Community Board instead.' });
-        }
-        letterData.receiverRef = user._id;
-      } else if (mongoose.Types.ObjectId.isValid(query)) {
-        // Also check by ID if provided directly
-        const userById = await User.findById(query).select('role');
-        if (userById && userById.role === 'admin') {
-          return res.status(403).json({ message: 'The Guild Master does not accept personal letters. Post a notice on the Community Board instead.' });
-        }
-        letterData.receiverRef = query;
-      } else {
-        return res.status(400).json({ message: `Could not find any user named "${query}" in the Guild.` });
-      }
+    // Strict Recipient Validation: All letters, drafts, and story-heralds require a valid registered recipient
+    if (!receiverRef || !receiverRef.trim()) {
+      return res.status(400).json({ message: 'A valid recipient scribe name must be provided. For nameless/recipient-free missives, use Nameless Words.' });
     }
+
+    const query = receiverRef.trim();
+    let targetUser = await User.findOne({
+      $or: [
+        { name: { $regex: new RegExp(`^${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+        { email: { $regex: new RegExp(`^${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } }
+      ]
+    });
+
+    if (!targetUser && mongoose.Types.ObjectId.isValid(query)) {
+      targetUser = await User.findById(query);
+    }
+
+    if (!targetUser) {
+      return res.status(400).json({ message: `Could not find any scribe named "${query}" in the Guild.` });
+    }
+
+    if (targetUser.role === 'admin') {
+      return res.status(403).json({ message: 'The Guild Master does not accept personal letters. Post a notice on the Community Board instead.' });
+    }
+
+    letterData.receiverRef = targetUser._id;
 
     const newLetter = new Letter(letterData);
     await newLetter.save();
@@ -230,21 +232,31 @@ router.put('/:id', async (req, res) => {
     if (Number(burnTimerSeconds) > 0) letter.burnTimerSeconds = Number(burnTimerSeconds);
     if (req.body.scheduledFor !== undefined) letter.scheduledFor = req.body.scheduledFor;
 
-    if (receiverRef && receiverRef.trim() !== '') {
+    if (receiverRef !== undefined) {
+      if (!receiverRef || !receiverRef.trim()) {
+        return res.status(400).json({ message: 'A valid recipient scribe name must be provided.' });
+      }
       const query = receiverRef.trim();
-      const user = await User.findOne({
-        $or: [{ name: query }, { email: query }]
+      let user = await User.findOne({
+        $or: [
+          { name: { $regex: new RegExp(`^${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+          { email: { $regex: new RegExp(`^${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } }
+        ]
       });
 
-      if (user) {
-        letter.receiverRef = user._id;
-      } else if (mongoose.Types.ObjectId.isValid(query)) {
-        letter.receiverRef = query;
-      } else {
+      if (!user && mongoose.Types.ObjectId.isValid(query)) {
+        user = await User.findById(query);
+      }
+
+      if (!user) {
         return res.status(400).json({ message: `Could not find any user named "${query}" in the Guild.` });
       }
-    } else if (receiverRef === '') {
-      letter.receiverRef = undefined; // Unset if explicitly empty
+
+      if (user.role === 'admin') {
+        return res.status(403).json({ message: 'The Guild Master does not accept personal letters.' });
+      }
+
+      letter.receiverRef = user._id;
     }
 
     // If upgrading from draft to pending, generate the QR code

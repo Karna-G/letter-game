@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -16,7 +17,10 @@ import {
   Shield,
   Eye,
   EyeOff,
-  Link as LinkIcon
+  Link as LinkIcon,
+  PenTool,
+  Compass,
+  Loader2
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import type { StoryTeaserConfig, Particle } from '../utils/storyCanvasRenderer';
@@ -35,13 +39,14 @@ import {
   triggerFileDownload
 } from '../utils/storyVideoExporter';
 import { waxSealAudio } from '../utils/waxSealAudio';
-import { updateLetter } from '../api';
+import { updateLetter, sendLetter } from '../api';
 
 interface SocialTeaserModalProps {
   isOpen: boolean;
   onClose: () => void;
   letter?: any; // The letter to generate story herald for
   onUpdateScheduledTime?: (date: Date) => void; // Syncs back to Compose or parent state
+  onLetterDispatched?: (letterData: any) => void;
 }
 
 const THEMES = [
@@ -84,8 +89,11 @@ export default function SocialTeaserModal({
   isOpen,
   onClose,
   letter,
-  onUpdateScheduledTime
+  onUpdateScheduledTime,
+  onLetterDispatched
 }: SocialTeaserModalProps) {
+  const navigate = useNavigate();
+
   // Config State
   const [theme, setTheme] = useState<StoryTeaserConfig['theme']>('midnight');
   const [recipientName, setRecipientName] = useState('');
@@ -110,6 +118,17 @@ export default function SocialTeaserModal({
   const [copiedNotification, setCopiedNotification] = useState(false);
   const [activeTab, setActiveTab] = useState<'theme' | 'envelope' | 'countdown' | 'text'>('theme');
 
+  // Dispatch from Herald States
+  const [dispatchLoading, setDispatchLoading] = useState(false);
+  const [dispatchedResult, setDispatchedResult] = useState<{
+    letterId: string;
+    qrCodeToken: string;
+    scheduledFor: string;
+    receiverName: string;
+  } | null>(null);
+  const [dispatchError, setDispatchError] = useState<string | null>(null);
+  const [dispatchedCopied, setDispatchedCopied] = useState(false);
+
   // Preview Canvas Reference
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -128,8 +147,11 @@ export default function SocialTeaserModal({
   // Initialize from letter data when modal opens
   useEffect(() => {
     if (isOpen) {
+      setDispatchedResult(null);
+      setDispatchError(null);
+      setDispatchedCopied(false);
       if (letter) {
-        setRecipientName(letter.receiverRef?.name || letter.receiverName || 'Noble Scribe');
+        setRecipientName(letter.receiverRef?.name || letter.receiverName || (typeof letter.receiverRef === 'string' ? letter.receiverRef : '') || 'Noble Scribe');
         setSenderName(letter.senderRef?.name || letter.senderName || 'Royal Courier');
         if (letter.isAnonymous) setIsAnonymousSender(true);
         if (letter.scheduledFor) {
@@ -143,6 +165,7 @@ export default function SocialTeaserModal({
           setTargetDate(formatLocalDateTime(new Date(Date.now() + 60 * 60 * 1000)));
         }
         if (letter.sealColor) setSealColor(letter.sealColor);
+        if (letter.sealStamp) setSealIcon(letter.sealStamp);
       } else {
         setRecipientName('Lady Genevieve');
         setSenderName('Royal Courier');
@@ -375,6 +398,81 @@ export default function SocialTeaserModal({
       if (!isNaN(d.getTime())) {
         handleSyncTimer(d);
       }
+    }
+  };
+
+  // Action: Seal & Dispatch Missive with Herald's Sealed-Until Hour
+  const handleDispatchLetter = async () => {
+    setDispatchLoading(true);
+    setDispatchError(null);
+    try {
+      waxSealAudio.playWaxStampThud();
+      const targetUnlockDate = new Date(targetDate);
+      const schedIso = !isNaN(targetUnlockDate.getTime())
+        ? targetUnlockDate.toISOString()
+        : new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
+      const effectiveReceiver = (isAnonymousRecipient
+        ? 'Someone Special'
+        : (recipientName || letter?.receiverRef?.name || letter?.receiverName || (typeof letter?.receiverRef === 'string' ? letter?.receiverRef : '') || 'Noble Scribe'));
+
+      const payload: any = {
+        receiverRef: effectiveReceiver,
+        content: letter?.content || (letter?.isHandwritten ? `[Physical Handwritten Letter - ${letter?.handwrittenPages?.length || 1} Pages]` : 'Royal Missive'),
+        type: 'standard',
+        status: 'pending',
+        burnAfterReading: !!letter?.burnAfterReading,
+        burnTimerSeconds: letter?.burnTimerSeconds || 60,
+        font: letter?.font || 'Cinzel',
+        fontSize: letter?.fontSize || 'medium',
+        scheduledFor: schedIso,
+        isHandwritten: !!letter?.isHandwritten,
+        handwrittenPages: letter?.handwrittenPages || [],
+        handwritingStyle: 'freehand',
+        inkColor: letter?.inkColor || 'iron-gall',
+        parchmentPaper: letter?.parchmentPaper || 'vintage-cream',
+        sealColor: sealColor,
+        sealStamp: sealIcon,
+        isAnonymous: isAnonymousSender,
+        mysteryClue: mysteryClue
+      };
+
+      let res: any;
+      if (letter?._id && letter._id !== 'draft-preview') {
+        res = await updateLetter(letter._id, payload);
+      } else {
+        res = await sendLetter(payload);
+      }
+
+      const letterId = res?._id || letter?._id || '';
+      const qrCodeToken = res?.qrCodeToken || letter?.qrCodeToken || '';
+
+      setDispatchedResult({
+        letterId,
+        qrCodeToken,
+        scheduledFor: schedIso,
+        receiverName: effectiveReceiver
+      });
+
+      try {
+        waxSealAudio.playParchmentUnroll();
+      } catch (_) {}
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('letter-dispatched-from-herald', {
+            detail: { letterId, qrCodeToken, scheduledFor: schedIso }
+          })
+        );
+      }
+
+      onUpdateScheduledTime?.(targetUnlockDate);
+      onLetterDispatched?.(res);
+    } catch (e: any) {
+      console.error('Failed to dispatch letter from story herald:', e);
+      setDispatchError(e.message || 'Failed to dispatch letter');
+    } finally {
+      setDispatchLoading(false);
     }
   };
 
@@ -735,6 +833,29 @@ export default function SocialTeaserModal({
                         ))}
                       </div>
                     </div>
+
+                    {/* ── DEDICATED SEALED-UNTIL DISPATCH CARD IN COUNTDOWN TAB ── */}
+                    <div className="pt-3 border-t border-[#D4AF37]/30 bg-gradient-to-br from-[#2B1B17]/90 to-[#1A120B]/90 p-4 rounded-xl border border-amber-500/40 space-y-2.5 shadow-inner">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-amber-200 flex items-center gap-1.5 font-serif">
+                          <Clock className="w-4 h-4 text-[#D4AF37]" />
+                          <span>Sealed Until: <strong className="text-amber-300 font-mono">{new Date(targetDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</strong></span>
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#D2B48C]/90 italic font-serif">
+                        Dispatching now will affix thy wax seal and lock this missive for the recipient until the appointed hour.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleDispatchLetter}
+                        disabled={dispatchLoading}
+                        className="w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-red-900 via-red-800 to-amber-700 hover:from-red-800 hover:to-amber-600 text-amber-100 shadow-xl border border-amber-400/60 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+                        style={{ fontFamily: "'Cinzel', serif" }}
+                      >
+                        {dispatchLoading ? <Loader2 className="w-4 h-4 animate-spin text-amber-300" /> : <PenTool className="w-4 h-4 text-amber-300 animate-pulse" />}
+                        <span>{dispatchLoading ? 'Affixing Wax Seal & Dispatching...' : '⚔️ Seal & Dispatch Letter with This Sealed-Until Hour'}</span>
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -843,52 +964,199 @@ export default function SocialTeaserModal({
                 </motion.div>
               )}
 
-              {/* EXPORT BUTTONS ROW */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
-                {/* 1. Video Export */}
+              {/* DISPATCH ERROR BANNER */}
+              {dispatchError && (
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-950/90 border border-red-500/60 text-red-200 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2"
+                >
+                  <span className="font-bold">⚠ {dispatchError}</span>
+                </motion.div>
+              )}
+
+              {/* ── ACTION BUTTONS: PRIMARY SEAL & DISPATCH + EXPORT SUITE ── */}
+              <div className="space-y-2.5 pt-2">
+                {/* Primary Button: Seal & Dispatch Missive with the Sealed-Until Value */}
                 <button
-                  onClick={handleExportVideo}
-                  disabled={exportProgress?.status === 'rendering'}
-                  className="py-3 px-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#D4AF37] via-[#E5A93C] to-[#B38F26] text-[#1E1712] hover:brightness-110 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  onClick={handleDispatchLetter}
+                  disabled={dispatchLoading}
+                  className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[#7A1E2E] via-[#8B2535] to-[#B38F26] hover:brightness-110 active:scale-[0.98] text-amber-100 border-2 border-[#D4AF37] transition-all shadow-[0_0_25px_rgba(212,175,55,0.4)] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
-                  <Video className="w-4 h-4 flex-shrink-0" />
-                  <span>Export Video</span>
+                  {dispatchLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-amber-300" />
+                  ) : (
+                    <PenTool className="w-5 h-5 text-amber-300 animate-pulse" />
+                  )}
+                  <span>
+                    {dispatchLoading
+                      ? 'Affixing Wax Seal & Dispatching...'
+                      : `Seal & Dispatch Letter (Sealed Until ${new Date(targetDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`}
+                  </span>
                 </button>
 
-                {/* 2. HD PNG Snapshot */}
-                <button
-                  onClick={handleExportImage}
-                  className="py-3 px-3 rounded-xl font-bold text-xs sm:text-sm bg-[#2A1F16] border border-[#D4AF37]/50 hover:border-[#D4AF37] text-[#FAF0E6] hover:bg-[#382B1F] active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
-                  style={{ fontFamily: "'Cinzel', serif" }}
-                >
-                  <ImageIcon className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
-                  <span>HD Story Card</span>
-                </button>
+                {/* Export Buttons Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {/* 1. Video Export */}
+                  <button
+                    onClick={handleExportVideo}
+                    disabled={exportProgress?.status === 'rendering'}
+                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-gradient-to-r from-[#D4AF37] via-[#E5A93C] to-[#B38F26] text-[#1E1712] hover:brightness-110 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    style={{ fontFamily: "'Cinzel', serif" }}
+                  >
+                    <Video className="w-4 h-4 flex-shrink-0" />
+                    <span>Export Video</span>
+                  </button>
 
-                {/* 3. Copy to Clipboard */}
-                <button
-                  onClick={handleCopyClipboard}
-                  className="py-3 px-3 rounded-xl font-bold text-xs sm:text-sm bg-[#2A1F16] border border-[#D4AF37]/50 hover:border-[#D4AF37] text-[#FAF0E6] hover:bg-[#382B1F] active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
-                  style={{ fontFamily: "'Cinzel', serif" }}
-                  title="Copy HD Story Card directly to Clipboard"
-                >
-                  <Copy className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
-                  <span>Copy Image</span>
-                </button>
+                  {/* 2. HD PNG Snapshot */}
+                  <button
+                    onClick={handleExportImage}
+                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-[#2A1F16] border border-[#D4AF37]/50 hover:border-[#D4AF37] text-[#FAF0E6] hover:bg-[#382B1F] active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
+                    style={{ fontFamily: "'Cinzel', serif" }}
+                  >
+                    <ImageIcon className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
+                    <span>HD Story Card</span>
+                  </button>
 
-                {/* 4. Mobile Share */}
-                <button
-                  onClick={handleShareStory}
-                  className="py-3 px-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white hover:brightness-110 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-1.5"
-                  style={{ fontFamily: "'Cinzel', serif" }}
-                >
-                  <Share2 className="w-4 h-4 flex-shrink-0" />
-                  <span>Dispatch Story</span>
-                </button>
+                  {/* 3. Copy to Clipboard */}
+                  <button
+                    onClick={handleCopyClipboard}
+                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-[#2A1F16] border border-[#D4AF37]/50 hover:border-[#D4AF37] text-[#FAF0E6] hover:bg-[#382B1F] active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
+                    style={{ fontFamily: "'Cinzel', serif" }}
+                    title="Copy HD Story Card directly to Clipboard"
+                  >
+                    <Copy className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
+                    <span>Copy Image</span>
+                  </button>
+
+                  {/* 4. Mobile Share */}
+                  <button
+                    onClick={handleShareStory}
+                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white hover:brightness-110 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
+                    style={{ fontFamily: "'Cinzel', serif" }}
+                  >
+                    <Share2 className="w-4 h-4 flex-shrink-0" />
+                    <span>Dispatch Story</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* ── POST-DISPATCH CONFIRMATION OVERLAY ── */}
+          <AnimatePresence>
+            {dispatchedResult && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="absolute inset-0 z-50 bg-black/92 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center"
+              >
+                <div className="max-w-md w-full bg-[#1A120B] border-2 border-[#D4AF37] p-6 rounded-2xl shadow-2xl space-y-4 text-center animate-glow-pulse">
+                  <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-2xl">
+                    👑
+                  </div>
+
+                  <div>
+                    <h3
+                      className="text-xl sm:text-2xl font-bold text-amber-200 tracking-wider"
+                      style={{ fontFamily: "'Cinzel', serif" }}
+                    >
+                      Epistle Sealed & Dispatched!
+                    </h3>
+                    <p className="text-xs italic text-amber-300/80 font-serif mt-0.5">
+                      Thy missive is inscribed into the Sovereign High Post Registry.
+                    </p>
+                  </div>
+
+                  {/* Sealed-Until Highlight */}
+                  <div className="p-3 bg-black/70 rounded-xl border border-amber-500/40 text-left space-y-1 text-xs">
+                    <div className="flex items-center justify-between text-amber-300">
+                      <span className="font-bold">Recipient:</span>
+                      <span className="text-white font-serif">{dispatchedResult.receiverName}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-amber-300">
+                      <span className="font-bold">Sealed Until:</span>
+                      <span className="text-amber-200 font-mono font-bold">
+                        {new Date(dispatchedResult.scheduledFor).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* QR Code Canvas */}
+                  {dispatchedResult.qrCodeToken && (
+                    <div className="space-y-2">
+                      <div className="inline-block p-3 bg-white rounded-xl shadow-inner border-2 border-[#D4AF37]">
+                        <QRCodeCanvas value={dispatchedResult.qrCodeToken} size={150} fgColor="#1A1208" />
+                      </div>
+
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-black/80 border border-amber-500/30 text-xs">
+                        <span className="font-mono text-[11px] text-amber-200 truncate mr-2">
+                          {dispatchedResult.qrCodeToken}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (navigator.clipboard) {
+                              navigator.clipboard.writeText(dispatchedResult.qrCodeToken);
+                              setDispatchedCopied(true);
+                              setTimeout(() => setDispatchedCopied(false), 2000);
+                            }
+                          }}
+                          className="px-2.5 py-1 rounded bg-[#D4AF37] text-stone-900 font-bold text-[10px] flex items-center gap-1 flex-shrink-0"
+                        >
+                          {dispatchedCopied ? <Check className="w-3 h-3 text-green-800" /> : <Copy className="w-3 h-3" />}
+                          <span>{dispatchedCopied ? 'Copied' : 'Copy'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="space-y-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        navigate('/map', {
+                          state: {
+                            letterId: dispatchedResult.letterId,
+                            letterToken: dispatchedResult.qrCodeToken
+                          }
+                        });
+                      }}
+                      className="w-full py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-600 to-yellow-600 text-white shadow-lg flex items-center justify-center gap-2 hover:brightness-110"
+                      style={{ fontFamily: "'Cinzel', serif" }}
+                    >
+                      <Compass className="w-4 h-4" />
+                      <span>🏇 Hand Over to Mailman</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        navigate('/sent');
+                      }}
+                      className="w-full py-2.5 rounded-xl font-bold text-xs bg-[#2A1F16] border border-amber-500/40 text-amber-200 hover:bg-[#3A2A1E] flex items-center justify-center gap-2"
+                      style={{ fontFamily: "'Cinzel', serif" }}
+                    >
+                      <span>📜 View Sent Missives</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setDispatchedResult(null)}
+                      className="text-[11px] text-amber-400/80 hover:text-amber-200 underline pt-1"
+                    >
+                      Continue editing & exporting Story Herald
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
     </AnimatePresence>

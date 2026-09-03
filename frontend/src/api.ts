@@ -792,3 +792,119 @@ export async function markGazetteRead(id: string): Promise<{ message: string; ga
 export async function generateSpecialGazette(): Promise<{ message: string; gazette: GazetteEdition }> {
   return await apiRequest('/gazettes/generate-special', { method: 'POST' });
 }
+
+// ============================================
+// FEATURE: ANONYMOUS LETTER BOX ("NAMELESS WORDS")
+// ============================================
+export interface NamelessThought {
+  _id: string;
+  authorAlias: string;
+  avatarIcon: string;
+  content: string;
+  inkColor: string;
+  resonanceBadge: string;
+  createdAt: string;
+}
+
+export interface NamelessLetterItem {
+  _id: string;
+  topic?: string;
+  authorAlias: string;
+  authorAvatarIcon: string;
+  content: string;
+  font: string;
+  fontSize: string;
+  isHandwritten: boolean;
+  handwrittenPages?: Array<{
+    pageNumber: number;
+    imageData: string;
+    strokesData?: string;
+    inkColor?: string;
+    parchmentPaper?: string;
+  }>;
+  inkColor: string;
+  parchmentPaper: string;
+  sealColor: string;
+  sealStamp: string;
+  ambientTheme: 'midnight' | 'candlelight' | 'ethereal' | 'parchment' | 'solitude';
+  thoughts: NamelessThought[];
+  thoughtsCount?: number;
+  resonances: {
+    fire: number;
+    rose: number;
+    withered: number;
+    neutral: number;
+  };
+  viewsCount: number;
+  createdAt: string;
+  expiresAt?: string;
+  expiresInDays?: number;
+  isMine?: boolean;
+  myResonance?: 'fire' | 'rose' | 'withered' | 'neutral' | null;
+  hasCommented?: boolean;
+}
+
+export async function sendNamelessLetter(payload: {
+  topic?: string;
+  content?: string;
+  isHandwritten?: boolean;
+  handwrittenPages?: any[];
+  font?: string;
+  fontSize?: string;
+  inkColor?: string;
+  parchmentPaper?: string;
+  sealColor?: string;
+  sealStamp?: string;
+  authorAlias?: string;
+  authorAvatarIcon?: string;
+  ambientTheme?: string;
+}): Promise<NamelessLetterItem> {
+  return await apiRequest('/nameless-letters', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function getNamelessLetters(filter?: string, search?: string): Promise<NamelessLetterItem[]> {
+  const params = new URLSearchParams();
+  if (filter) params.append('filter', filter);
+  if (search) params.append('search', search);
+  const query = params.toString() ? `?${params.toString()}` : '';
+  return await apiRequest(`/nameless-letters${query}`);
+}
+
+export async function getNamelessLetterById(id: string): Promise<NamelessLetterItem> {
+  return await apiRequest(`/nameless-letters/${id}`);
+}
+
+export async function addNamelessThought(
+  letterId: string,
+  thoughtData: {
+    content: string;
+    avatarIcon?: string;
+    inkColor?: string;
+    resonanceBadge?: string;
+  }
+): Promise<NamelessThought> {
+  return await apiRequest(`/nameless-letters/${letterId}/thoughts`, {
+    method: 'POST',
+    body: JSON.stringify(thoughtData)
+  });
+}
+
+export async function resonateNamelessLetter(
+  letterId: string,
+  resonanceType: 'fire' | 'rose' | 'withered' | 'neutral'
+): Promise<{ resonances: { fire: number; rose: number; withered: number; neutral: number }; myResonance: 'fire' | 'rose' | 'withered' | 'neutral' }> {
+  return await apiRequest(`/nameless-letters/${letterId}/resonate`, {
+    method: 'POST',
+    body: JSON.stringify({ resonanceType })
+  });
+}
+
+export async function deleteNamelessLetter(letterId: string): Promise<{ message: string }> {
+  return await apiRequest(`/nameless-letters/${letterId}`, {
+    method: 'DELETE'
+  });
+}
+
