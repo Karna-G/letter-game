@@ -27,7 +27,9 @@ import CentralHubRegistryModal from './components/CentralHubRegistryModal';
 import TomRiddlesDiaryModal from './components/TomRiddlesDiaryModal';
 import MailboxPetCompanion, { MAILBOX_PETS } from './components/MailboxPetCompanion';
 import PhantomGazettePopup from './components/PhantomGazettePopup';
-import HandwrittenLetterPaper, { HANDWRITING_STYLES, INK_COLORS, PARCHMENT_PAPERS } from './components/HandwrittenLetterPaper';
+import HandwrittenLetterPaper from './components/HandwrittenLetterPaper';
+import HandwritingCanvas, { type HandwrittenPageData } from './components/HandwritingCanvas';
+import LetterEnvelopeWrapper from './components/LetterEnvelopeWrapper';
 import { waxSealAudio, initGlobalUiClickSound } from './utils/waxSealAudio';
 import manuscriptQuillDesk from './assets/manuscript_quill_desk.jpg';
 import antiqueScrollsPile from './assets/antique_scrolls_pile.jpg';
@@ -1254,7 +1256,7 @@ function App() {
           borderBottom: '1px solid rgba(212, 175, 55, 0.35)',
           boxShadow: '0 4px 25px rgba(0,0,0,0.6)'
         }}>
-          <Link to="/" className="flex items-center space-x-3 mb-2 md:mb-0 hover:opacity-95 transition-opacity group">
+          <Link to={user.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-3 mb-2 md:mb-0 hover:opacity-95 transition-opacity group">
             <img
               src={royalCrestGold}
               alt="PostMe Seal"
@@ -1352,14 +1354,14 @@ function App() {
         <main className="max-w-6xl mx-auto px-4 py-8 md:px-8">
           <Routes>
             <Route path="/admin" element={user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" />} />
-            <Route path="/" element={<UserProfile user={user} />} />
-            <Route path="/compose" element={<ComposeLetter />} />
-            <Route path="/mailbox" element={<MyMailbox />} />
-            <Route path="/sent" element={<SentLetters />} />
-            <Route path="/archive" element={<LetterArchive />} />
-            <Route path="/trash" element={<GuildWastebin />} />
+            <Route path="/" element={user.role === 'admin' ? <Navigate to="/admin" /> : <UserProfile user={user} />} />
+            <Route path="/compose" element={user.role === 'admin' ? <Navigate to="/admin" /> : <ComposeLetter />} />
+            <Route path="/mailbox" element={user.role === 'admin' ? <Navigate to="/admin" /> : <MyMailbox />} />
+            <Route path="/sent" element={user.role === 'admin' ? <Navigate to="/admin" /> : <SentLetters />} />
+            <Route path="/archive" element={user.role === 'admin' ? <Navigate to="/admin" /> : <LetterArchive />} />
+            <Route path="/trash" element={user.role === 'admin' ? <Navigate to="/admin" /> : <GuildWastebin />} />
             <Route path="/map" element={<MapTracker />} />
-            <Route path="/fellowship" element={<Fellowship user={user} />} />
+            <Route path="/fellowship" element={user.role === 'admin' ? <Navigate to="/admin" /> : <Fellowship user={user} />} />
             <Route path="/mailman" element={user.role === 'mailman' ? <MailmanDashboard user={user} /> : <Navigate to="/" />} />
             <Route path="/directory" element={<MailmenDirectory />} />
             <Route path="/notice-board" element={<CommunityNoticeBoard user={user} />} />
@@ -1367,9 +1369,9 @@ function App() {
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/scanner" element={<QRScanner />} />
             <Route path="/gallery" element={<Gallery user={user} />} />
-            <Route path="/dybbuk" element={<DybbukSeancePage user={user} />} />
-            <Route path="/schrodinger" element={<SchrodingerVaultPage user={user} />} />
-            <Route path="/bottle" element={<BottleOceanPage user={user} />} />
+            <Route path="/dybbuk" element={user.role === 'admin' ? <Navigate to="/admin" /> : <DybbukSeancePage user={user} />} />
+            <Route path="/schrodinger" element={user.role === 'admin' ? <Navigate to="/admin" /> : <SchrodingerVaultPage user={user} />} />
+            <Route path="/bottle" element={user.role === 'admin' ? <Navigate to="/admin" /> : <BottleOceanPage user={user} />} />
             <Route path="/dead-letters" element={<DeadLetterOfficePage />} />
             <Route path="/dead-letter-office" element={<DeadLetterOfficePage />} />
             <Route path="/gazette" element={<PhantomGazettePage />} />
@@ -2430,12 +2432,11 @@ function ComposeLetter() {
   const [error, setError] = useState('');
   const [currentDraftId, setCurrentDraftId] = useState('');
   
-  // Feature 27: Handwritten Letter Mode State
+  // Feature 27: Physical Handwritten Letter Canvas State
   const [isHandwritten, setIsHandwritten] = useState(false);
-  const [handwritingStyle, setHandwritingStyle] = useState('elegant');
+  const [handwrittenPages, setHandwrittenPages] = useState<HandwrittenPageData[]>([]);
   const [inkColor, setInkColor] = useState('iron-gall');
   const [parchmentPaper, setParchmentPaper] = useState('vintage-cream');
-  const [showHandwrittenPreview, setShowHandwrittenPreview] = useState(false);
   
   const [liveUser, setLiveUser] = useState<any>(null);
   
@@ -2457,7 +2458,9 @@ function ComposeLetter() {
       if (draft.font) setSelectedFont(draft.font);
       if (draft.fontSize) setSelectedFontSize(draft.fontSize);
       if (typeof draft.isHandwritten === 'boolean') setIsHandwritten(draft.isHandwritten);
-      if (draft.handwritingStyle) setHandwritingStyle(draft.handwritingStyle);
+      if (Array.isArray(draft.handwrittenPages) && draft.handwrittenPages.length > 0) {
+        setHandwrittenPages(draft.handwrittenPages);
+      }
       if (draft.inkColor) setInkColor(draft.inkColor);
       if (draft.parchmentPaper) setParchmentPaper(draft.parchmentPaper);
       setBurnAfterReading(!!draft.burnAfterReading);
@@ -2482,23 +2485,31 @@ function ComposeLetter() {
   const totalBurnSeconds = burnUnit === 'minutes' ? burnDuration * 60 : burnDuration;
 
   const handleSend = async () => {
-    if (!content.trim()) { setError('The missive cannot be empty.'); return; }
+    if (isHandwritten) {
+      if (!handwrittenPages || handwrittenPages.length === 0) {
+        setError('Please write thy message on the parchment before dispatching.');
+        return;
+      }
+    } else {
+      if (!content.trim()) { setError('The missive cannot be empty.'); return; }
+    }
     setLoading(true); setError('');
     try {
       const schedValue = isTimeCapsule && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
       let res;
       const letterPayload = {
         receiverRef,
-        content,
+        content: isHandwritten ? (content || `[Physical Handwritten Letter - ${handwrittenPages.length} ${handwrittenPages.length === 1 ? 'Page' : 'Pages'}]`) : content,
         type: 'standard',
         status: 'pending',
         burnAfterReading,
         burnTimerSeconds: totalBurnSeconds,
-        font: isHandwritten ? (HANDWRITING_STYLES.find(h => h.id === handwritingStyle)?.fontFamily?.replace(/'/g, '').split(',')[0] || selectedFont) : selectedFont,
+        font: selectedFont,
         fontSize: selectedFontSize,
         scheduledFor: schedValue,
         isHandwritten,
-        handwritingStyle,
+        handwrittenPages: isHandwritten ? handwrittenPages : [],
+        handwritingStyle: 'freehand',
         inkColor,
         parchmentPaper
       };
@@ -2517,21 +2528,29 @@ function ComposeLetter() {
   };
 
   const handleSaveDraft = async () => {
-    if (!content.trim()) { setError('Cannot save an empty draft.'); return; }
+    if (isHandwritten) {
+      if (!handwrittenPages || handwrittenPages.length === 0) {
+        setError('Cannot save an empty handwritten draft.');
+        return;
+      }
+    } else {
+      if (!content.trim()) { setError('Cannot save an empty draft.'); return; }
+    }
     setLoading(true); setError('');
     try {
       const schedValue = isTimeCapsule && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
       const draftPayload = {
         receiverRef,
-        content,
+        content: isHandwritten ? (content || `[Physical Handwritten Draft - ${handwrittenPages.length} ${handwrittenPages.length === 1 ? 'Page' : 'Pages'}]`) : content,
         status: 'draft',
         burnAfterReading,
         burnTimerSeconds: totalBurnSeconds,
-        font: isHandwritten ? (HANDWRITING_STYLES.find(h => h.id === handwritingStyle)?.fontFamily?.replace(/'/g, '').split(',')[0] || selectedFont) : selectedFont,
+        font: selectedFont,
         fontSize: selectedFontSize,
         scheduledFor: schedValue,
         isHandwritten,
-        handwritingStyle,
+        handwrittenPages: isHandwritten ? handwrittenPages : [],
+        handwritingStyle: 'freehand',
         inkColor,
         parchmentPaper
       };
@@ -2624,13 +2643,13 @@ function ComposeLetter() {
               />
             </div>
 
-            {/* ── LETTER STYLE: CLASSIC DIGITAL VS HANDWRITTEN (Feature 27) ── */}
+            {/* ── LETTER STYLE: TYPE LETTER VS HANDWRITE LETTER (Feature 27) ── */}
             <div className="p-4 sm:p-5 rounded-sm space-y-4" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Feather className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} />
                   <span className="small-caps text-sm sm:text-base font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
-                    Letter Style & Aesthetic:
+                    Composition Method:
                   </span>
                 </div>
 
@@ -2645,7 +2664,7 @@ function ComposeLetter() {
                     }`}
                     style={{ fontFamily: "'Cinzel', serif" }}
                   >
-                    <span>🏛️</span> Classic Epistle
+                    <span>✉️</span> Type Letter
                   </button>
 
                   <button
@@ -2658,88 +2677,13 @@ function ComposeLetter() {
                     }`}
                     style={{ fontFamily: "'Cinzel', serif" }}
                   >
-                    <span>✒️</span> Handwritten Letter
+                    <span>✍️</span> Handwrite Letter (Stylus / Mouse / Touch)
                   </button>
                 </div>
               </div>
 
-              {/* Handwritten Customization Options */}
-              {isHandwritten ? (
-                <div className="pt-3 space-y-4 border-t border-amber-900/40">
-                  {/* 1. Penmanship Style */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs uppercase font-mono tracking-wider text-amber-300 font-bold block">
-                      Penmanship Style:
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-                      {HANDWRITING_STYLES.map(style => (
-                        <button
-                          key={style.id}
-                          type="button"
-                          onClick={() => setHandwritingStyle(style.id)}
-                          className={`p-2 rounded-sm text-center border transition-all ${
-                            handwritingStyle === style.id
-                              ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
-                              : 'bg-stone-900/60 border-stone-800 text-stone-400 hover:text-stone-200'
-                          }`}
-                        >
-                          <span className="text-xs block font-bold truncate">{style.label}</span>
-                          <span className="text-[10px] text-stone-400 italic block">{style.category}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 2. Ink Fluid & Parchment Paper */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                    <div className="space-y-1.5">
-                      <label className="text-xs uppercase font-mono tracking-wider text-amber-300 font-bold block">
-                        Ink Formulation:
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {INK_COLORS.map(ink => (
-                          <button
-                            key={ink.id}
-                            type="button"
-                            onClick={() => setInkColor(ink.id)}
-                            className={`px-3 py-1.5 rounded-sm text-xs font-bold flex items-center gap-1.5 border transition-all ${
-                              inkColor === ink.id
-                                ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
-                                : 'bg-stone-900/60 border-stone-800 text-stone-300 hover:border-stone-700'
-                            }`}
-                          >
-                            <span className="w-2.5 h-2.5 rounded-full border border-stone-400" style={{ backgroundColor: ink.color }} />
-                            <span>{ink.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs uppercase font-mono tracking-wider text-amber-300 font-bold block">
-                        Parchment Paper:
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {PARCHMENT_PAPERS.map(paper => (
-                          <button
-                            key={paper.id}
-                            type="button"
-                            onClick={() => setParchmentPaper(paper.id)}
-                            className={`px-3 py-1.5 rounded-sm text-xs font-bold border transition-all ${
-                              parchmentPaper === paper.id
-                                ? 'selected-glow-gold bg-amber-950/90 text-amber-200'
-                                : 'bg-stone-900/60 border-stone-800 text-stone-300 hover:border-stone-700'
-                            }`}
-                          >
-                            <span>{paper.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* Classic Typography Script Controls */
+              {/* Typed Mode Calligraphic Script Options */}
+              {!isHandwritten && (
                 <div className="space-y-3 pt-2 border-t border-amber-900/30">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <span className="text-xs uppercase font-mono tracking-wider text-amber-300 font-bold">
@@ -2808,54 +2752,40 @@ function ComposeLetter() {
               )}
             </div>
 
-            {/* Main Manuscript Writing Area & Live Handwritten Preview */}
+            {/* Main Writing Area: Freehand Canvas vs Typed Textarea */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="small-caps text-sm sm:text-base font-bold" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                  The Missive Manuscript:
-                </label>
-                {isHandwritten && (
-                  <button
-                    type="button"
-                    onClick={() => setShowHandwrittenPreview(!showHandwrittenPreview)}
-                    className="text-xs text-amber-300 hover:text-amber-100 flex items-center gap-1 font-serif underline"
-                  >
-                    <span>{showHandwrittenPreview ? '✏️ Edit Manuscript' : '👁️ View Handwritten Paper'}</span>
-                  </button>
-                )}
-              </div>
-
-              {isHandwritten && showHandwrittenPreview ? (
-                <div className="space-y-2">
-                  <HandwrittenLetterPaper
-                    content={content || '(Inscribe words in thy manuscript to preview here...)'}
-                    recipientName={receiverRef}
-                    styleId={handwritingStyle}
-                    inkId={inkColor}
-                    paperId={parchmentPaper}
-                    fontSize={selectedFontSize}
-                    dateStr={new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
-                    senderName={liveUser?.name || 'Thy Noble Self'}
+              {isHandwritten ? (
+                <div className="space-y-3">
+                  <label className="small-caps block text-sm sm:text-base font-bold" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+                    Physical Handwritten Parchment (Stylus, Pen, Mouse, Touch):
+                  </label>
+                  <HandwritingCanvas
+                    initialPages={handwrittenPages}
+                    onChange={setHandwrittenPages}
+                    disabled={isBanned}
                   />
                 </div>
               ) : (
-                <textarea 
-                  value={content} 
-                  onChange={(e) => setContent(e.target.value)} 
-                  rows={8} 
-                  disabled={isBanned}
-                  style={{ 
-                    fontFamily: isHandwritten ? (HANDWRITING_STYLES.find(h => h.id === handwritingStyle)?.fontFamily || "'Great Vibes', cursive") : getFontFamily(selectedFont),
-                    color: isHandwritten ? (INK_COLORS.find(i => i.id === inkColor)?.color || '#1B1816') : '#1A1A1A',
-                    background: isHandwritten ? (parchmentPaper === 'lined-ledger' ? 'repeating-linear-gradient(#FBF7EB, #FBF7EB 31px, rgba(180, 140, 70, 0.22) 32px)' : '#FFFDF9') : '#FFFDF9',
-                    border: '1px solid var(--border-subtle)',
-                    boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.12)',
-                    fontSize: isHandwritten ? '1.45rem' : undefined,
-                    lineHeight: isHandwritten ? '2.0' : undefined
-                  }}
-                  className={`w-full p-4 sm:p-6 rounded-sm focus:outline-none resize-none leading-relaxed transition-all ${getFontSizeClass(selectedFontSize)} ${isBanned ? 'bg-gray-300 opacity-50 cursor-not-allowed' : ''}`} 
-                  placeholder={isHandwritten ? "Inscribe thy handwritten letter here using delicate quill strokes..." : "Inscribe thy words upon the sovereign scroll..."}
-                />
+                <div>
+                  <label className="small-caps block text-sm sm:text-base font-bold mb-2" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+                    The Missive Manuscript:
+                  </label>
+                  <textarea 
+                    value={content} 
+                    onChange={(e) => setContent(e.target.value)} 
+                    rows={8} 
+                    disabled={isBanned}
+                    style={{ 
+                      fontFamily: getFontFamily(selectedFont),
+                      background: '#FFFDF9',
+                      color: '#1A1A1A',
+                      border: '1px solid var(--border-subtle)',
+                      boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.12)'
+                    }}
+                    className={`w-full p-4 sm:p-6 rounded-sm focus:outline-none resize-none leading-relaxed transition-all ${getFontSizeClass(selectedFontSize)} ${isBanned ? 'bg-gray-300 opacity-50 cursor-not-allowed' : ''}`} 
+                    placeholder="Inscribe thy words upon the sovereign scroll..."
+                  />
+                </div>
               )}
             </div>
             
@@ -3810,33 +3740,43 @@ function LetterArchive() {
                   </>
                 )}
 
-                {openLetter.isHandwritten ? (
-                  <div className="my-2 max-h-[480px] overflow-y-auto">
-                    <HandwrittenLetterPaper
-                      content={openLetter.content}
-                      senderName={openLetter.senderRef?.name || 'Thy Correspondent'}
-                      recipientName={openLetter.receiverRef?.name || openLetter.receiverRef}
-                      styleId={openLetter.handwritingStyle}
-                      inkId={openLetter.inkColor}
-                      paperId={openLetter.parchmentPaper}
-                      fontSize={openLetter.fontSize}
-                      dateStr={openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined}
+                {(() => {
+                  const archiveSenderName = openLetter.senderRef?.name || 'Thy Correspondent';
+                  const archiveDate = openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined;
+                  return (
+                    <LetterEnvelopeWrapper
+                      isHandwritten={!!openLetter.isHandwritten}
+                      senderName={archiveSenderName}
                       isAnonymous={openLetter.isAnonymous}
-                    />
-                  </div>
-                ) : (
-                  <div 
-                    style={{
-                      fontFamily: getFontFamily(openLetter.font),
-                      background: 'rgba(255, 255, 255, 0.75)',
-                      color: '#1A1A1A',
-                      border: '1px solid rgba(160, 120, 60, 0.3)'
-                    }}
-                    className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
-                  >
-                    {openLetter.content}
-                  </div>
-                )}
+                      dateStr={archiveDate}
+                      penStyle={openLetter.isHandwritten ? 'Physical Quill Canvas' : (openLetter.font || 'Cinzel')}
+                    >
+                      {openLetter.isHandwritten ? (
+                        <div className="my-2 max-h-[500px] overflow-y-auto">
+                          <HandwrittenLetterPaper
+                            content={openLetter.content}
+                            senderName={archiveSenderName}
+                            recipientName={openLetter.receiverRef?.name || openLetter.receiverRef}
+                            styleId={openLetter.handwritingStyle}
+                            inkId={openLetter.inkColor}
+                            paperId={openLetter.parchmentPaper}
+                            fontSize={openLetter.fontSize}
+                            handwrittenPages={openLetter.handwrittenPages}
+                            dateStr={archiveDate}
+                            isAnonymous={openLetter.isAnonymous}
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          style={{ fontFamily: getFontFamily(openLetter.font), color: '#1A1A1A' }}
+                          className={`px-2 py-3 whitespace-pre-wrap max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
+                        >
+                          {openLetter.content}
+                        </div>
+                      )}
+                    </LetterEnvelopeWrapper>
+                  );
+                })()}
 
                 <div className="mt-5 text-right">
                   <button
@@ -4923,35 +4863,47 @@ function MyMailbox() {
                   </p>
                 )}
 
-                {!openLetter.isTorn && openLetter.status !== 'torn' && (
-                  openLetter.isHandwritten ? (
-                    <motion.div animate={{ opacity: openLetter.burnAfterReading ? 1 - fadeProgress : 1 }} className="my-2 max-h-[480px] overflow-y-auto">
-                      <HandwrittenLetterPaper
-                        content={openLetter.content}
-                        senderName={(openLetter.senderRef?.role === 'admin' || (openLetter.senderRef?.name || '').toLowerCase().includes('guild master') || (openLetter.senderRef?.name || '').toLowerCase().includes('admin')) ? 'The Guild Master' : (openLetter.senderRef?.name || 'Thy Correspondent')}
-                        styleId={openLetter.handwritingStyle}
-                        inkId={openLetter.inkColor}
-                        paperId={openLetter.parchmentPaper}
-                        fontSize={openLetter.fontSize}
-                        dateStr={openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined}
+                {!openLetter.isTorn && openLetter.status !== 'torn' && (() => {
+                  const senderDisplayName = (openLetter.senderRef?.role === 'admin' || (openLetter.senderRef?.name || '').toLowerCase().includes('guild master') || (openLetter.senderRef?.name || '').toLowerCase().includes('admin')) ? 'The Guild Master' : (openLetter.senderRef?.name || 'Thy Correspondent');
+                  const letterDate = openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined;
+                  return (
+                    <motion.div animate={{ opacity: openLetter.burnAfterReading ? 1 - fadeProgress : 1 }} className="my-2">
+                      <LetterEnvelopeWrapper
+                        isHandwritten={!!openLetter.isHandwritten}
+                        senderName={senderDisplayName}
                         isAnonymous={openLetter.isAnonymous}
-                      />
+                        dateStr={letterDate}
+                        penStyle={openLetter.isHandwritten ? 'Physical Quill Canvas' : (openLetter.font || 'Cinzel')}
+                      >
+                        {openLetter.isHandwritten ? (
+                          <div className="max-h-[500px] overflow-y-auto">
+                            <HandwrittenLetterPaper
+                              content={openLetter.content}
+                              senderName={senderDisplayName}
+                              styleId={openLetter.handwritingStyle}
+                              inkId={openLetter.inkColor}
+                              paperId={openLetter.parchmentPaper}
+                              fontSize={openLetter.fontSize}
+                              handwrittenPages={openLetter.handwrittenPages}
+                              dateStr={letterDate}
+                              isAnonymous={openLetter.isAnonymous}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            style={{
+                              fontFamily: getFontFamily(openLetter.font),
+                              color: '#1A1A1A',
+                            }}
+                            className={`px-2 py-3 whitespace-pre-wrap max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
+                          >
+                            {openLetter.content}
+                          </div>
+                        )}
+                      </LetterEnvelopeWrapper>
                     </motion.div>
-                  ) : (
-                    <motion.div 
-                      animate={{ opacity: openLetter.burnAfterReading ? 1 - fadeProgress : 1 }} 
-                      style={{
-                        fontFamily: getFontFamily(openLetter.font),
-                        background: 'rgba(255, 255, 255, 0.75)',
-                        color: '#1A1A1A',
-                        border: '1px solid rgba(160, 120, 60, 0.3)'
-                      }}
-                      className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
-                    >
-                      {openLetter.content}
-                    </motion.div>
-                  )
-                )}
+                  );
+                })()}
 
                 {openLetter.burnAfterReading && (
                   <div className="mt-4 w-full bg-stone-300 rounded-full h-2 overflow-hidden border border-orange-500/30">
@@ -5882,35 +5834,43 @@ function SentLetters() {
                   </>
                 )}
 
-                {!openLetter.isTorn && openLetter.status !== 'torn' && (
-                  openLetter.isHandwritten ? (
-                    <div className="my-2 max-h-[480px] overflow-y-auto">
-                      <HandwrittenLetterPaper
-                        content={openLetter.content}
-                        senderName={openLetter.senderRef?.name || getStoredUser()?.name || 'Thy Self'}
-                        recipientName={openLetter.receiverRef?.name || openLetter.receiverRef}
-                        styleId={openLetter.handwritingStyle}
-                        inkId={openLetter.inkColor}
-                        paperId={openLetter.parchmentPaper}
-                        fontSize={openLetter.fontSize}
-                        dateStr={openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined}
-                        isAnonymous={openLetter.isAnonymous}
-                      />
-                    </div>
-                  ) : (
-                    <div 
-                      style={{
-                        fontFamily: getFontFamily(openLetter.font),
-                        background: 'rgba(255, 255, 255, 0.75)',
-                        color: '#1A1A1A',
-                        border: '1px solid rgba(160, 120, 60, 0.3)'
-                      }}
-                      className={`p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
+                {!openLetter.isTorn && openLetter.status !== 'torn' && (() => {
+                  const sentSenderName = openLetter.senderRef?.name || getStoredUser()?.name || 'Thy Self';
+                  const sentDate = openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined;
+                  return (
+                    <LetterEnvelopeWrapper
+                      isHandwritten={!!openLetter.isHandwritten}
+                      senderName={sentSenderName}
+                      isAnonymous={openLetter.isAnonymous}
+                      dateStr={sentDate}
+                      penStyle={openLetter.isHandwritten ? 'Physical Quill Canvas' : (openLetter.font || 'Cinzel')}
                     >
-                      {openLetter.content}
-                    </div>
-                  )
-                )}
+                      {openLetter.isHandwritten ? (
+                        <div className="my-2 max-h-[500px] overflow-y-auto">
+                          <HandwrittenLetterPaper
+                            content={openLetter.content}
+                            senderName={sentSenderName}
+                            recipientName={openLetter.receiverRef?.name || openLetter.receiverRef}
+                            styleId={openLetter.handwritingStyle}
+                            inkId={openLetter.inkColor}
+                            paperId={openLetter.parchmentPaper}
+                            fontSize={openLetter.fontSize}
+                            handwrittenPages={openLetter.handwrittenPages}
+                            dateStr={sentDate}
+                            isAnonymous={openLetter.isAnonymous}
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          style={{ fontFamily: getFontFamily(openLetter.font), color: '#1A1A1A' }}
+                          className={`px-2 py-3 whitespace-pre-wrap max-h-96 overflow-y-auto leading-relaxed ${getFontSizeClass(openLetter.fontSize)}`}
+                        >
+                          {openLetter.content}
+                        </div>
+                      )}
+                    </LetterEnvelopeWrapper>
+                  );
+                })()}
 
                 <div className="mt-5 text-right">
                   <button

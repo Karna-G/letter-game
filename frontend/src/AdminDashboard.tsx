@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import royalCrestGold from './assets/royal_crest_gold.jpg';
 import manuscriptQuillDesk from './assets/manuscript_quill_desk.jpg';
 import CentralHubRegistryModal from './components/CentralHubRegistryModal';
+import LetterEnvelopeWrapper from './components/LetterEnvelopeWrapper';
+import HandwrittenLetterPaper from './components/HandwrittenLetterPaper';
 
 export default function AdminDashboard() {
   const [showHubProofsModal, setShowHubProofsModal] = useState(false);
@@ -842,17 +844,47 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div 
-                  className="p-5 rounded-sm whitespace-pre-wrap shadow-inner max-h-72 overflow-y-auto leading-relaxed text-sm sm:text-base mb-5"
-                  style={{
-                    background: '#FFFDF9',
-                    color: '#1A1A1A',
-                    border: '1px solid var(--border-subtle)',
-                    fontFamily: selectedLetter.font || 'Cinzel'
-                  }}
-                >
-                  {selectedLetter.content || selectedLetter.body || selectedLetter.message || "No legible text inscribed in this missive."}
-                </div>
+                {(() => {
+                  const letterSender = getIdentity(selectedLetter.senderRef || selectedLetter.sender);
+                  const letterDate = selectedLetter.createdAt ? new Date(selectedLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined;
+                  return (
+                    <div className="mb-5">
+                      <LetterEnvelopeWrapper
+                        isHandwritten={!!selectedLetter.isHandwritten}
+                        senderName={letterSender}
+                        isAnonymous={selectedLetter.isAnonymous}
+                        dateStr={letterDate}
+                        penStyle={selectedLetter.isHandwritten ? 'Physical Quill Canvas' : (selectedLetter.font || 'Cinzel')}
+                      >
+                        {selectedLetter.isHandwritten ? (
+                          <div className="max-h-[440px] overflow-y-auto">
+                            <HandwrittenLetterPaper
+                              content={selectedLetter.content}
+                              senderName={letterSender}
+                              styleId={selectedLetter.handwritingStyle}
+                              inkId={selectedLetter.inkColor}
+                              paperId={selectedLetter.parchmentPaper}
+                              fontSize={selectedLetter.fontSize}
+                              handwrittenPages={selectedLetter.handwrittenPages}
+                              dateStr={letterDate}
+                              isAnonymous={selectedLetter.isAnonymous}
+                            />
+                          </div>
+                        ) : (
+                          <div 
+                            className="p-4 rounded-sm whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed text-sm sm:text-base"
+                            style={{
+                              color: '#1A1A1A',
+                              fontFamily: selectedLetter.font || 'Cinzel'
+                            }}
+                          >
+                            {selectedLetter.content || selectedLetter.body || selectedLetter.message || "No legible text inscribed in this missive."}
+                          </div>
+                        )}
+                      </LetterEnvelopeWrapper>
+                    </div>
+                  );
+                })()}
 
                 <div className="flex justify-between items-center pt-2 border-t border-amber-900/20">
                   <span className="text-xs font-mono uppercase font-bold text-amber-900">

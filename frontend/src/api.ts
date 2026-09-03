@@ -87,7 +87,8 @@ export async function sendLetter(
   isHandwritten?: boolean,
   handwritingStyle?: string,
   inkColor?: string,
-  parchmentPaper?: string
+  parchmentPaper?: string,
+  handwrittenPages?: any[]
 ) {
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
@@ -128,7 +129,8 @@ export async function sendLetter(
       isHandwritten,
       handwritingStyle,
       inkColor,
-      parchmentPaper
+      parchmentPaper,
+      handwrittenPages
     };
   }
 
@@ -151,7 +153,8 @@ export async function updateLetter(
   isHandwritten?: boolean,
   handwritingStyle?: string,
   inkColor?: string,
-  parchmentPaper?: string
+  parchmentPaper?: string,
+  handwrittenPages?: any[]
 ) {
   const user = getStoredUser();
   if (!user) throw new Error('Not logged in');
@@ -172,7 +175,8 @@ export async function updateLetter(
       isHandwritten,
       handwritingStyle,
       inkColor,
-      parchmentPaper
+      parchmentPaper,
+      handwrittenPages
     };
   }
 

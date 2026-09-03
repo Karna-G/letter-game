@@ -84,8 +84,17 @@ router.post('/', async (req, res) => {
     const { 
       senderRef, receiverRef, content, type, scheduledFor, status, 
       burnAfterReading, burnTimerSeconds, senderLocation, font, fontSize, 
-      schrodingerVariants, isHandwritten, handwritingStyle, inkColor, parchmentPaper 
+      schrodingerVariants, isHandwritten, handwritingStyle, inkColor, parchmentPaper,
+      handwrittenPages
     } = req.body;
+
+    // ── ADMIN GUARD: Admins are forbidden from composing or sending letters ──
+    if (senderRef) {
+      const senderUser = await User.findById(senderRef).select('role');
+      if (senderUser && senderUser.role === 'admin') {
+        return res.status(403).json({ message: 'Guild Masters may not compose personal letters. Use the Notice Board to post announcements.' });
+      }
+    }
 
     // Only generate QR code token if it's being immediately dispatched ('pending')
     const initialStatus = status === 'draft' ? 'draft' : 'pending';
@@ -110,7 +119,7 @@ router.post('/', async (req, res) => {
 
     const letterData = {
       senderRef,
-      content,
+      content: content || (isHandwritten ? '[Physical Handwritten Letter]' : ''),
       type: type || 'standard',
       font: font || 'Cinzel',
       fontSize: fontSize || 'medium',
@@ -121,9 +130,10 @@ router.post('/', async (req, res) => {
       burnTimerSeconds: Number(burnTimerSeconds) > 0 ? Number(burnTimerSeconds) : 60,
       senderLocation: resolvedSenderLocation,
       sealedAt: initialStatus === 'pending' ? Date.now() : undefined,
-      // Feature 27: Handwritten Letters
+      // Feature 27: Physical Handwritten Letters
       isHandwritten: !!isHandwritten,
-      handwritingStyle: handwritingStyle || 'elegant',
+      handwrittenPages: Array.isArray(handwrittenPages) ? handwrittenPages : [],
+      handwritingStyle: handwritingStyle || 'freehand',
       inkColor: inkColor || 'iron-gall',
       parchmentPaper: parchmentPaper || 'vintage-cream'
     };
@@ -141,8 +151,17 @@ router.post('/', async (req, res) => {
       });
 
       if (user) {
+        // ── ADMIN RECEIVER GUARD: No one can send letters to an admin ──
+        if (user.role === 'admin') {
+          return res.status(403).json({ message: 'The Guild Master does not accept personal letters. Post a notice on the Community Board instead.' });
+        }
         letterData.receiverRef = user._id;
       } else if (mongoose.Types.ObjectId.isValid(query)) {
+        // Also check by ID if provided directly
+        const userById = await User.findById(query).select('role');
+        if (userById && userById.role === 'admin') {
+          return res.status(403).json({ message: 'The Guild Master does not accept personal letters. Post a notice on the Community Board instead.' });
+        }
         letterData.receiverRef = query;
       } else {
         return res.status(400).json({ message: `Could not find any user named "${query}" in the Guild.` });
@@ -179,17 +198,27 @@ router.put('/:id', async (req, res) => {
     const { 
       receiverRef, content, status, burnAfterReading, burnTimerSeconds, 
       font, fontSize, type, schrodingerVariants,
-      isHandwritten, handwritingStyle, inkColor, parchmentPaper 
+      isHandwritten, handwritingStyle, inkColor, parchmentPaper,
+      handwrittenPages
     } = req.body;
     const letter = await Letter.findById(req.params.id);
 
     if (!letter) return res.status(404).json({ message: 'Letter not found' });
 
-    if (content) letter.content = content;
+    // ── ADMIN GUARD: Admins are forbidden from editing or dispatching letters ──
+    if (letter.senderRef) {
+      const senderUser = await User.findById(letter.senderRef).select('role');
+      if (senderUser && senderUser.role === 'admin') {
+        return res.status(403).json({ message: 'Guild Masters may not send personal letters. Use the Notice Board to post announcements.' });
+      }
+    }
+
+    if (content !== undefined) letter.content = content;
     if (font) letter.font = font;
     if (fontSize) letter.fontSize = fontSize;
     if (type) letter.type = type;
     if (typeof isHandwritten === 'boolean') letter.isHandwritten = isHandwritten;
+    if (Array.isArray(handwrittenPages)) letter.handwrittenPages = handwrittenPages;
     if (handwritingStyle) letter.handwritingStyle = handwritingStyle;
     if (inkColor) letter.inkColor = inkColor;
     if (parchmentPaper) letter.parchmentPaper = parchmentPaper;
