@@ -86,7 +86,7 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
             Letter Pickup Radius Alerts
           </h3>
           <p className="text-xs md:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-            Receive real-time fanfare and notifications when a Royal Mailman steps within thy perimeter.
+            Get a chime and a notification the moment a courier comes within range of you.
           </p>
         </div>
 
@@ -116,10 +116,10 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
         <div className="flex items-center justify-between p-4 rounded-sm bg-white/[0.03] border border-amber-500/20">
           <div>
             <span className="text-sm font-bold block" style={{ color: 'var(--parchment)', fontFamily: "'Cinzel', serif" }}>
-              Enable Mailman Perimeter Alerts
+              Alert me when a courier is nearby
             </span>
             <span className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-              Broadcast proximity pings when a mailman traverses near thy location.
+              Alert me whenever a courier passes near my location.
             </span>
           </div>
           <button
@@ -143,10 +143,10 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
             <div>
               <span className="text-sm font-bold block flex items-center gap-1.5" style={{ color: 'var(--parchment)', fontFamily: "'Cinzel', serif" }}>
                 <Radio className="w-4 h-4 text-amber-400" />
-                Alert Perimeter Radius: <span className="text-amber-300 ml-1">{settings.radiusMeters} meters</span>
+                Alert me within: <span className="text-amber-300 ml-1">{settings.radiusMeters} meters</span>
               </span>
               <span className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-                Thy alert triggers whenever a mailman arrives within this physical distance.
+                You will be alerted when a courier comes this close to you.
               </span>
             </div>
           </div>
@@ -183,7 +183,7 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
                 Postal Bell Fanfare
               </span>
               <span className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-                Play regal 3-tone acoustic brass chime on mailman arrival.
+                Play a three-note brass chime when a courier arrives.
               </span>
             </div>
             <button
@@ -205,12 +205,12 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
           <div className="p-4 rounded-sm bg-white/[0.03] border border-amber-500/20 flex items-center justify-between">
             <div className="pr-3">
               <span className="text-sm font-bold block" style={{ color: 'var(--parchment)', fontFamily: "'Cinzel', serif" }}>
-                {settings.notifyAllCouriers ? 'All Realm Mailmen' : 'Pending Missives Only'}
+                {settings.notifyAllCouriers ? 'All Realm Mailmen' : 'Pending Letters Only'}
               </span>
               <span className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
                 {settings.notifyAllCouriers
                   ? 'Alert whenever any mailman enters perimeter.'
-                  : 'Alert only when thou hast a missive awaiting pickup.'}
+                  : 'Only alert me when I have a letter waiting for pickup.'}
               </span>
             </div>
             <button

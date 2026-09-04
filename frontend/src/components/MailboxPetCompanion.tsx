@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Heart, RefreshCw, X, Award, Feather } from 'lucide-react';
 import { updateMailboxPet, type MailboxPetType } from '../api';
 import { waxSealAudio } from '../utils/waxSealAudio';
+import { notify } from '../components/RealmDialog';
 
 export interface MailboxPetData {
   id: MailboxPetType;
@@ -26,9 +27,9 @@ export const MAILBOX_PETS: Record<Exclude<MailboxPetType, 'none'>, MailboxPetDat
     description: 'Swift sky-bearer of royal epistolary seals. Trained in the imperial aviaries to navigate any storm.',
     specialActionName: 'Wing Flutter & Flap',
     quotes: [
-      'Coo-coo! The skies were clear today, and I guarded thy postal chamber.',
+      'Coo-coo! The skies were clear today, and I guarded your postal chamber.',
       'Coo! I sense a courier riding near with fresh sealing wax!',
-      'Rrr-coo! Thy letters are safely roosted beside me.',
+      'Rrr-coo! Your letters are safely roosted beside me.',
       'Flap! All horizons are clear and ready for flight.',
     ],
     perchStyle: 'from-amber-950 to-stone-950 border-amber-600/50'
@@ -39,13 +40,13 @@ export const MAILBOX_PETS: Record<Exclude<MailboxPetType, 'none'>, MailboxPetDat
     title: 'Grand Library Cat',
     species: 'Felis Epistola',
     emoji: '🐱',
-    description: 'Curled guardian of quiet midnight scrolls. Known to nap exclusively upon warm, freshly pressed wax missives.',
+    description: 'Curled guardian of quiet midnight scrolls. Known to nap exclusively upon warm, freshly pressed wax letters.',
     specialActionName: 'Spine Stretch & Paw Reach',
     quotes: [
       'Purrrr... warm parchment is the finest bedding in the entire realm.',
-      'Meow. No vermin shall nibble at thy precious wax seals while I am on watch.',
-      'Purrr... dost thou smell the fresh iron gall ink on those missives?',
-      'A fine hour for an epistolary nap beside thy mailbox.'
+      'Meow. No vermin shall nibble at your precious wax seals while I am on watch.',
+      'Purrr... do you smell the fresh iron gall ink on those letters?',
+      'A fine hour for an epistolary nap beside your mailbox.'
     ],
     perchStyle: 'from-rose-950 to-stone-950 border-amber-600/50'
   },
@@ -71,13 +72,13 @@ export const MAILBOX_PETS: Record<Exclude<MailboxPetType, 'none'>, MailboxPetDat
     title: "Postmaster's Night Owl",
     species: 'Bubo Nocturnus',
     emoji: '🦉',
-    description: 'Silent sentinel of twilight dispatches. Pierces through the thickest fog to watch over undelivered missives.',
+    description: 'Silent sentinel of twilight dispatches. Pierces through the thickest fog to watch over undelivered letters.',
     specialActionName: 'Wise Double-Blink & Feather Puff',
     quotes: [
       'Hoo-hoo! The night mail is the swiftest mail in the kingdom.',
       'Blinks with golden eyes... Wisdom lies sealed within every thoughtful letter.',
       'Hoot! From atop the postal tower, I watch the realm sleep.',
-      'I delivered secrets under the moonlight before thou wert awake.'
+      'I delivered secrets under the moonlight before you were awake.'
     ],
     perchStyle: 'from-indigo-950 to-stone-950 border-amber-600/50'
   }
@@ -141,7 +142,7 @@ export default function MailboxPetCompanion({
       if (petData) {
         let quote = '';
         if (unreadCount > 0 && Math.random() > 0.4) {
-          quote = `${unreadCount} unread ${unreadCount === 1 ? 'missive rests' : 'missives rest'} in thy postal satchel!`;
+          quote = `${unreadCount} unread ${unreadCount === 1 ? 'letter rests' : 'letters rest'} in your postal satchel!`;
         } else {
           const idx = Math.floor(Math.random() * petData.quotes.length);
           quote = petData.quotes[idx];
@@ -172,12 +173,12 @@ export default function MailboxPetCompanion({
       
       if (petId !== 'none') {
         const petData = MAILBOX_PETS[petId];
-        setSpeechBubble(`*${petData.name} the ${petData.species} settles attentively beside thy mailbox.*`);
+        setSpeechBubble(`*${petData.name} the ${petData.species} settles attentively beside your mailbox.*`);
         if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
         bubbleTimerRef.current = window.setTimeout(() => setSpeechBubble(null), 4000);
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to update companion');
+      notify.error(err.message || 'Could not update companion');
     } finally {
       setSaving(false);
     }
@@ -358,7 +359,7 @@ function PetSelectorModal({ activePet, saving, onSelectPet, onClose }: PetSelect
                   The Royal Postal Menagerie
                 </h3>
                 <p className="text-xs sm:text-sm italic" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-                  Appoint a loyal companion to perch faithfully beside thy mailbox.
+                  Choose a companion to keep watch beside your mailbox.
                 </p>
               </div>
             </div>

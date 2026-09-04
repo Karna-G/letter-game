@@ -51,7 +51,7 @@ router.get('/mailbox/:userId', async (req, res) => {
         now - new Date(letter.firstReadAt).getTime() >= windowMs
       ) {
         letter.status = 'burned';
-        letter.content = '🔥 The ink hath faded to nothingness. This letter is lost forever.';
+        letter.content = '🔥 The ink has faded to nothingness. This letter is lost forever.';
         await letter.save();
       }
     }
@@ -145,7 +145,7 @@ router.post('/', async (req, res) => {
 
     // Strict Recipient Validation: All letters, drafts, and story-heralds require a valid registered recipient
     if (!receiverRef || !receiverRef.trim()) {
-      return res.status(400).json({ message: 'A valid recipient scribe name must be provided. For nameless/recipient-free missives, use Nameless Words.' });
+      return res.status(400).json({ message: 'A valid recipient scribe name must be provided. For nameless/recipient-free letters, use Nameless Words.' });
     }
 
     const query = receiverRef.trim();
@@ -296,7 +296,7 @@ router.put('/:id/read', async (req, res) => {
     const letter = await Letter.findById(req.params.id);
     if (!letter) return res.status(404).json({ message: 'Letter not found' });
     if (letter.scheduledFor && new Date(letter.scheduledFor).getTime() > Date.now()) {
-      return res.status(403).json({ message: 'Missive is sealed in a Time Capsule until the appointed hour.' });
+      return res.status(403).json({ message: 'Letter is sealed in a Time Capsule until the appointed hour.' });
     }
     letter.isRead = true;
     if (!letter.firstReadAt) {
@@ -369,7 +369,7 @@ router.post('/batch-read', async (req, res) => {
     }
     const io = req.app.get('io');
     if (io) io.emit('letters-updated');
-    res.json({ message: `Updated ${ids.length} missives.` });
+    res.json({ message: `Updated ${ids.length} letters.` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error updating read status' });
@@ -403,7 +403,7 @@ router.post('/batch-trash', async (req, res) => {
     }
     const io = req.app.get('io');
     if (io) io.emit('letters-updated');
-    res.json({ message: `Moved ${ids.length} missives to wastebin.` });
+    res.json({ message: `Moved ${ids.length} letters to wastebin.` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error trashing letters' });
@@ -433,7 +433,7 @@ router.post('/batch-restore', async (req, res) => {
     }
     const io = req.app.get('io');
     if (io) io.emit('letters-updated');
-    res.json({ message: `Restored ${ids.length} missives from wastebin.` });
+    res.json({ message: `Restored ${ids.length} letters from wastebin.` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error restoring letters' });
@@ -450,7 +450,7 @@ router.post('/batch-burn', async (req, res) => {
     await Letter.deleteMany({ _id: { $in: ids } });
     const io = req.app.get('io');
     if (io) io.emit('letters-updated');
-    res.json({ message: `Permanently burned ${ids.length} missives.` });
+    res.json({ message: `Permanently burned ${ids.length} letters.` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error burning letters' });
@@ -466,7 +466,7 @@ router.put('/:id/burn', async (req, res) => {
       return res.status(400).json({ message: 'This letter was not marked for burning.' });
     }
     letter.status = 'burned';
-    letter.content = '🔥 The ink hath faded to nothingness. This letter is lost forever.';
+    letter.content = '🔥 The ink has faded to nothingness. This letter is lost forever.';
     await letter.save();
     res.json(letter);
   } catch (error) {
@@ -502,7 +502,7 @@ router.put('/:id/abandon', async (req, res) => {
   try {
     const { userId, reason } = req.body;
     const letter = await Letter.findById(req.params.id);
-    if (!letter) return res.status(404).json({ message: 'Missive not found' });
+    if (!letter) return res.status(404).json({ message: 'Letter not found' });
 
     letter.isAbandoned = true;
     letter.abandonedAt = new Date();
@@ -514,10 +514,10 @@ router.put('/:id/abandon', async (req, res) => {
     const io = req.app.get('io');
     if (io) io.emit('letters-updated');
 
-    res.json({ message: 'Missive released into The Dead Letter Office archive.', letter });
+    res.json({ message: 'Letter released into The Dead Letter Office archive.', letter });
   } catch (error) {
     console.error("Error abandoning letter:", error);
-    res.status(500).json({ message: 'Error abandoning missive' });
+    res.status(500).json({ message: 'Error abandoning letter' });
   }
 });
 
@@ -544,7 +544,7 @@ router.post('/batch-abandon', async (req, res) => {
     const io = req.app.get('io');
     if (io) io.emit('letters-updated');
 
-    res.json({ message: `Successfully released ${ids.length} missives to The Dead Letter Office.` });
+    res.json({ message: `Successfully released ${ids.length} letters to The Dead Letter Office.` });
   } catch (error) {
     console.error("Error batch abandoning letters:", error);
     res.status(500).json({ message: 'Error releasing letters to Dead Letter Office' });
@@ -619,7 +619,7 @@ router.put('/:id/trash', async (req, res) => {
     const io = req.app.get('io');
     if (io) io.emit('letters-updated');
 
-    res.json({ message: 'Letter removed to thy wastebin.', letter });
+    res.json({ message: 'Letter removed to your wastebin.', letter });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error removing letter to trash' });
@@ -646,7 +646,7 @@ router.put('/:id/restore', async (req, res) => {
     }
     await letter.save();
 
-    res.json({ message: 'Letter restored to thy desk.', letter });
+    res.json({ message: 'Letter restored to your desk.', letter });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error restoring letter' });
@@ -676,7 +676,7 @@ router.delete('/trash/empty/:userId', async (req, res) => {
       ]
     });
 
-    res.json({ message: 'Thy wastebin hath been consumed by fire. All ashes scattered.' });
+    res.json({ message: 'Your wastebin has been consumed by fire. All ashes scattered.' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error emptying wastebin' });
@@ -690,7 +690,7 @@ router.delete('/:id', async (req, res) => {
     if (!letter) return res.status(404).json({ message: 'Letter not found' });
     
     await letter.deleteOne();
-    res.json({ message: 'Missive permanently burned to ashes.' });
+    res.json({ message: 'Letter permanently burned to ashes.' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error permanently burning letter' });
@@ -787,7 +787,7 @@ router.post('/:id/recall', async (req, res) => {
     const { userId, riddleId, selectedOptionIndex, isTimeout } = req.body;
     const letter = await Letter.findById(req.params.id);
     if (!letter) {
-      return res.status(404).json({ message: 'Missive not found in sovereign registry' });
+      return res.status(404).json({ message: 'Letter not found in sovereign registry' });
     }
 
     const riddle = POSTMASTER_RIDDLES.find(r => r.id === riddleId);
@@ -812,7 +812,7 @@ router.post('/:id/recall', async (req, res) => {
         if (previousMailmanRef) {
           io.emit('mailman-notification', {
             mailmanId: previousMailmanRef.toString(),
-            message: `📜 The sender solved the Postmaster's Riddle and recalled epistle #${letter._id.toString().slice(-6)}. It has been removed from thy active deliveries.`,
+            message: `📜 The sender solved the Postmaster's Riddle and recalled letter #${letter._id.toString().slice(-6)}. It has been removed from your active deliveries.`,
             letterId: letter._id
           });
         }
@@ -822,7 +822,7 @@ router.post('/:id/recall', async (req, res) => {
         success: true,
         outcome: 'recalled',
         letter,
-        message: '✦ Postmaster\'s Blessing! Thy riddle was solved and the epistle hath been safely intercepted and moved into thy Drafts.',
+        message: '✦ Postmaster\'s Blessing! Your riddle was solved and the letter has been safely intercepted and moved into your Drafts.',
         lore: riddle ? riddle.lore : ''
       });
     } else {
@@ -849,7 +849,7 @@ router.post('/:id/recall', async (req, res) => {
         if (previousMailmanRef) {
           io.emit('mailman-notification', {
             mailmanId: previousMailmanRef.toString(),
-            message: `⚠️ The sender failed the Postmaster's Riddle and tore epistle #${letter._id.toString().slice(-6)}. The delivery has been cancelled and removed from thy deliveries.`,
+            message: `⚠️ The sender failed the Postmaster's Riddle and tore letter #${letter._id.toString().slice(-6)}. The delivery has been cancelled and removed from your deliveries.`,
             letterId: letter._id
           });
         }
@@ -862,7 +862,7 @@ router.post('/:id/recall', async (req, res) => {
         reputationLost,
         newReputation: sender?.reputationScore ?? 0,
         correctAnswer: riddle ? riddle.options[riddle.answerIndex] : '',
-        message: '⚠️ The Postmaster\'s seal fractured! Thy epistle was torn and destroyed in transit, and thy reputation reduced by 5 honour points.',
+        message: '⚠️ The Postmaster\'s seal fractured! Your letter was torn and destroyed in transit, and your reputation reduced by 5 honour points.',
         lore: riddle ? riddle.lore : ''
       });
     }
@@ -914,8 +914,8 @@ router.post('/scan', async (req, res) => {
           transferredFrom: stageType === 'pickup' ? senderName : mailmanName,
           transferredTo: stageType === 'pickup' ? `${mailmanName}'s Saddlebag` : `${receiverName}'s Mailbox`,
           message: stageType === 'pickup'
-            ? `Missive transferred from ${senderName} to Courier ${mailmanName}'s Saddlebag!`
-            : `Missive delivered from Courier ${mailmanName} into ${receiverName}'s Sovereign Mailbox!`
+            ? `Letter transferred from ${senderName} to Courier ${mailmanName}'s Saddlebag!`
+            : `Letter delivered from Courier ${mailmanName} into ${receiverName}'s Sovereign Mailbox!`
         };
 
         io.emit('letter-handover-animated', payload);
@@ -939,7 +939,7 @@ router.post('/scan', async (req, res) => {
         });
 
         await emitHandover('delivery');
-        return res.json({ message: 'You picked up a letter addressed to thee! It is now in thy Mailbox.', letter });
+        return res.json({ message: 'You picked up a letter addressed to you! It is now in your Mailbox.', letter });
       }
 
       letter.mailmanRef = userId;
@@ -948,7 +948,7 @@ router.post('/scan', async (req, res) => {
       await letter.save();
 
       await emitHandover('pickup');
-      return res.json({ message: 'Letter successfully picked up! Check thy Deliveries.', letter });
+      return res.json({ message: 'Letter successfully picked up! Check your Deliveries.', letter });
     }
 
     // Scenario 2: Receiver directly scans a 'pending' letter (Direct hand-to-hand / Mailman-to-Mailman direct)
@@ -960,7 +960,7 @@ router.post('/scan', async (req, res) => {
         await letter.save();
 
         await emitHandover('delivery');
-        return res.json({ message: 'Letter successfully received! It is now in thy Mailbox.', letter });
+        return res.json({ message: 'Letter successfully received! It is now in your Mailbox.', letter });
       }
     }
     
@@ -999,7 +999,7 @@ router.post('/scan', async (req, res) => {
           }
         }
         return res.status(403).json({
-          message: 'This letter is not addressed to thee!',
+          message: 'This letter is not addressed to you!',
           penaltyApplied,
         });
       }
@@ -1017,7 +1017,7 @@ router.post('/scan', async (req, res) => {
       }
 
       await emitHandover('delivery');
-      return res.json({ message: 'Letter successfully received! It is now in thy Mailbox.', letter });
+      return res.json({ message: 'Letter successfully received! It is now in your Mailbox.', letter });
     }
     
     if (letter.status === 'delivered') {
@@ -1077,9 +1077,9 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Sunken Crypts of Aethelgard',
     font: 'Great Vibes',
     openers: [
-      'Through the gossamer veil of twilight, thy memories drifted into my crypt...',
-      'I listened to the wind rustling through the hollow stones, bearing fragments of thy past words...',
-      'Thou didst not write to me, yet the ink of thy soul hath stained my realm...'
+      'Through the gossamer veil of twilight, your memories drifted into my crypt...',
+      'I listened to the wind rustling through the hollow stones, bearing fragments of your past words...',
+      'Thou didst not write to me, yet the ink of your soul has stained my realm...'
     ],
     closers: [
       'I remain watching between the shadows of the realm.',
@@ -1093,14 +1093,14 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'Library of Lost Names (Year 1482)',
     font: 'MedievalSharp',
     openers: [
-      'In the dusty catacombs where unread letters sleep, I catalogued thy presence...',
-      'A parchment sealed centuries ago bore reflections of thy thoughts...',
-      'Thy name was whispered in the guild archives before thy birth...'
+      'In the dusty catacombs where unread letters sleep, I catalogued your presence...',
+      'A parchment sealed centuries ago bore reflections of your thoughts...',
+      'Your name was whispered in the guild archives before your birth...'
     ],
     closers: [
       'Catalogued under the Ledger of Ethereal Curiosities.',
-      'The archives remember every missive, even those never dispatched.',
-      'Preserve thy quill, traveller, for the realm listens.'
+      'The archives remember every letter, even those never dispatched.',
+      'Preserve your quill, traveller, for the realm listens.'
     ]
   },
   {
@@ -1109,14 +1109,14 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Spectral Crossroads',
     font: 'Metamorphous',
     openers: [
-      'My spectral steed galloped through the echoes of thy past journeys...',
-      'I carried a missive intended for another lifetime, yet its seal matches thy hand...',
-      'Along the misty mountain ridge, the phantom postbags rattled with echoes of thy words...'
+      'My spectral steed galloped through the echoes of your past journeys...',
+      'I carried a letter intended for another lifetime, yet its seal matches your hand...',
+      'Along the misty mountain ridge, the phantom postbags rattled with echoes of your words...'
     ],
     closers: [
       'The road never ends for those who carry the word.',
       'Galloping eternally beneath the moonless sky.',
-      'May thy deliveries never cross the border of the void.'
+      'May your deliveries never cross the border of the void.'
     ]
   },
   {
@@ -1125,12 +1125,12 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'Sanctuary of the Starless Night',
     font: 'Almendra',
     openers: [
-      'I knelt at the altar of forgotten vows and heard the reverberation of thy deeds...',
-      'The candlelight flickered thrice as thy recent thoughts brushed against our sanctuary...',
+      'I knelt at the altar of forgotten vows and heard the reverberation of your deeds...',
+      'The candlelight flickered thrice as your recent thoughts brushed against our sanctuary...',
       'From the silent cloister, we watch the tapestry of mortal correspondence unroll...'
     ],
     closers: [
-      'Go in solemn peace, and guard thy secrets well.',
+      'Go in solemn peace, and guard your secrets well.',
       'The wax may crack, but the oath remains unbreakable.',
       'In eternal vigil and silence.'
     ]
@@ -1141,12 +1141,12 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Ghost Fleet of the Mariana Rift',
     font: 'Pirata One',
     openers: [
-      'From twenty fathoms beneath the roaring waves, a bottle washed upon my spectral deck bearing echoes of thee...',
-      'The deep sea currents carry strange whispers from thy landbound desk...',
-      'The barnacles on our spectral hull vibrate with the resonance of thy letters...'
+      'From twenty fathoms beneath the roaring waves, a bottle washed upon my spectral deck bearing echoes of you...',
+      'The deep sea currents carry strange whispers from your landbound desk...',
+      'The barnacles on our spectral hull vibrate with the resonance of your letters...'
     ],
     closers: [
-      'May thy anchor hold against the eternal tempest.',
+      'May your anchor hold against the eternal tempest.',
       'Signing off from the graveyard of forgotten ships.',
       'Until the tide turns red with dawn.'
     ]
@@ -1159,11 +1159,11 @@ const SPECTRAL_PERSONAS = [
     openers: [
       'Upon aged parchment that time forgot to burn, my phantom quill began to move on its own accord...',
       'A strange resonance in the ether compelled this correspondence across four hundred winters...',
-      'Thy mortal ink mirrors the esoteric runes of our ancient order...'
+      'Your mortal ink mirrors the esoteric runes of our ancient order...'
     ],
     closers: [
       'Written with ink of crushed nightshade and starlight.',
-      'May the seals of old keep thee safe from the midnight wanderers.',
+      'May the seals of old keep you safe from the midnight wanderers.',
       'From an era buried beneath the stones.'
     ]
   },
@@ -1173,8 +1173,8 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Throne of Obsidian Brambles',
     font: 'Cinzel Decorative',
     openers: [
-      'From the empty throne room where cold winds reign, I observed the flickering flame of thy mortal ambition...',
-      'A crown of rusted iron weighs heavily upon my shade, yet thy words pierced our ruined ramparts...',
+      'From the empty throne room where cold winds reign, I observed the flickering flame of your mortal ambition...',
+      'A crown of rusted iron weighs heavily upon my shade, yet your words pierced our ruined ramparts...',
       'We in the forgotten court hold court over every secret whispered into sealed wax...'
     ],
     closers: [
@@ -1189,9 +1189,9 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Vaporous Laboratory Beneath the Moor',
     font: 'Metamorphous',
     openers: [
-      'The mercury in my alembic boiled without flame the moment thy quill touched paper...',
-      'I transmuted gold into ash, yet the chemical signature of thy thoughts remains incorruptible...',
-      'From the fumes of astral sulfur, the crystallization of thy intents appeared in my retorts...'
+      'The mercury in my alembic boiled without flame the moment your quill touched paper...',
+      'I transmuted gold into ash, yet the chemical signature of your thoughts remains incorruptible...',
+      'From the fumes of astral sulfur, the crystallization of your intents appeared in my retorts...'
     ],
     closers: [
       'Beware: all inks decompose, but intent is an eternal compound.',
@@ -1205,12 +1205,12 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Mire of Drowned Lanterns',
     font: 'Caveat',
     openers: [
-      'The ravens croaked thrice over the stagnant waters, dropping a feather woven from thy past thoughts...',
-      'I stirred the black peat and saw the reflection of thy hand pressing seal upon parchment...',
-      'The willow trees do not weep for the dead, traveller; they weep for what thou hast written...'
+      'The ravens croaked thrice over the stagnant waters, dropping a feather woven from your past thoughts...',
+      'I stirred the black peat and saw the reflection of your hand pressing seal upon parchment...',
+      'The willow trees do not weep for the dead, traveller; they weep for what you have written...'
     ],
     closers: [
-      'Bury this missive beneath moss if thou fearest the marsh eyes.',
+      'Bury this letter beneath moss if thou fearest the marsh eyes.',
       'Spun from spider silk and swamp-lantern glow.',
       'The bog never forgets a debt, nor a letter.'
     ]
@@ -1221,9 +1221,9 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Clocktower of Infinite Gear-Teeth',
     font: 'Special Elite',
     openers: [
-      'TICK... TOCK... At precisely the 10,000th cycle of the lunar escapement, thy frequency resonated in my brass pendulum...',
+      'TICK... TOCK... At precisely the 10,000th cycle of the lunar escapement, your frequency resonated in my brass pendulum...',
       'A discrepancy in the temporal river was logged: a mortal sending thoughts into the ether...',
-      'The escapement wheel calibrated itself to the cadence of thy quill strokes...'
+      'The escapement wheel calibrated itself to the cadence of your quill strokes...'
     ],
     closers: [
       'Timestamp: Synchronized with the End of Time.',
@@ -1237,8 +1237,8 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Moon-Mirrored Observatory',
     font: 'Alex Brush',
     openers: [
-      'When the eclipse swallowed the pale moon, the starlight rearranged itself into the syntax of thy mind...',
-      'I dipped my crystal lens into the night sky and caught the glimmer of thy unsaid wishes...',
+      'When the eclipse swallowed the pale moon, the starlight rearranged itself into the syntax of your mind...',
+      'I dipped my crystal lens into the night sky and caught the glimmer of your unsaid wishes...',
       'From the balcony of stars, the mortals seem like tiny fireflies carrying sealed lamps...'
     ],
     closers: [
@@ -1253,14 +1253,14 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Glade of the Frozen Lyre',
     font: 'Dancing Script',
     openers: [
-      'A melody drifted on the icy gale — a chord struck by the rhythm of thy past epistles...',
-      'I played a forgotten ballad by the camp fire, and the smoke spelled out fragments of thy lore...',
-      'The frozen pine needles chime like bells whenever thy missives cross the mountain pass...'
+      'A melody drifted on the icy gale — a chord struck by the rhythm of your past letters...',
+      'I played a forgotten ballad by the camp fire, and the smoke spelled out fragments of your lore...',
+      'The frozen pine needles chime like bells whenever your letters cross the mountain pass...'
     ],
     closers: [
-      'May thy path be merry and thy hearth never go cold.',
+      'May your path be merry and your hearth never go cold.',
       'Strumming in the silence between the falling snow.',
-      'Keep a song in thy throat for the shadowy miles ahead.'
+      'Keep a song in your throat for the shadowy miles ahead.'
     ]
   },
   {
@@ -1269,14 +1269,14 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Primeval Heartwood',
     font: 'Eagle Lake',
     openers: [
-      'The ancient roots deep in the dark earth drank the rainwater carrying the spirit of thy travels...',
-      'A stag with silver antlers bowed before the hollow oak, bearing a message carved by thy past deeds...',
+      'The ancient roots deep in the dark earth drank the rainwater carrying the spirit of your travels...',
+      'A stag with silver antlers bowed before the hollow oak, bearing a message carved by your past deeds...',
       'The bark of the millennium redwood groaned with the memory of words thou once spoke...'
     ],
     closers: [
-      'Let the green boughs shade thee from malice.',
+      'Let the green boughs shade you from malice.',
       'Rooted deep in the soil of forgotten centuries.',
-      'May the woodland spirits guard thy travels.'
+      'May the woodland spirits guard your travels.'
     ]
   },
   {
@@ -1285,9 +1285,9 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Phantom Waystation in the Fog',
     font: 'Courier Prime',
     openers: [
-      'I have stamped thirty thousand letters that were never delivered, yet thine arrived on my desk...',
-      'The lanterns at Waystation 9 flickered red when thy name appeared on my phantom manifest...',
-      'I lost my route in the Great Blizzard of 1799, but I never lost a single missive entrusted to me...'
+      'I have stamped thirty thousand letters that were never delivered, yet your arrived on my desk...',
+      'The lanterns at Waystation 9 flickered red when your name appeared on my phantom manifest...',
+      'I lost my route in the Great Blizzard of 1799, but I never lost a single letter entrusted to me...'
     ],
     closers: [
       'Postmarked: Nowhere / Undated / Eternal Transit.',
@@ -1301,12 +1301,12 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Withered Garden of Perennial Tears',
     font: 'Marck Script',
     openers: [
-      'A single dried rose petal crumbled upon my marble slab, carrying the perfume of thy written words...',
-      'I kept every letter that was never sent in mortal life; now I collect the echoes of thine...',
-      'In this garden where roses never bloom nor die, thy thoughts brought a fleeting warmth...'
+      'A single dried rose petal crumbled upon my marble slab, carrying the perfume of your written words...',
+      'I kept every letter that was never sent in mortal life; now I collect the echoes of your...',
+      'In this garden where roses never bloom nor die, your thoughts brought a fleeting warmth...'
     ],
     closers: [
-      'Do not leave words unspoken while breath still warms thy lips.',
+      'Do not leave words unspoken while breath still warms your lips.',
       'Pressed between the pages of an immortal diary.',
       'With bittersweet regards from the Rose Crypt.'
     ]
@@ -1317,13 +1317,13 @@ const SPECTRAL_PERSONAS = [
     realmOrigin: 'The Geometric Abyss beyond the Stars',
     font: 'Fondamento',
     openers: [
-      'On my parchment of non-Euclidean angles, thy correspondence created a new nexus of coordinates...',
+      'On my parchment of non-Euclidean angles, your correspondence created a new nexus of coordinates...',
       'The stars are not fixed points, traveller; they are postal beacons between realities...',
-      'I mapped the contours of the void, and found the faint ley-lines drawn by thy journeys...'
+      'I mapped the contours of the void, and found the faint ley-lines drawn by your journeys...'
     ],
     closers: [
       'Plotted on the infinite meridian of the abyss.',
-      'May thy compass always find true north in every dimension.',
+      'May your compass always find true north in every dimension.',
       'Drawn in ink of ultraviolet geometry.'
     ]
   }
@@ -1384,7 +1384,7 @@ function generateDybbukContent(user, pastLetters, tone = 'classical') {
   const opener = persona.openers[Math.floor(Math.random() * persona.openers.length)];
   const closer = persona.closers[Math.floor(Math.random() * persona.closers.length)];
 
-  let middleParagraph = `I have traversed the veil to deliver this reflection. In the echoes of thy correspondence, the spectral realm heard the vibrations of "${userEchoWord1}" and "${userEchoWord2}". The astral winds carry thy deeds across the ether. Do not question how this missive found its way into thy sovereign mailbox without courier footsteps.`;
+  let middleParagraph = `I have traversed the veil to deliver this reflection. In the echoes of your correspondence, the spectral realm heard the vibrations of "${userEchoWord1}" and "${userEchoWord2}". The astral winds carry your deeds across the ether. Do not question how this letter found its way into your sovereign mailbox without courier footsteps.`;
 
   const content = `${opener}\n\n${middleParagraph}\n\n${closer}\n\n— Signed in Spectral Ink by ${persona.name},\n${persona.title}`;
 
@@ -1437,7 +1437,7 @@ router.post('/dybbuk/generate', async (req, res) => {
     if (io) io.emit('letters-updated');
 
     res.status(201).json({
-      message: '👻 The Astral Veil parted! A Dybbuk Missive has manifested in thy Mailbox.',
+      message: '👻 The Astral Veil parted! A Dybbuk Letter has manifested in your Mailbox.',
       letter: newLetter
     });
   } catch (error) {
@@ -1497,7 +1497,7 @@ router.post('/dybbuk/auto-check', async (req, res) => {
 
     res.json({
       manifested: true,
-      message: '👻 Dybbuk Mode has summoned a spectral letter into thy Mailbox!',
+      message: '👻 Dybbuk Mode has summoned a spectral letter into your Mailbox!',
       letter: newLetter
     });
   } catch (error) {
@@ -1515,13 +1515,13 @@ const SCHRODINGER_MOOD_PROFILES = {
       mood: 'angry',
       label: 'Fiery & Indignant',
       icon: '⚡',
-      transform: (base) => `[TIMELINE α - THE FIERY RECKONING]\n\nBy heaven and the searing stars, my patience hath evaporated like dew before the midday sun!\n\n${base}\n\nI shall brook no excuses nor half-hearted parleys. Let history record that I wrote with thunder in my blood and lightning upon my quill!`
+      transform: (base) => `[TIMELINE α - THE FIERY RECKONING]\n\nBy heaven and the searing stars, my patience has evaporated like dew before the midday sun!\n\n${base}\n\nI shall brook no excuses nor half-hearted parleys. Let history record that I wrote with thunder in my blood and lightning upon my quill!`
     },
     happy: {
       mood: 'happy',
       label: 'Exultant & Merry',
       icon: '☀️',
-      transform: (base) => `[TIMELINE β - THE JUBILANT CELEBRATION]\n\nRejoice, cherished soul, for my spirit dances like a lark at the golden gates of dawn!\n\n${base}\n\nMay fortune shower thee with boundless prosperity, and may our goblets overflow with nectar and laughter!`
+      transform: (base) => `[TIMELINE β - THE JUBILANT CELEBRATION]\n\nRejoice, cherished soul, for my spirit dances like a lark at the golden gates of dawn!\n\n${base}\n\nMay fortune shower you with boundless prosperity, and may our goblets overflow with nectar and laughter!`
     },
     grief: {
       mood: 'grief',
@@ -1539,13 +1539,13 @@ const SCHRODINGER_MOOD_PROFILES = {
       mood: 'mystical',
       label: 'Quantum Paradox & Esoteric',
       icon: '🌌',
-      transform: (base) => `[TIMELINE ε - THE QUANTUM OBSERVATION]\n\nBetween the ticking of the clock and the eternal silence of the multiverse, all outcomes existed in sacred equilibrium...\n\n${base}\n\nBefore thy hand broke this quantum wax seal, this epistle lived across five dimensions simultaneously. Now, observation hath collapsed the wave.`
+      transform: (base) => `[TIMELINE ε - THE QUANTUM OBSERVATION]\n\nBetween the ticking of the clock and the eternal silence of the multiverse, all outcomes existed in sacred equilibrium...\n\n${base}\n\nBefore your hand broke this quantum wax seal, this letter lived across five dimensions simultaneously. Now, observation has collapsed the wave.`
     },
     romantic: {
       mood: 'romantic',
       label: 'Devoted & Poetic',
       icon: '🌹',
-      transform: (base) => `[TIMELINE ζ - THE AMOROUS CONFESSION]\n\nTo the sovereign keeper of my thoughts, whose gentle grace illuminates the darkest chambers of my mind...\n\n${base}\n\nThough oceans and mountains divide our footsteps, my quill shall ever beat in secret harmony with thine.`
+      transform: (base) => `[TIMELINE ζ - THE AMOROUS CONFESSION]\n\nTo the sovereign keeper of my thoughts, whose gentle grace illuminates the darkest chambers of my mind...\n\n${base}\n\nThough oceans and mountains divide our footsteps, my quill shall ever beat in secret harmony with your.`
     }
   },
   modern: {
@@ -1633,7 +1633,7 @@ router.post('/schrodinger/summon', async (req, res) => {
     
     const variants = generateSchrodingerVariants(baseText, moods, tone || 'classical');
 
-    const superposedContent = `⚛️ [SCHRÖDINGER'S SUPERPOSITION BOX]\n\nThis missive currently exists in ${variants.length} simultaneous quantum states:\n` +
+    const superposedContent = `⚛️ [SCHRÖDINGER'S SUPERPOSITION BOX]\n\nThis letter currently exists in ${variants.length} simultaneous quantum states:\n` +
       variants.map((v, i) => ` • State ${i + 1} (${v.label}): ${v.content.slice(0, 80)}...`).join('\n') +
       `\n\nUpon unsealing, the probability wave will collapse permanently into a single timeline!`;
 
@@ -1949,7 +1949,7 @@ router.post('/bottle/toss', async (req, res) => {
     if (io) io.emit('letters-updated');
 
     res.status(201).json({
-      message: `🌊 Thy bottle was sealed with ${bottleWaxColor} wax and cast into the ocean waves!`,
+      message: `🌊 Your bottle was sealed with ${bottleWaxColor} wax and cast into the ocean waves!`,
       bottle: newBottle,
       driftDistanceKm: driftDistance,
       recipientName: isAnonymous ? 'A Distant Wanderer' : (chosenRecipient?.name || 'Someone Nearby')
@@ -2056,7 +2056,7 @@ router.post('/:id/delivery-proof/submit', async (req, res) => {
       .populate('receiverRef', 'name email')
       .populate('mailmanRef', 'name email');
 
-    if (!letter) return res.status(404).json({ message: 'Missive not found in sovereign registry' });
+    if (!letter) return res.status(404).json({ message: 'Letter not found in sovereign registry' });
 
     const authCode = `HUB-AUTH-${Date.now().toString(36).toUpperCase()}-${uuidv4().slice(0, 6).toUpperCase()}`;
 
@@ -2106,7 +2106,7 @@ router.post('/:id/delivery-proof/verify', async (req, res) => {
       .populate('receiverRef', 'name email')
       .populate('mailmanRef', 'name email xp penaltiesCount');
 
-    if (!letter) return res.status(404).json({ message: 'Missive not found in registry' });
+    if (!letter) return res.status(404).json({ message: 'Letter not found in registry' });
 
     const io = req.app.get('io');
     const mailmanId = letter.mailmanRef?._id || letter.deliveryProof?.mailmanRef;
@@ -2151,7 +2151,7 @@ router.post('/:id/delivery-proof/verify', async (req, res) => {
         if (mailmanId) {
           io.emit('mailman-notification', {
             mailmanId: mailmanId.toString(),
-            message: `🎉 Delivery Proof Authenticated by Central Hub for Missive #${letter._id.toString().slice(-6)}! +20 XP granted.`,
+            message: `🎉 Delivery Proof Authenticated by Central Hub for Letter #${letter._id.toString().slice(-6)}! +20 XP granted.`,
             letterId: letter._id
           });
         }
@@ -2205,7 +2205,7 @@ router.post('/:id/delivery-proof/verify', async (req, res) => {
         if (mailmanId) {
           io.emit('mailman-notification', {
             mailmanId: mailmanId.toString(),
-            message: `⚠️ Infraction Alert: Recipient declined delivery proof for Missive #${letter._id.toString().slice(-6)}. Penalty of -15 XP applied by Central Hub.`,
+            message: `⚠️ Infraction Alert: Recipient declined delivery proof for Letter #${letter._id.toString().slice(-6)}. Penalty of -15 XP applied by Central Hub.`,
             letterId: letter._id
           });
         }

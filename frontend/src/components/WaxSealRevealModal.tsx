@@ -77,7 +77,7 @@ export default function WaxSealRevealModal({
   const senderName = isAnonymous ? 'An Anonymous Scribe' : (letter.senderRef?.name || letter.senderName || 'A Royal Courier');
   const letterFont = letter.font || 'Cinzel';
 
-  // Action to Break Seal and Reveal Missive
+  // Action to Break Seal and Reveal Letter
   const handleBreakSeal = () => {
     if (isTimeLocked) {
       // Locked - play subtle dull thud / rattle
@@ -150,7 +150,7 @@ export default function WaxSealRevealModal({
               {/* Envelope Metadata Header */}
               <div className="relative z-10 space-y-1">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-amber-950 font-bold bg-amber-200/60 px-3 py-0.5 rounded-full border border-amber-800/30">
-                  {isTimeLocked ? '⏳ Enchanted Time Capsule' : '✦ Sealed Missive in Transit ✦'}
+                  {isTimeLocked ? '⏳ Enchanted Time Capsule' : '✦ Sealed Letter in Transit ✦'}
                 </span>
                 <p className="text-xs font-serif italic text-amber-900 mt-1">
                   Dispatched & Delivered by: <strong className="text-amber-950 font-bold text-sm">{senderName}</strong>
@@ -278,7 +278,7 @@ export default function WaxSealRevealModal({
                     style={{ backgroundColor: sealColor }}
                   />
                   <span className="text-xs font-serif uppercase tracking-widest text-[#5C3D1E] font-bold">
-                    Royal Missive • {sealName}
+                    Royal Letter • {sealName}
                   </span>
                 </div>
 
@@ -291,7 +291,7 @@ export default function WaxSealRevealModal({
                         onClose();
                       }}
                       className="p-1.5 text-stone-600 hover:text-amber-700 hover:bg-black/5 rounded transition-colors"
-                      title="Report Missive to Tribunal"
+                      title="Report Letter to Tribunal"
                     >
                       <AlertTriangle className="w-4 h-4" />
                     </button>
@@ -333,7 +333,7 @@ export default function WaxSealRevealModal({
                 </div>
               </div>
 
-              {/* Missive Body / Content Area */}
+              {/* Letter Body / Content Area */}
               <div className="p-8 sm:p-10 overflow-y-auto max-h-[60vh] space-y-6">
                 {/* Salutation */}
                 <div className="border-b border-amber-900/15 pb-4 flex items-baseline justify-between">

@@ -375,7 +375,7 @@ router.post('/:id/friends/request', async (req, res) => {
     // Check if already friends
     const alreadyFriends = user.friends.some(f => f.toString() === friend._id.toString());
     if (alreadyFriends) {
-      return res.status(400).json({ message: 'This traveller is already in thy fellowship.' });
+      return res.status(400).json({ message: 'This traveller is already in your fellowship.' });
     }
 
     // Check if user already sent a request to this person
@@ -397,7 +397,7 @@ router.post('/:id/friends/request', async (req, res) => {
       await friend.save();
 
       return res.json({
-        message: `Mutual alliance! ${friend.name} had also sent thee a request; ye are now companions.`,
+        message: `Mutual alliance! ${friend.name} had also sent you a request; ye are now companions.`,
         status: 'accepted',
         friend: { _id: friend._id, name: friend.name, email: friend.email }
       });
@@ -459,7 +459,7 @@ router.post('/:id/friends/accept', async (req, res) => {
     await requester.save();
 
     res.json({
-      message: `Bond sealed! ${requester.name} is now a companion in thy fellowship.`,
+      message: `Bond sealed! ${requester.name} is now a companion in your fellowship.`,
       friend: { _id: requester._id, name: requester.name, email: requester.email }
     });
   } catch (err) {
@@ -547,7 +547,7 @@ router.post('/:id/friends/remove', async (req, res) => {
       await friend.save();
     }
 
-    res.json({ message: 'Traveller removed from thy fellowship.' });
+    res.json({ message: 'Traveller removed from your fellowship.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error removing friend' });
@@ -708,7 +708,7 @@ router.put('/:id/dybbuk-mode', async (req, res) => {
     await user.save();
 
     res.json({
-      message: user.dybbukMode ? '👻 Dybbuk Mode Awakened! Spectral missives shall manifest periodically.' : '👻 Dybbuk Mode Quieted. The astral veil rests.',
+      message: user.dybbukMode ? '👻 Dybbuk Mode Awakened! Spectral letters shall manifest periodically.' : '👻 Dybbuk Mode Quieted. The astral veil rests.',
       dybbukMode: user.dybbukMode
     });
   } catch (err) {
@@ -795,7 +795,7 @@ router.put('/:id/mailbox-pet', async (req, res) => {
     await user.save();
 
     res.json({
-      message: `Thy loyal ${pet === 'none' ? 'sentry has retired' : pet + ' companion'} is now perched at thy mailbox!`,
+      message: `Your loyal ${pet === 'none' ? 'sentry has retired' : pet + ' companion'} is now perched at your mailbox!`,
       mailboxPet: user.mailboxPet
     });
   } catch (err) {

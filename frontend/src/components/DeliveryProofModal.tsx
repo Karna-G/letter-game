@@ -59,7 +59,7 @@ export const DeliveryProofModal: React.FC<DeliveryProofModalProps> = ({
         setResultStatus('idle');
       }, 2000);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to authenticate delivery with Central Hub');
+      setErrorMessage(err.message || 'Could not authenticate delivery with Central Hub');
     } finally {
       setSubmitting(false);
     }
@@ -87,7 +87,7 @@ export const DeliveryProofModal: React.FC<DeliveryProofModalProps> = ({
         setResultStatus('idle');
       }, 2500);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to report delivery decline');
+      setErrorMessage(err.message || 'Could not report delivery decline');
     } finally {
       setSubmitting(false);
     }
@@ -141,7 +141,7 @@ export const DeliveryProofModal: React.FC<DeliveryProofModalProps> = ({
                 ✦ Delivery Authenticated ✦
               </h4>
               <p className="text-sm text-[#EEDC82]/80 max-w-sm mx-auto">
-                The Central Hub hath validated thy identity. Missive safely sealed in thy Mailbox and +20 XP awarded to Courier {data.mailmanName || 'Royal Mailman'}.
+                The Central Hub has validated your identity. Letter safely sealed in your mailbox and +20 XP awarded to Courier {data.mailmanName || 'Royal Mailman'}.
               </p>
             </motion.div>
           ) : resultStatus === 'declined' ? (
@@ -157,7 +157,7 @@ export const DeliveryProofModal: React.FC<DeliveryProofModalProps> = ({
                 ⚠️ Delivery Rejected & Penalized
               </h4>
               <p className="text-sm text-[#EEDC82]/80 max-w-sm mx-auto">
-                Central Hub has flagged this misdelivery. Courier {data.mailmanName || 'Royal Mailman'} hath received a formal penalty (-15 XP).
+                Central Hub has flagged this misdelivery. Courier {data.mailmanName || 'Royal Mailman'} has received a formal penalty (-15 XP).
               </p>
             </motion.div>
           ) : (
@@ -189,7 +189,7 @@ export const DeliveryProofModal: React.FC<DeliveryProofModalProps> = ({
                 </div>
 
                 <div className="text-xs bg-[#2B1B17]/60 p-2.5 rounded border border-[#D4AF37]/20 text-[#EEDC82]/90 italic">
-                  "By Decree of the Central Postal Hub, authenticate that thou art the intended recipient and hast received this epistle in good order."
+                  "By decree of the Central Postal Hub: confirm that you are the intended recipient and that this letter reached you in good order."
                 </div>
               </div>
 
@@ -209,7 +209,7 @@ export const DeliveryProofModal: React.FC<DeliveryProofModalProps> = ({
                   <textarea
                     value={declineReason}
                     onChange={(e) => setDeclineReason(e.target.value)}
-                    placeholder="E.g., Wrong recipient name, physical envelope damaged, courier did not present missive..."
+                    placeholder="E.g., Wrong recipient name, physical envelope damaged, courier did not present letter..."
                     rows={3}
                     className="w-full bg-[#120B09] border border-red-500/40 rounded-lg p-2.5 text-sm text-amber-100 focus:outline-none focus:border-red-400 placeholder:text-stone-500"
                   />

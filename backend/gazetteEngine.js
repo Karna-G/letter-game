@@ -39,14 +39,14 @@ function getSeasonalContext(date = new Date()) {
       leadHeading: 'Carrier Pigeons Take Flight Across Thawing Alpine Passes',
       leadContent: 'As the winter frosts recede from the highland carriage roads, the Imperial Courier Guild reports the reopening of the Great Northern Mountain Route. Scribes throughout the realm have begun dipping their quills in newly brewed elderberry inks, dispatching declarations of affection and philosophical discourse. The Postmaster reminds all correspondents that flower-scented wax seals must be properly cured before carriage dispatch.',
       weatherForecast: 'Brisk mountain breezes with intermittent April showers; pigeon flights optimal at dawn.',
-      quote: '“Let every spring missive be as sweet as newly blooming violets, and as true as a homing compass.”',
+      quote: '“Let every spring letter be as sweet as newly blooming violets, and as true as a homing compass.”',
       woodcut: 'pigeon'
     };
   } else if (month >= 5 && month <= 7) {
     return {
       season: 'Summer',
       editionTitle: 'The Midsummer Solstice & Maritime Dispatches',
-      leadHeading: 'Ocean Bottle Missives Wash Ashore Along the Southern Archipelago',
+      leadHeading: 'Ocean Bottle Letters Wash Ashore Along the Southern Archipelago',
       leadContent: 'Lighthouse keepers along the Western Cliffs report an unprecedented tide of wax-sealed glass bottles bearing curious poetic fragments from distant shores. The Royal Admiralty has declared that all drifted messages belong to the Sovereign Archive, though citizens may uncork them at the nearest coastal post tavern. Couriers are cautioned against riding during peak noon heat without water rations for their steeds.',
       weatherForecast: 'Golden coastal sunshine; light maritime trade winds favorable for transatlantic packet ships.',
       quote: '“The ocean keeps no secrets that a patient beachcomber and a sharp corkscrew cannot unveil.”',
@@ -83,7 +83,7 @@ const POSTAL_STORIES_POOL = [
     category: 'Postal Mystery',
     headline: 'The Curious Case of the Vanishing Courier of Dover Road',
     leadHeading: 'A Sealed Mailbag Discovered Intact in an Ancient Hollow Oak',
-    leadContent: 'Late yesterday evening, a woodcutter in the Whispering Forest happened upon a brass-buckled mailbag bearing the royal seal of 1794. Inside, twenty-four perfectly preserved missives were discovered, their wax seals untouched by time or moisture. The letters have been conveyed to the High Postmaster for immediate cataloging, while scholars debate whether the courier succumbed to fairy enchantments or merely retired to become a cider merchant.',
+    leadContent: 'Late yesterday evening, a woodcutter in the Whispering Forest happened upon a brass-buckled mailbag bearing the royal seal of 1794. Inside, twenty-four perfectly preserved letters were discovered, their wax seals untouched by time or moisture. The letters have been conveyed to the High Postmaster for immediate cataloging, while scholars debate whether the courier succumbed to fairy enchantments or merely retired to become a cider merchant.',
     woodcut: 'wax_seal',
     quote: '“Time may delay the carriage, but the post always arrives at its destiny.”'
   },
@@ -98,7 +98,7 @@ const POSTAL_STORIES_POOL = [
   {
     category: 'Celestial Dispatch',
     headline: 'Nocturnal Owls Appointed as Official Night Airmail Couriers',
-    leadHeading: 'Midnight Epistles Delivered Under the Gleam of the Crescent Moon',
+    leadHeading: 'Midnight Letters Delivered Under the Gleam of the Crescent Moon',
     leadContent: 'The Royal Aviary has officially sanctioned a corps of trained Midnight Owls to accompany nocturnal mailmen on dangerous wilderness trails. Equipped with brass message cylinders fastened to their talons, these silent sentinels can glide over impassable ravines and drop urgent decrees directly onto receiver balconies. Citizens are requested not to leave open hearth fires where owls may roost.',
     woodcut: 'owl',
     quote: '“Under the watchful eye of the owl, no secret is lost to the dark.”'
@@ -181,7 +181,7 @@ async function checkAndGenerateGazettes(userId) {
         communityHighlights: [
           {
             title: 'Sovereign Scriptorium Report',
-            body: `Over ${Math.max(12, lettersSentCount * 3 + 18)} missives have crossed the realm borders this fortnight. Scribes of all stations continue to preserve the immortal craft of handwritten epistles.`
+            body: `Over ${Math.max(12, lettersSentCount * 3 + 18)} letters have crossed the realm borders this fortnight. Scribes of all stations continue to preserve the immortal craft of handwritten letters.`
           },
           {
             title: 'Notice Regarding Sealing Wax Quality',
@@ -190,7 +190,7 @@ async function checkAndGenerateGazettes(userId) {
         ],
         userPostalJourney: {
           ...userJourneyData,
-          milestoneAchieved: lettersSentCount >= 1 ? `Inscribed ${lettersSentCount} Realm Missive${lettersSentCount === 1 ? '' : 's'}` : 'Embarked upon the Epistolary Pilgrimage'
+          milestoneAchieved: lettersSentCount >= 1 ? `Inscribed ${lettersSentCount} Realm Letter${lettersSentCount === 1 ? '' : 's'}` : 'Embarked upon the Epistolary Pilgrimage'
         },
         fictionalPostalClassifieds: selectedClassifieds,
         isRead: false
@@ -218,8 +218,8 @@ async function checkAndGenerateGazettes(userId) {
           category: 'Milestone Decree',
           weatherForecast: 'Golden celebratory beams shining over the Scriptorium.',
           leadStory: {
-            heading: 'Five Missives Dispatched: The Mark of a Master Correspondent',
-            content: `The Grand Registry of Scribes notes with great pride that noble citizen ${user.name} has dispatched five sealed epistles across our postal routes. In an age of fleeting words, such dedication to the written parchment brings honor to our entire fellowship. May thy ink never run dry!`,
+            heading: 'Five Letters Dispatched: The Mark of a Master Correspondent',
+            content: `The Grand Registry of Scribes notes with great pride that noble citizen ${user.name} has dispatched five sealed letters across our postal routes. In an age of fleeting words, such dedication to the written parchment brings honor to our entire fellowship. May your ink never run dry!`,
             woodcutIllustration: 'wax_seal'
           },
           editorialQuote: {
@@ -234,7 +234,7 @@ async function checkAndGenerateGazettes(userId) {
           ],
           userPostalJourney: {
             ...userJourneyData,
-            milestoneAchieved: '🏆 Quill of Diligence (5 Dispatched Epistles)'
+            milestoneAchieved: '🏆 Quill of Diligence (5 Dispatched Letters)'
           },
           fictionalPostalClassifieds: [...CLASSIFIEDS_POOL].slice(0, 2),
           isRead: false

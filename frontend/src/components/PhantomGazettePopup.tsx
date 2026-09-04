@@ -41,7 +41,7 @@ export default function PhantomGazettePopup() {
     navigate('/notice-board');
   };
 
-  // Only show the launcher if on "Thy Ledger" (the root route '/') and there is an unread notice
+  // Only show the launcher if on "My Desk" (the root route '/') and there is an unread notice
   if (location.pathname !== '/' || !hasUnread) {
     return null;
   }

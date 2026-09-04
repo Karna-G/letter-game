@@ -44,11 +44,11 @@ export const NotificationChronicleDrawer: React.FC<NotificationChronicleDrawerPr
 
   return (
     <div className="relative" ref={drawerRef}>
-      {/* Missive Radar Range Trigger Button in Navbar */}
+      {/* Letter Radar Range Trigger Button in Navbar */}
       <button
         onClick={handleOpen}
         className="relative p-2 rounded-sm text-[var(--antique-gold)] hover:text-amber-200 transition-all hover:bg-white/5 flex items-center justify-center group"
-        title="Missive Range Radar & Dispatch Alerts"
+        title="Letter Range Radar & Dispatch Alerts"
       >
         <Radio className="w-4 h-4 group-hover:scale-110 transition-transform text-amber-300" />
         {unreadCount > 0 && (
@@ -114,10 +114,10 @@ export const NotificationChronicleDrawer: React.FC<NotificationChronicleDrawerPr
                 <div className="py-8 text-center px-4">
                   <Compass className="w-8 h-8 mx-auto text-amber-500/40 mb-2 animate-spin-slow" />
                   <p className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-                    No mailmen currently in thy immediate perimeter.
+                    No couriers are near you right now.
                   </p>
                   <p className="text-[10px] text-amber-200/50 mt-1">
-                    When a Royal Mailman approaches thy coordinates, logs will manifest here.
+                    When a courier comes close to you, the alert will appear here.
                   </p>
                 </div>
               ) : (
@@ -136,7 +136,7 @@ export const NotificationChronicleDrawer: React.FC<NotificationChronicleDrawerPr
                     </div>
 
                     <p className="text-[11px] italic leading-tight mb-2" style={{ color: 'var(--gold-muted)' }}>
-                      {al.message || `Traversed into thy alert radius.`}
+                      {al.message || `Came within your alert radius.`}
                     </p>
 
                     <div className="flex items-center justify-between text-[10px] text-amber-200/50">

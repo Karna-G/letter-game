@@ -40,6 +40,7 @@ import {
 } from '../utils/storyVideoExporter';
 import { waxSealAudio } from '../utils/waxSealAudio';
 import { updateLetter, sendLetter } from '../api';
+import { notify } from '../components/RealmDialog';
 
 interface SocialTeaserModalProps {
   isOpen: boolean;
@@ -82,7 +83,7 @@ const CLUE_PRESETS = [
   '“A secret waiting until the appointed solar hour.”',
   '“Bound by honor and sealed in molten wax.”',
   '“Containeth sentiments never spoken aloud.”',
-  '“Thou shalt know thy fate upon arrival.”'
+  '“You shall know your fate upon arrival.”'
 ];
 
 export default function SocialTeaserModal({
@@ -188,7 +189,7 @@ export default function SocialTeaserModal({
           };
         }
       } catch (e) {
-        console.warn('Failed to load real QR canvas', e);
+        console.warn('Could not load real QR canvas', e);
       }
     }, 150);
     return () => clearTimeout(timer);
@@ -242,7 +243,7 @@ export default function SocialTeaserModal({
         sealColor,
         sealIcon,
         includeQr,
-        appWatermark: 'guild-post.app • Sealed Missive',
+        appWatermark: 'guild-post.app • Sealed Letter',
         soundEnabled
       };
 
@@ -285,7 +286,7 @@ export default function SocialTeaserModal({
     sealColor,
     sealIcon,
     includeQr,
-    appWatermark: 'guild-post.app • Sealed Missive',
+    appWatermark: 'guild-post.app • Sealed Letter',
     soundEnabled
   });
 
@@ -305,7 +306,7 @@ export default function SocialTeaserModal({
       triggerFileDownload(blob, `royal_missive_story_${Date.now()}.webm`);
       setTimeout(() => setExportProgress(null), 3500);
     } catch (e: any) {
-      alert('Video export error: ' + e.message);
+      notify.error('Video export error: ' + e.message);
       setExportProgress(null);
     }
   };
@@ -318,7 +319,7 @@ export default function SocialTeaserModal({
       const { blob } = await exportStoryImage(config, qrImageRef.current);
       triggerFileDownload(blob, `royal_missive_story_${Date.now()}.png`);
     } catch (e: any) {
-      alert('Image export error: ' + e.message);
+      notify.error('Image export error: ' + e.message);
     }
   };
 
@@ -331,8 +332,8 @@ export default function SocialTeaserModal({
       const shared = await shareToSocialStory(
         blob,
         `royal_missive_story_${Date.now()}.png`,
-        '👑 A Royal Missive is in Transit!',
-        `A sealed missive approaches for ${recipientName || 'Someone Special'}!`
+        '👑 A Royal Letter is in Transit!',
+        `A sealed letter approaches for ${recipientName || 'Someone Special'}!`
       );
       if (shared) {
         setCopiedNotification(true);
@@ -356,7 +357,7 @@ export default function SocialTeaserModal({
         triggerFileDownload(blob, 'royal_missive_story.png');
       }
     } catch (e: any) {
-      alert('Copy error: ' + e.message);
+      notify.error('Copy error: ' + e.message);
     }
   };
 
@@ -401,7 +402,7 @@ export default function SocialTeaserModal({
     }
   };
 
-  // Action: Seal & Dispatch Missive with Herald's Sealed-Until Hour
+  // Action: Seal & Dispatch Letter with Herald's Sealed-Until Hour
   const handleDispatchLetter = async () => {
     setDispatchLoading(true);
     setDispatchError(null);
@@ -418,7 +419,7 @@ export default function SocialTeaserModal({
 
       const payload: any = {
         receiverRef: effectiveReceiver,
-        content: letter?.content || (letter?.isHandwritten ? `[Physical Handwritten Letter - ${letter?.handwrittenPages?.length || 1} Pages]` : 'Royal Missive'),
+        content: letter?.content || (letter?.isHandwritten ? `[Physical Handwritten Letter - ${letter?.handwrittenPages?.length || 1} Pages]` : 'Royal Letter'),
         type: 'standard',
         status: 'pending',
         burnAfterReading: !!letter?.burnAfterReading,
@@ -469,8 +470,8 @@ export default function SocialTeaserModal({
       onUpdateScheduledTime?.(targetUnlockDate);
       onLetterDispatched?.(res);
     } catch (e: any) {
-      console.error('Failed to dispatch letter from story herald:', e);
-      setDispatchError(e.message || 'Failed to dispatch letter');
+      console.error('Could not dispatch letter from story herald:', e);
+      setDispatchError(e.message || 'Could not dispatch letter');
     } finally {
       setDispatchLoading(false);
     }
@@ -519,13 +520,13 @@ export default function SocialTeaserModal({
                   className="text-xl sm:text-2xl font-bold tracking-wider text-[#FAF0E6] flex items-center gap-2"
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
-                  Sealed Missive Story Herald
+                  Sealed Letter Story Herald
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 font-sans uppercase">
                     9:16 Royal Story
                   </span>
                 </h2>
                 <p className="text-xs text-[#D2B48C]/80 font-serif">
-                  Inscribe an animated royal story dispatch for thy fellow scribes across the realm
+                  Make an animated story card to share with friends outside the realm
                 </p>
               </div>
             </div>
@@ -731,7 +732,7 @@ export default function SocialTeaserModal({
                         <div>
                           <p className="text-xs font-bold text-[#FAF0E6]">Include Real Scannable QR Sticker</p>
                           <p className="text-[11px] text-[#D2B48C]/70">
-                            Real scannable barcode linking viewers directly to open or track this missive
+                            Real scannable barcode linking viewers directly to open or track this letter
                           </p>
                         </div>
                         <button
@@ -776,7 +777,7 @@ export default function SocialTeaserModal({
                           <Clock className="w-3.5 h-3.5 text-amber-400" />
                           <span>Sealed Until Quick Presets</span>
                         </h4>
-                        <span className="text-[10px] text-amber-300 font-serif">Syncs with Missive Unlock Timer</span>
+                        <span className="text-[10px] text-amber-300 font-serif">Syncs with Letter Unlock Timer</span>
                       </div>
                       <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
                         {[
@@ -843,7 +844,7 @@ export default function SocialTeaserModal({
                         </span>
                       </div>
                       <p className="text-[11px] text-[#D2B48C]/90 italic font-serif">
-                        Dispatching now will affix thy wax seal and lock this missive for the recipient until the appointed hour.
+                        Sending now seals the letter with your wax. The recipient cannot open it until the time you set.
                       </p>
                       <button
                         type="button"
@@ -960,7 +961,7 @@ export default function SocialTeaserModal({
                   className="bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs px-4 py-2 rounded-xl flex items-center gap-2"
                 >
                   <Check className="w-4 h-4 text-emerald-400" />
-                  <span>Missive story copied to clipboard or shared to thy device!</span>
+                  <span>Story card copied to your clipboard — ready to share.</span>
                 </motion.div>
               )}
 
@@ -977,7 +978,7 @@ export default function SocialTeaserModal({
 
               {/* ── ACTION BUTTONS: PRIMARY SEAL & DISPATCH + EXPORT SUITE ── */}
               <div className="space-y-2.5 pt-2">
-                {/* Primary Button: Seal & Dispatch Missive with the Sealed-Until Value */}
+                {/* Primary Button: Seal & Dispatch Letter with the Sealed-Until Value */}
                 <button
                   onClick={handleDispatchLetter}
                   disabled={dispatchLoading}
@@ -1066,7 +1067,7 @@ export default function SocialTeaserModal({
                       Epistle Sealed & Dispatched!
                     </h3>
                     <p className="text-xs italic text-amber-300/80 font-serif mt-0.5">
-                      Thy missive is inscribed into the Sovereign High Post Registry.
+                      Your letter is recorded in the High Post Registry.
                     </p>
                   </div>
 
@@ -1142,7 +1143,7 @@ export default function SocialTeaserModal({
                       className="w-full py-2.5 rounded-xl font-bold text-xs bg-[#2A1F16] border border-amber-500/40 text-amber-200 hover:bg-[#3A2A1E] flex items-center justify-center gap-2"
                       style={{ fontFamily: "'Cinzel', serif" }}
                     >
-                      <span>📜 View Sent Missives</span>
+                      <span>📜 View Sent Letters</span>
                     </button>
 
                     <button

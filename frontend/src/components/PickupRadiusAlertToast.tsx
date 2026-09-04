@@ -159,7 +159,7 @@ export const PickupRadiusAlertToast: React.FC<PickupRadiusAlertToastProps> = ({
           {/* Mailman Rank & Status Description */}
           <div className="mb-4 text-xs leading-relaxed" style={{ color: 'var(--gold-muted)' }}>
             <p className="italic">
-              {alert.message || `Royal Mailman ${alert.mailmanName} (${alert.mailmanRank || 'Mailman'}) has traversed into thy designated alert perimeter.`}
+              {alert.message || `Royal Mailman ${alert.mailmanName} (${alert.mailmanRank || 'Mailman'}) has come within your alert range.`}
             </p>
             
             {alert.pendingCount && alert.pendingCount > 0 ? (
@@ -173,7 +173,7 @@ export const PickupRadiusAlertToast: React.FC<PickupRadiusAlertToastProps> = ({
                 <div className="flex items-center gap-2">
                   <Feather className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} />
                   <span className="text-xs font-bold" style={{ color: 'var(--parchment)', fontFamily: "'Cinzel', serif" }}>
-                    {alert.pendingCount} Missive{alert.pendingCount !== 1 ? 's' : ''} Ready for Hand-off
+                    {alert.pendingCount} Letter{alert.pendingCount !== 1 ? 's' : ''} Ready for Hand-off
                   </span>
                 </div>
                 <span className="text-[10px] text-amber-200/70">Awaiting Saddlebag</span>

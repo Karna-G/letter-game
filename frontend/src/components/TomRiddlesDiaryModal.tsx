@@ -361,7 +361,7 @@ export const TomRiddlesDiaryModal: React.FC<TomRiddlesDiaryModalProps> = ({
                   <div className="p-2.5 rounded-xl bg-[#140D0A] border border-[#D4AF37]/20 text-xs">
                     {isMyTurn ? (
                       <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
-                        <Unlock className="w-4 h-4" /> Thou art holding the Quill!
+                        <Unlock className="w-4 h-4" /> You have the quill — it is your turn to write
                       </span>
                     ) : isSomeoneElseWriting ? (
                       <span className="text-amber-400 font-semibold flex items-center gap-1.5">
@@ -396,7 +396,7 @@ export const TomRiddlesDiaryModal: React.FC<TomRiddlesDiaryModalProps> = ({
                     </span>
                   ) : isMyTurn ? (
                     <span className="text-emerald-800 font-bold">
-                      ✍️ Thou art inking the page. Press Inscribe to submit.
+                      ✍️ You are writing. Press Submit when you are done.
                     </span>
                   ) : (
                     <span>The parchment awaits words...</span>
@@ -473,7 +473,7 @@ export const TomRiddlesDiaryModal: React.FC<TomRiddlesDiaryModalProps> = ({
                       ref={inputRef}
                       value={inputText}
                       onChange={handleInputChange}
-                      placeholder="Inscribe thy words upon the diary... (e.g. 'Hello, dost thou hear me?')"
+                      placeholder="Write on the diary… (e.g. 'Hello, can you hear me?')"
                       rows={4}
                       className="w-full bg-transparent border-b-2 border-[#8B5A2B]/40 focus:border-[#4A2E1B] p-4 text-2xl sm:text-3xl text-[#1A0F08] placeholder:text-[#8B5A2B]/30 focus:outline-none resize-none text-center font-bold"
                       style={{ fontFamily: "'Dancing Script', 'Alex Brush', cursive" }}

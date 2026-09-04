@@ -92,7 +92,7 @@ export default function HandwrittenLetterPaper({
         {/* Top Postal Header Bar */}
         <div className="w-full flex items-center justify-between text-xs font-serif italic text-amber-900/80 px-2">
           <span>
-            {dateStr ? `Inscribed on ${dateStr}` : 'Authentic Physical Missive'}
+            {dateStr ? `Inscribed on ${dateStr}` : 'Authentic Physical Letter'}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -143,7 +143,7 @@ export default function HandwrittenLetterPaper({
           {activePageIndex === totalPages - 1 && (
             <div className="absolute bottom-4 right-6 text-right pointer-events-none">
               <span className="text-xs font-serif italic text-stone-800 block">
-                — {isAnonymous ? 'An Anonymous Soul' : (senderName || 'Thy Correspondent')}
+                — {isAnonymous ? 'An Anonymous Soul' : (senderName || 'Your Correspondent')}
               </span>
             </div>
           )}
@@ -221,14 +221,14 @@ export default function HandwrittenLetterPaper({
 
       {/* Content */}
       <div className="whitespace-pre-wrap leading-relaxed">
-        {content || '(Blank Handwritten Missive)'}
+        {content || '(Blank Handwritten Letter)'}
       </div>
 
       {/* Signature */}
       <div className="mt-8 text-right text-xl font-medium pt-3 border-t border-amber-900/10">
         With solemn quill,<br />
         <span className="font-bold text-2xl mt-1 block">
-          {isAnonymous ? 'An Anonymous Soul' : (senderName || 'Thy Noble Self')}
+          {isAnonymous ? 'An Anonymous Soul' : (senderName || 'Your Noble Self')}
         </span>
       </div>
     </div>

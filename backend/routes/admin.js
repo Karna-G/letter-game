@@ -34,7 +34,7 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// 3. The Overseer's Log (Upgraded to fetch actual names for all missives)
+// 3. The Overseer's Log (Upgraded to fetch actual names for all letters)
 router.get('/letters', async (req, res) => {
   try {
     const recentLetters = await Letter.find()

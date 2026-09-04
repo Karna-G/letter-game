@@ -82,11 +82,11 @@ export default function LetterTransferModal({ handover, onClose }: Props) {
           {/* Header Title & Stage Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] uppercase tracking-[0.2em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
             <Sparkles className="w-3 h-3 text-amber-300" />
-            <span>{isPickup ? '✦ Royal Saddlebag Pickup Handover ✦' : '✦ Sovereign Mailbox Handover ✦'}</span>
+            <span>{isPickup ? '✦ Courier Pickup ✦' : '✦ Handover to Mailbox ✦'}</span>
           </div>
 
           <h3 className="text-xl sm:text-2xl font-bold tracking-wide mb-1" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
-            Missive Transfer In Progress
+            Letter Transfer In Progress
           </h3>
           <p className="text-xs sm:text-sm italic text-amber-200/80 font-serif mb-6">
             {handover.message || `${handover.transferredFrom} → ${handover.transferredTo}`}

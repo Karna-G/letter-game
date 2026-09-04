@@ -26,7 +26,7 @@ export default function DeadLetterOfficePage() {
       arr.sort((a, b) => new Date(b.abandonedAt || b.createdAt || 0).getTime() - new Date(a.abandonedAt || a.createdAt || 0).getTime());
       setDeadLetters(arr);
     } catch (e) {
-      console.error("Failed to load Dead Letter Office:", e);
+      console.error("Could not load Dead Letter Office:", e);
     } finally {
       setLoading(false);
     }
@@ -126,16 +126,16 @@ export default function DeadLetterOfficePage() {
               The Dead Letter Office
             </h1>
             <p className="text-sm sm:text-base italic mt-1 font-serif" style={{ color: 'var(--gold-muted)' }}>
-              Ignored, undelivered, and forsaken missives preserved in a public archive for all scholars of the realm to read.
+              Letters that were ignored, never delivered, or abandoned by their owners — kept in a public archive for anyone to read.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             <Link to="/mailbox" className="btn-gold-saloon text-xs py-2 px-4 flex items-center gap-1.5 shadow">
-              <Inbox className="w-4 h-4 text-amber-500" /> Thy Mailbox
+              <Inbox className="w-4 h-4 text-amber-500" /> Your Mailbox
             </Link>
             <Link to="/" className="btn-velvet-burgundy text-xs py-2 px-4 shadow">
-              ← Thy Ledger
+              ← My Desk
             </Link>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function DeadLetterOfficePage() {
         <div className="p-4 sm:p-5 mb-6 rounded-sm flex items-start gap-3.5" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)' }}>
           <Sparkles className="w-6 h-6 flex-shrink-0 text-amber-400 mt-0.5" />
           <div className="text-xs sm:text-sm leading-relaxed" style={{ color: 'var(--parchment-light)' }}>
-            <strong className="text-amber-300 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>The Law of Abandoned Inscriptions:</strong> When a recipient chooses to release a missive from their private mailbox, or when an epistle wanders unclaimed across realm borders, it is gently deposited upon these hallowed pigeonholes. Any traveler may unroll, ponder, and learn from these lost words.
+            <strong className="text-amber-300 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>The Law of Abandoned Inscriptions:</strong> When someone releases a letter from their mailbox, or a letter goes unclaimed too long, it is placed here in these pigeonholes. Anyone may open it, read it, and make of it what they will.
           </div>
         </div>
 
@@ -153,7 +153,7 @@ export default function DeadLetterOfficePage() {
           <div className="relative">
             <input 
               type="text" 
-              placeholder="Search forsaken scrolls by phrase, sender, realm origin, or abandonment notes..." 
+              placeholder="Search by phrase, sender, origin, or why it was abandoned…" 
               value={searchQuery} 
               onChange={(e) => { setSearchQuery(e.target.value); setVisibleCount(5); }} 
               className="w-full p-3.5 pl-11 rounded-sm text-base sm:text-lg font-serif italic focus:outline-none transition-all shadow-inner"
@@ -170,7 +170,7 @@ export default function DeadLetterOfficePage() {
         {/* Filter Tabs */}
         <div className="flex flex-wrap gap-2 mb-6" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
           {[
-            { key: 'all', label: 'All Forsaken Scrolls', count: deadLetters.length },
+            { key: 'all', label: 'All Dead Letters', count: deadLetters.length },
             { key: 'standard', label: 'Classic Epistles', count: deadLetters.filter(l => l.type === 'standard' || !l.type).length },
             { key: 'dybbuk', label: 'Spectral Shards', count: deadLetters.filter(l => l.type === 'dybbuk' || l.type === 'dibbyuk').length },
             { key: 'schrodinger', label: 'Quantum Collapses', count: deadLetters.filter(l => l.type === 'schrodinger').length },
@@ -201,8 +201,8 @@ export default function DeadLetterOfficePage() {
         ) : filteredLetters.length === 0 ? (
           <div className="text-center py-16 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
             <Archive className="w-12 h-12 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }} />
-            <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No abandoned missives found in this archive partition.</p>
-            <p className="text-sm mt-1 italic font-serif">When citizens abandon missives from their mailbox, they will be archived here for all to view.</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No dead letters here yet.</p>
+            <p className="text-sm mt-1 italic font-serif">When someone abandons a letter from their mailbox, it appears here for everyone to read.</p>
           </div>
         ) : (
           <>
@@ -316,7 +316,7 @@ export default function DeadLetterOfficePage() {
             {/* ── Pagination / Load More Controls ── */}
             <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
               <p className="text-xs sm:text-sm font-mono" style={{ color: 'var(--gold-muted)' }}>
-                Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredLetters.length)}</strong> of <strong className="text-amber-300">{filteredLetters.length}</strong> forsaken missives (Latest to Oldest)
+                Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredLetters.length)}</strong> of <strong className="text-amber-300">{filteredLetters.length}</strong> dead letters (newest first)
               </p>
               
               <div className="flex flex-wrap items-center gap-2.5">
@@ -325,7 +325,7 @@ export default function DeadLetterOfficePage() {
                     onClick={() => setVisibleCount(c => c + 5)}
                     className="btn-gold-saloon text-xs py-2 px-5 shadow"
                   >
-                    See More (+5 Missives)
+                    See More (+5 Letters)
                   </button>
                 )}
                 {visibleCount < filteredLetters.length && (
@@ -369,7 +369,7 @@ export default function DeadLetterOfficePage() {
                   </div>
 
                   <h3 className="text-xl sm:text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: '#3A1F04' }}>
-                    {openLetter.type === 'bottle' ? (openLetter.bottleMoniker || 'Ocean Castaway Scroll') : `Missive from ${openLetter.senderRef?.name || openLetter.spectralSender?.name || 'A Lost Author'}`}
+                    {openLetter.type === 'bottle' ? (openLetter.bottleMoniker || 'Ocean Castaway Scroll') : `Letter from ${openLetter.senderRef?.name || openLetter.spectralSender?.name || 'A Lost Author'}`}
                   </h3>
 
                   <p className="text-xs italic mb-4" style={{ color: '#78350F' }}>

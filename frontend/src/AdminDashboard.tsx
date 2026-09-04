@@ -8,6 +8,7 @@ import manuscriptQuillDesk from './assets/manuscript_quill_desk.jpg';
 import CentralHubRegistryModal from './components/CentralHubRegistryModal';
 import LetterEnvelopeWrapper from './components/LetterEnvelopeWrapper';
 import HandwrittenLetterPaper from './components/HandwrittenLetterPaper';
+import { notify } from './components/RealmDialog';
 
 export default function AdminDashboard() {
   const [showHubProofsModal, setShowHubProofsModal] = useState(false);
@@ -95,7 +96,7 @@ export default function AdminDashboard() {
       await fetchAdminData();
     } catch (error) {
       console.error("Error restricting user:", error);
-      alert("Failed to execute decree of restriction.");
+      notify.error("Could not execute decree of restriction.");
     } finally {
       setActionLoading(false);
     }
@@ -107,7 +108,7 @@ export default function AdminDashboard() {
       await updateReportStatus(reportId, newStatus);
       await fetchAdminData();
     } catch (e) {
-      console.error("Failed to update status", e);
+      console.error("Could not update status", e);
     } finally {
       setActionLoading(false);
     }
@@ -134,7 +135,7 @@ export default function AdminDashboard() {
       setMessageContent("");
       await fetchAdminData();
     } catch (err: any) {
-      alert("Failed to send message: " + err.message);
+      notify.error("Could not send message: " + err.message);
     } finally {
       setActionLoading(false);
     }
@@ -374,7 +375,7 @@ export default function AdminDashboard() {
                   {filteredLetters.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="p-8 text-center text-stone-400 italic font-serif">
-                        No sovereign missives found matching thy query.
+                        No letters match your search.
                       </td>
                     </tr>
                   ) : (
@@ -761,7 +762,7 @@ export default function AdminDashboard() {
 
               <div className="text-xs space-y-1">
                 <p className="text-stone-400">To Sovereign Reporter: <strong className="text-amber-300 font-bold">{messageModal.reporterName}</strong></p>
-                <p className="text-stone-400 italic">This missive will be dispatched directly to their mailbox, formally concluding the grievance.</p>
+                <p className="text-stone-400 italic">This letter will be dispatched directly to their mailbox, formally concluding the grievance.</p>
               </div>
 
               <textarea
@@ -819,7 +820,7 @@ export default function AdminDashboard() {
                     ✦ Tribunal Intercept Transcript ✦
                   </span>
                   <h3 className="text-xl sm:text-2xl font-bold mt-2" style={{ fontFamily: "'Cinzel', serif", color: '#3A1F04' }}>
-                    {selectedLetter.type === 'bottle' ? 'Intercepted Ocean Bottle' : selectedLetter.type === 'dybbuk' ? 'Spectral Dybbuk Missive' : selectedLetter.type === 'schrodinger' ? 'Schrödinger Box Transcript' : 'Intercepted Letter'}
+                    {selectedLetter.type === 'bottle' ? 'Intercepted Ocean Bottle' : selectedLetter.type === 'dybbuk' ? 'Spectral Dybbuk Letter' : selectedLetter.type === 'schrodinger' ? 'Schrödinger Box Transcript' : 'Intercepted Letter'}
                   </h3>
                 </div>
 
@@ -878,7 +879,7 @@ export default function AdminDashboard() {
                               fontFamily: selectedLetter.font || 'Cinzel'
                             }}
                           >
-                            {selectedLetter.content || selectedLetter.body || selectedLetter.message || "No legible text inscribed in this missive."}
+                            {selectedLetter.content || selectedLetter.body || selectedLetter.message || "No legible text inscribed in this letter."}
                           </div>
                         )}
                       </LetterEnvelopeWrapper>

@@ -100,7 +100,7 @@ export default function LetterEnvelopeWrapper({
   penStyle,
   children,
 }: LetterEnvelopeWrapperProps) {
-  const displaySender = isAnonymous ? 'An Anonymous Soul' : (senderName || 'Thy Correspondent');
+  const displaySender = isAnonymous ? 'An Anonymous Soul' : (senderName || 'Your Correspondent');
   
   // Format Date (e.g. September 3, 2026)
   const formattedDate = dateStr 

@@ -11,6 +11,7 @@ import {
   mutateLetterMood, removeLetterToTrash
 } from '../api';
 import { waxSealAudio } from '../utils/waxSealAudio';
+import { notify, confirmAction } from '../components/RealmDialog';
 
 const AVAILABLE_MOODS = [
   { id: 'angry', label: 'Fiery & Indignant', modernLabel: 'Direct & Furious', icon: '⚡', color: '#EF4444' },
@@ -75,7 +76,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
       });
       setQuantumLetters(Array.from(uniqueMap.values()));
     } catch (e) {
-      console.error('Failed to load quantum letters:', e);
+      console.error('Could not load quantum letters:', e);
     } finally {
       setLoadingHistory(false);
     }
@@ -84,13 +85,13 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
   const toggleMoodSelection = (moodId: string) => {
     if (selectedMoods.includes(moodId)) {
       if (selectedMoods.length <= 2) {
-        alert('A quantum superposition requires at least 2 alternate timelines!');
+        notify.info('Pick at least 2 moods — a Schrödinger letter needs more than one version.');
         return;
       }
       setSelectedMoods(selectedMoods.filter(m => m !== moodId));
     } else {
       if (selectedMoods.length >= 3) {
-        alert('A quantum box holds a maximum of 3 concurrent probability states.');
+        notify.info('A Schrödinger letter can hold at most 3 versions.');
         return;
       }
       setSelectedMoods([...selectedMoods, moodId]);
@@ -99,7 +100,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
 
   const handleGenerateRealities = async () => {
     if (!baseContent.trim()) {
-      alert('Pray tell, write a base thought or premise first.');
+      notify.info('Write your basic message first.');
       return;
     }
     setGeneratingVariants(true);
@@ -112,7 +113,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
         setTimeout(() => setActionMsg(null), 4000);
       }
     } catch (e: any) {
-      alert(e.message || 'Failed to synthesize quantum variants');
+      notify.error(e.message || 'Could not synthesize quantum variants');
     } finally {
       setGeneratingVariants(false);
     }
@@ -121,13 +122,13 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
   const handleDispatchQuantumBox = async (e: React.FormEvent) => {
     e.preventDefault();
     if (variants.length < 2) {
-      alert('Pray generate or define at least 2 quantum timeline states before sealing the box.');
+      notify.info('Create at least 2 versions before you seal the box.');
       return;
     }
 
     setDispatching(true);
     try {
-      const superposedContent = `⚛️ [SCHRÖDINGER'S SUPERPOSITION BOX]\n\nThis missive currently exists in ${variants.length} simultaneous quantum states:\n` +
+      const superposedContent = `⚛️ [SCHRÖDINGER'S SUPERPOSITION BOX]\n\nThis letter currently exists in ${variants.length} simultaneous quantum states:\n` +
         variants.map((v, i) => ` • State ${i + 1} (${v.label}): ${v.content.slice(0, 80)}...`).join('\n') +
         `\n\nUpon unsealing, the probability wave will collapse permanently into a single timeline!`;
 
@@ -148,7 +149,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
       await fetchQuantumLetters();
       setTimeout(() => setActionMsg(null), 5000);
     } catch (e: any) {
-      alert(e.message || 'Failed to dispatch Schrödinger Box');
+      notify.error(e.message || 'Could not dispatch Schrödinger Box');
     } finally {
       setDispatching(false);
     }
@@ -163,11 +164,11 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
         moods: selectedMoods,
         tone
       });
-      setActionMsg(`⚛️ A Quantum Superposition Box (${tone === 'modern' ? 'Modern' : 'Classical'}) hath manifested in thy Mailbox!`);
+      setActionMsg(`⚛️ A Quantum Superposition Box (${tone === 'modern' ? 'Modern' : 'Classical'}) has manifested in your mailbox!`);
       await fetchQuantumLetters();
       setTimeout(() => setActionMsg(null), 4500);
     } catch (e: any) {
-      alert(e.message || 'Failed to summon Quantum Box');
+      notify.error(e.message || 'Could not summon Quantum Box');
     } finally {
       setDispatching(false);
     }
@@ -182,7 +183,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
     }
 
     if (!sourceContent.trim()) {
-      alert('Pray select an existing letter or inscribe custom text to mutate.');
+      notify.info('Choose an existing letter, or write your own text to transform.');
       return;
     }
 
@@ -198,21 +199,21 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
       setActionMsg(`⚛️ Reality Shift Complete! Letter mutated to ${res.label} (${res.probabilityShift} probability resonance).`);
       setTimeout(() => setActionMsg(null), 5000);
     } catch (e: any) {
-      alert(e.message || 'Failed to mutate letter mood');
+      notify.error(e.message || 'Could not mutate letter mood');
     } finally {
       setMutating(false);
     }
   };
 
   const handleDeleteQuantumLetter = async (letterId: string) => {
-    if (!window.confirm("Move this quantum paradox missive to thy Guild Wastebin?")) return;
+    if (!(await confirmAction({ title: 'Move to Wastebin', message: 'Move this Schrödinger letter to your wastebin? You can restore it later.', confirmLabel: 'Move to Wastebin' }))) return;
     try {
       await removeLetterToTrash(letterId);
-      setActionMsg("Quantum missive removed to Wastebin.");
+      setActionMsg("Quantum letter removed to Wastebin.");
       setTimeout(() => setActionMsg(null), 3500);
       await fetchQuantumLetters();
     } catch (e: any) {
-      alert(e.message || "Failed to remove quantum missive");
+      notify.error(e.message || "Could not remove quantum letter");
     }
   };
 
@@ -237,7 +238,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
         fetchQuantumLetters();
       }, 1600);
     } catch (e: any) {
-      alert(e.message || 'Failed to collapse quantum wavefunction');
+      notify.error(e.message || 'Could not collapse quantum wavefunction');
       setCollapseStep('superposition');
     }
   };
@@ -252,7 +253,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
       {/* Back Navigation Bar & Tone Switcher */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
         <Link to="/" className="btn-gold-saloon text-xs py-2 px-4 flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" /> Back to Thy Scriptorium
+          <ArrowLeft className="w-4 h-4" /> Back to Writing
         </Link>
         
         {/* Language Tone Switcher */}
@@ -300,8 +301,8 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base italic leading-relaxed" style={{ color: '#BAE6FD' }}>
             {tone === 'modern'
-              ? 'Inscribe letters that exist simultaneously across 2 to 3 alternate emotional dimensions. The true message collapses permanently only when the recipient opens the box.'
-              : 'Inscribe a missive that exists simultaneously in 2 to 3 alternate emotional realities. The true timeline remains unwritten until the recipient breaks the quantum seal, collapsing the probability wave into history.'}
+              ? 'Write a letter that exists in 2 or 3 different moods at once. Which one is real is decided only when the recipient opens it.'
+              : 'Write a letter that exists in 2 or 3 emotional realities at once. Which one is real stays unwritten until the recipient breaks the seal — and then it is fixed forever.'}
           </p>
 
           {/* 3D Isometric Quantum Paradox Box with Orbitals */}
@@ -359,13 +360,13 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
               className="btn-quantum text-xs sm:text-sm py-3 px-6 flex items-center gap-2"
             >
               <Box className="w-4 h-4 text-sky-200" />
-              <span>Manifest Test Superposition Box ({tone === 'modern' ? 'Modern' : 'Classical'})</span>
+              <span>Create a Test Box ({tone === 'modern' ? 'Modern' : 'Classical'})</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Scriptorium: Inscribe Quantum Superposition Missive */}
+      {/* Scriptorium: Inscribe Quantum Superposition Letter */}
       <div className="quantum-card p-6 sm:p-10 rounded-sm space-y-6">
         <div className="pb-4" style={{ borderBottom: '1px solid rgba(56,189,248,0.3)' }}>
           <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-sm text-[11px] uppercase tracking-wider font-bold mb-2" style={{ background: '#0369A1', color: '#F0F9FF', fontFamily: "'Cinzel', serif" }}>
@@ -375,7 +376,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
             Forge Parallel Timelines
           </h2>
           <p className="text-xs sm:text-sm italic mt-1" style={{ color: '#BAE6FD' }}>
-            Choose 2 or 3 contrasting dimensional moods, enter thy base premise, and synthesize parallel universe versions.
+            Pick 2 or 3 contrasting moods, write your basic message, and we will generate a version of it for each mood.
           </p>
         </div>
 
@@ -528,7 +529,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
             Probabilistic Mood Transmutation
           </h2>
           <p className="text-xs sm:text-sm italic mt-1" style={{ color: '#BAE6FD' }}>
-            Select an existing letter from thy chronicle or paste custom text, select a target timeline mood, and let the quantum engine probabilistically shift its reality.
+            Pick one of your existing letters or paste your own text, choose the mood you want, and we will rewrite it in that mood.
           </p>
         </div>
 
@@ -537,7 +538,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
           <div className="space-y-4">
             <div>
               <label className="block text-xs uppercase tracking-wider font-bold mb-1" style={{ color: '#E0F2FE', fontFamily: "'Cinzel', serif" }}>
-                1. Select Source Missive from thy Chronicle:
+                1. Choose a letter to transform:
               </label>
               <select
                 value={mutatorSourceLetterId}
@@ -707,8 +708,8 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
         ) : quantumLetters.length === 0 ? (
           <div className="py-12 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(56,189,248,0.3)', color: '#BAE6FD' }}>
             <Box className="w-12 h-12 mx-auto mb-2 opacity-50 text-sky-400" />
-            <p className="font-bold text-base" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>No quantum paradox missives found.</p>
-            <p className="text-xs sm:text-sm mt-1 italic font-serif">Inscribe a letter above or click "Manifest Test Superposition Box" to begin experimenting with quantum observation.</p>
+            <p className="font-bold text-base" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>No Schrödinger letters yet.</p>
+            <p className="text-xs sm:text-sm mt-1 italic font-serif">Write a letter above, or click “Create a Test Box” to try it out first.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -744,7 +745,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
                           To: {l.receiverRef?.name || l.receiverRef || 'Open Courier Quest'}
                         </h4>
                         <p className="text-[11px] italic" style={{ color: '#94A3B8' }}>
-                          Dispatched by: {l.senderRef?.name || 'Thy Hand'} • {new Date(l.createdAt).toLocaleDateString()}
+                          Dispatched by: {l.senderRef?.name || 'Your Hand'} • {new Date(l.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                       
@@ -942,7 +943,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
                 <div className="flex items-center gap-2 mb-1">
                   <Atom className="w-5 h-5 text-sky-700 animate-spin" />
                   <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: '#0C4A6E' }}>
-                    {openLetter.collapsedVariant ? `Timeline: ${openLetter.collapsedVariant.label}` : 'Quantum Paradox Missive'}
+                    {openLetter.collapsedVariant ? `Timeline: ${openLetter.collapsedVariant.label}` : 'Quantum Paradox Letter'}
                   </h3>
                 </div>
                 <p className="text-xs italic mb-4" style={{ color: '#0284C7' }}>

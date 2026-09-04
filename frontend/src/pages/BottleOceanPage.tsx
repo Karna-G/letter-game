@@ -27,6 +27,7 @@ import {
 } from '../api';
 import ContinuousOceanWaves from '../components/ContinuousOceanWaves';
 import { waxSealAudio } from '../utils/waxSealAudio';
+import { notify, confirmAction } from '../components/RealmDialog';
 
 const BOTTLE_STYLES = [
   { id: 'emerald', name: 'Emerald Sea Glass', class: 'glass-bottle-emerald', color: '#10B981', desc: 'Forged from coastal seaweed and jade sands' },
@@ -43,9 +44,9 @@ const WAX_SEALS = [
 ];
 
 const BOTTLE_PROMPTS = [
-  "To whoever picks this up from the tide: I hope the storm passed above thee gently...",
+  "To whoever picks this up from the tide: I hope the storm passed above you gently...",
   "A quiet truth from Cape Horn: We search for shores, yet the open sea teaches us who we are.",
-  "If thy footsteps wander near the cliffs tonight, look out toward the beacon. Thou art not alone.",
+  "If your footsteps wander near the cliffs tonight, look out toward the beacon. You are not alone.",
   "May these salt-sprayed words bring peace to whatever shore they crash upon."
 ];
 
@@ -119,7 +120,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
   const handleCastBottle = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!content.trim()) {
-      alert("Please inscribe words onto thy parchment before casting.");
+      notify.info("Write your message before casting the bottle.");
       return;
     }
 
@@ -167,7 +168,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
           fetchBottles();
         }, 1800);
       } catch (err: any) {
-        alert(err.message || "Failed to toss bottle into the tide");
+        notify.error(err.message || "Could not toss bottle into the tide");
         setTossPromptOpen(false);
       }
     }, 3400);
@@ -191,23 +192,23 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
         fetchBottles();
       }, 1200);
     } catch (err: any) {
-      alert(err.message || "Failed to uncork bottle");
+      notify.error(err.message || "Could not uncork bottle");
       setUncorkStep('sealed');
     }
   };
 
   const handleRemoveBottle = async (id: string) => {
-    if (!window.confirm("Disintegrate this ocean relic to thy Wastebin?")) return;
+    if (!(await confirmAction({ title: 'Move to Wastebin', message: 'Move this bottle to your wastebin? You can restore it later.', confirmLabel: 'Move to Wastebin' }))) return;
     // Optimistically remove from state immediately
     setTossedBottles(prev => prev.filter(b => b._id !== id));
     setBeachedBottles(prev => prev.filter(b => b._id !== id));
     try {
       await removeLetterToTrash(id);
-      setActionMsg("Relic removed to thy Wastebin.");
+      setActionMsg("Relic removed to your wastebin.");
       setTimeout(() => setActionMsg(null), 3000);
       fetchBottles();
     } catch (err: any) {
-      alert(err.message || "Failed to remove bottle");
+      notify.error(err.message || "Could not remove bottle");
       fetchBottles();
     }
   };
@@ -260,16 +261,16 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
               Message in a Bottle
             </h1>
             <p className="text-sm md:text-base italic leading-relaxed text-sky-200/90 font-serif">
-              Toss anonymous vellum missives into the open sea. Ocean swells deliver them automatically to distant coastal shores via geographic probability.
+              Toss anonymous letters into the open sea. The tides carry them to distant shores — people nearer to you are more likely to find them.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <Link to="/mailbox" className="btn-quantum text-xs py-2 px-4 flex items-center gap-1.5" style={{ background: 'rgba(6, 95, 70, 0.6)', border: '1px solid #10B981' }}>
-              📬 Thy Mailbox
+              📬 Your Mailbox
             </Link>
             <Link to="/" className="btn-gold-saloon text-xs py-2 px-4">
-              ← Thy Ledger
+              ← My Desk
             </Link>
           </div>
         </div>
@@ -296,7 +297,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
           style={{ fontFamily: "'Cinzel', serif" }}
         >
           <Send className="w-4 h-4 text-emerald-400" />
-          <span>Tide Scriptorium (Inscribe)</span>
+          <span>Write a Bottle Note</span>
         </button>
 
         <button
@@ -341,10 +342,10 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
           }}>
             <div>
               <h3 className="text-xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: '#E0F2FE' }}>
-                Inscribe Parchment Note for the Tides
+                Write Your Note for the Tides
               </h3>
               <p className="text-xs text-sky-300/70 italic mt-0.5">
-                Keep thy missive concise (up to 500 characters). The recipient will uncork and unfurl it in thy chosen script.
+                Keep it short — up to 500 characters. Whoever finds it will uncork the bottle and read it in the script you choose.
               </p>
             </div>
 
@@ -373,7 +374,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
                 value={content}
                 maxLength={500}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Inscribe thy thoughts to the ocean... (e.g. 'To whoever finds this bottle on a distant morning...')"
+                placeholder="Write your message to the ocean… (e.g. 'To whoever finds this bottle on a distant morning…')"
                 className="w-full p-4 rounded-sm text-base font-serif italic focus:outline-none shadow-inner resize-none transition-all"
                 style={{
                   background: '#FFFDF9',
@@ -837,7 +838,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
                         }}
                         className="btn-gold-saloon flex-1 py-3 text-xs font-bold justify-center"
                       >
-                        ✦ Inscribe Another Bottle
+                        ✦ Cast Another Bottle
                       </button>
                     </div>
                   </div>
@@ -882,7 +883,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
               <div className="p-12 text-center rounded-sm bg-slate-900/30 border border-dashed border-sky-800/40 text-sky-300/60">
                 <Wind className="w-12 h-12 mx-auto mb-2 opacity-50 text-sky-400" />
                 <p className="font-bold text-base text-sky-200" style={{ fontFamily: "'Cinzel', serif" }}>
-                  No bottles currently drifting from thy shores.
+                  You have not cast any bottles yet.
                 </p>
                 <p className="text-xs italic mt-1 font-serif">
                   Cast a message in a bottle from the Scriptorium to launch it across ocean swells!
@@ -904,7 +905,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
                           </div>
                           <div>
                             <h4 className="text-sm font-bold text-sky-100" style={{ fontFamily: "'Cinzel', serif" }}>
-                              {b.bottleMoniker || 'Ocean Missive'}
+                              {b.bottleMoniker || 'Ocean Letter'}
                             </h4>
                             <p className="text-[11px] text-sky-400 font-mono">
                               Vintage: {styleObj.name}
@@ -971,7 +972,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
                   Beached Bottles Shore
                 </h3>
                 <p className="text-xs text-emerald-300/80 italic mt-0.5">
-                  Bottles washed ashore on thy coastal perimeter. Break the wax seal to unfurl the parchment note!
+                  Bottles washed ashore on your coastal perimeter. Break the wax seal to unfurl the parchment note!
                 </p>
               </div>
 
@@ -990,10 +991,10 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
               <div className="p-12 text-center rounded-sm bg-emerald-950/20 border border-dashed border-emerald-800/40 text-emerald-300/60">
                 <Anchor className="w-12 h-12 mx-auto mb-2 opacity-50 text-emerald-400" />
                 <p className="font-bold text-base text-emerald-200" style={{ fontFamily: "'Cinzel', serif" }}>
-                  Thy shore is quiet today. No bottles have washed ashore yet.
+                  Your shore is quiet. No bottles have washed up yet.
                 </p>
                 <p className="text-xs italic mt-1 font-serif">
-                  When other scribes launch bottles into ocean swells, the tides will carry them to thy sands.
+                  When other scribes cast bottles into the sea, the tides may carry them to your shore.
                 </p>
               </div>
             ) : (
@@ -1207,7 +1208,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
                     <div className="flex items-center gap-2">
                       <Anchor className="w-5 h-5 text-emerald-800" />
                       <h3 className="text-xl font-bold" style={{ color: '#064E3B', fontFamily: "'Cinzel', serif" }}>
-                        {uncorkingBottle.bottleMoniker || 'Ocean Bottle Missive'}
+                        {uncorkingBottle.bottleMoniker || 'Ocean Bottle Letter'}
                       </h3>
                     </div>
                     <p className="text-xs italic text-emerald-900/70 mt-1">
@@ -1241,7 +1242,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
                       }}
                       className="px-3 py-1.5 bg-red-950 text-red-300 rounded-sm text-xs font-bold shadow hover:bg-red-900 flex items-center gap-1 border border-red-800"
                     >
-                      <AlertTriangle className="w-3.5 h-3.5" /> Report Missive
+                      <AlertTriangle className="w-3.5 h-3.5" /> Report Letter
                     </button>
 
                     <button
@@ -1281,7 +1282,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
               </button>
 
               <h3 className="text-2xl font-bold text-red-800 mb-2 font-serif flex items-center gap-2">
-                <AlertTriangle className="w-6 h-6" /> Report Missive
+                <AlertTriangle className="w-6 h-6" /> Report Letter
               </h3>
 
               <p className="text-[#5C3A21] font-bold mb-1">
@@ -1289,7 +1290,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
               </p>
 
               <p className="text-xs italic text-stone-600 mb-4 bg-amber-100/70 p-2 rounded border border-amber-300">
-                ⚖️ <strong>Tribunal Notice:</strong> Even if this message in a bottle was tossed anonymously, the Sovereign Tribunal will unmask the true author's identity and take action.
+                ⚖️ <strong>Tribunal Notice:</strong> Even though this bottle is anonymous to other players, the Guild Masters can still identify the author and act on abuse.
               </p>
 
               {reportStatus === 'success' ? (

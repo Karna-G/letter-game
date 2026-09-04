@@ -25,6 +25,7 @@ import {
 } from '../api';
 import { waxSealAudio } from '../utils/waxSealAudio';
 import HandwrittenLetterPaper from '../components/HandwrittenLetterPaper';
+import { notify, confirmAction } from '../components/RealmDialog';
 
 const RESONANCE_OPTIONS = [
   { id: 'fire', icon: '🔥', label: 'Fire', desc: 'Passion & Burning Truth' },
@@ -58,7 +59,7 @@ export default function NamelessWordsPage() {
       const data = await getNamelessLetters(activeTab, searchQuery);
       setLetters(Array.isArray(data) ? data : []);
     } catch (e) {
-      console.error('Failed to load nameless letters:', e);
+      console.error('Could not load nameless letters:', e);
     } finally {
       setLoading(false);
     }
@@ -87,7 +88,7 @@ export default function NamelessWordsPage() {
       const detailed = await getNamelessLetterById(item._id);
       setSelectedLetter(detailed);
     } catch (e) {
-      console.error('Failed to fetch detailed letter:', e);
+      console.error('Could not fetch detailed letter:', e);
     }
   };
 
@@ -101,7 +102,7 @@ export default function NamelessWordsPage() {
 
   const handleDeleteLetter = async (letterId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!window.confirm('Art thou certain thou wishest to purge this nameless epistle from the realm?')) {
+    if (!(await confirmAction({ title: 'Delete Anonymous Letter', message: 'Delete this anonymous letter for good? It cannot be recovered, and the thoughts left on it will go with it.', confirmLabel: 'Delete Forever', tone: 'danger' }))) {
       return;
     }
     try {
@@ -112,7 +113,7 @@ export default function NamelessWordsPage() {
         setSelectedLetter(null);
       }
     } catch (e: any) {
-      alert(e.message || 'Failed to purge letter');
+      notify.error(e.message || 'Could not delete the letter. Please try again.');
     }
   };
 
@@ -121,13 +122,13 @@ export default function NamelessWordsPage() {
     
     // Author cannot resonate with their own letter
     if (selectedLetter.isMine) {
-      alert('Thou art the author of this missive. Authors may not resonate with their own scroll.');
+      notify.info('This is your own letter — you cannot react to it.');
       return;
     }
     
     // Each user can resonate only once
     if (selectedLetter.myResonance) {
-      alert('Thou hast already resonated with this missive.');
+      notify.info('You have already reacted to this letter.');
       return;
     }
 
@@ -145,7 +146,7 @@ export default function NamelessWordsPage() {
         myResonance: res.myResonance 
       } : l));
     } catch (e: any) {
-      alert(e.message || 'Failed to resonate with missive.');
+      notify.error(e.message || 'Could not save your reaction. Please try again.');
     }
   };
 
@@ -154,12 +155,12 @@ export default function NamelessWordsPage() {
     if (!selectedLetter || !newThoughtContent.trim()) return;
 
     if (selectedLetter.isMine) {
-      alert('The author may not comment on their own missive.');
+      notify.info('This is your own letter — you cannot comment on it.');
       return;
     }
 
     if (selectedLetter.hasCommented) {
-      alert('Thou hast already sealed thy reflection upon this missive.');
+      notify.info('You have already left your one thought on this letter.');
       return;
     }
 
@@ -198,7 +199,7 @@ export default function NamelessWordsPage() {
       setThoughtSuccessNotice(true);
       setTimeout(() => setThoughtSuccessNotice(false), 3500);
     } catch (e: any) {
-      alert(e.message || 'Failed to inscribe thought.');
+      notify.error(e.message || 'Could not post your thought. Please try again.');
     } finally {
       setSubmittingThought(false);
     }
@@ -256,7 +257,7 @@ export default function NamelessWordsPage() {
             <p
               className="text-sm sm:text-base text-[#FDE047] italic max-w-2xl font-serif leading-relaxed drop-shadow"
             >
-              “Here words are severed from name and address, drifting for 15 days before fading to ash. Read the unburdened epistles of wandering souls, resonate with fire or roses, and inscribe thy anonymous reflections.”
+              “Words with no name and no address, drifting for 15 days before they fade to ash. Read what wandering souls left behind, react with fire or roses, and add a thought of your own — anonymously.”
             </p>
           </div>
 
@@ -274,7 +275,7 @@ export default function NamelessWordsPage() {
                 style={{ fontFamily: "'Cinzel', serif" }}
               >
                 <PenTool className="w-4 h-4 text-amber-300" />
-                <span>Inscribe a Nameless Epistle</span>
+                <span>Write an Anonymous Letter</span>
               </Link>
             )}
           </div>
@@ -338,7 +339,7 @@ export default function NamelessWordsPage() {
             The Chamber is in Quiet Solitude
           </h3>
           <p className="text-xs italic text-amber-200/90 font-serif max-w-md mx-auto">
-            No active anonymous epistles match thy search. Be the first to inscribe an unburdened whisper.
+            No anonymous letters match your search. Be the first to write one.
           </p>
           {!isAdmin && (
             <Link
@@ -483,7 +484,7 @@ export default function NamelessWordsPage() {
                       </h3>
                       {selectedLetter.isMine && (
                         <span className="bg-gradient-to-l from-amber-600 to-yellow-600 text-stone-900 text-[10px] font-bold uppercase tracking-wider py-0.5 px-2 rounded font-serif">
-                          👑 Thy Offering
+                          👑 Your Letter
                         </span>
                       )}
                     </div>
@@ -555,13 +556,13 @@ export default function NamelessWordsPage() {
                 <div className="p-4 rounded-xl bg-black/70 border border-amber-500/40 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <span className="text-xs font-bold text-[#FDE047] uppercase tracking-wider font-serif block">
-                      Resonate with this Missive:
+                      Resonate with this Letter:
                     </span>
                     <span className="text-[10px] text-amber-300/80 font-serif">
                       {selectedLetter.isMine 
-                        ? '(Authors may not resonate with their own missive)'
+                        ? '(Authors may not resonate with their own letter)'
                         : selectedLetter.myResonance
-                        ? `(Thou hast resonated with: ${selectedLetter.myResonance.toUpperCase()})`
+                        ? `(You have resonated with: ${selectedLetter.myResonance.toUpperCase()})`
                         : '(Each scribe may resonate once)'}
                     </span>
                   </div>
@@ -605,7 +606,7 @@ export default function NamelessWordsPage() {
                         📜 Author's Observation Chamber
                       </p>
                       <p className="text-xs text-amber-200 italic">
-                        Thou art the author of this nameless epistle. Thou mayest read the reflections others inscribed below, but cannot comment on thy own scroll.
+                        This is your letter. You can read what others wrote below, but you cannot comment on your own.
                       </p>
                     </div>
                   ) : selectedLetter.hasCommented ? (
@@ -615,7 +616,7 @@ export default function NamelessWordsPage() {
                         ✨ Reflection Sealed
                       </p>
                       <p className="text-xs text-emerald-300/80 italic">
-                        Thou hast already sealed thy single reflection upon this missive.
+                        You have already left your one thought on this letter.
                       </p>
                     </div>
                   ) : (
@@ -633,7 +634,7 @@ export default function NamelessWordsPage() {
 
                       <form onSubmit={handlePostThought} className="space-y-3">
                         <div className="p-2.5 rounded-lg bg-black/60 border border-amber-500/30 text-xs text-[#FDE047] font-serif flex items-center justify-between">
-                          <span>Thy pseudonym will be auto-generated for total anonymity.</span>
+                          <span>We will generate a random pseudonym for you — nobody can trace it back.</span>
                           <span className="text-[11px] font-mono text-amber-300">Randomized Alias</span>
                         </div>
 
@@ -649,7 +650,7 @@ export default function NamelessWordsPage() {
 
                         <div className="flex items-center justify-between pt-1">
                           <p className="text-[10px] italic text-amber-300/80 font-serif">
-                            * The author can read thy reflection, but cannot reply back.
+                            * The author can read your thought, but cannot reply.
                           </p>
 
                           <button
@@ -676,7 +677,7 @@ export default function NamelessWordsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       className="p-2.5 bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs rounded-lg flex items-center gap-2 font-serif"
                     >
-                      <span>✨ Thy thought hath been sealed to this anonymous missive forever.</span>
+                      <span>✨ Your thought is now attached to this letter for good.</span>
                     </motion.div>
                   )}
                 </div>

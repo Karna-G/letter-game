@@ -33,7 +33,7 @@ export default function MailmenDirectory() {
       const data = await getMailmenDirectory(viewerId);
       setMailmen(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch directory');
+      setError(err.message || 'Could not fetch directory');
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export default function MailmenDirectory() {
         </h1>
 
         <p className="max-w-2xl mx-auto text-sm sm:text-base italic leading-relaxed mt-2" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-          “The official imperial record of certified couriers, active frontier postmasters, and royal deliverers who brave storms and wilderness to convey thy sovereign scrolls.”
+          “The official record of every certified courier who braves storm and wilderness to carry your letters — and how well each one delivers.”
         </p>
 
         <div className="flex flex-wrap justify-center items-center gap-4 mt-5 text-xs font-mono">
@@ -175,7 +175,7 @@ export default function MailmenDirectory() {
                           {mailman.servicedSenders.map((s: any, idx: number) => (
                             <li key={idx} className="flex justify-between items-center py-0.5">
                               <span className="font-medium text-stone-200">{s.name}</span>
-                              <span className="italic text-amber-200/70 font-serif">({s.count} {s.count === 1 ? 'missive' : 'missives'})</span>
+                              <span className="italic text-amber-200/70 font-serif">({s.count} {s.count === 1 ? 'letter' : 'letters'})</span>
                             </li>
                           ))}
                         </ul>
@@ -194,7 +194,7 @@ export default function MailmenDirectory() {
                           {mailman.servicedReceivers.map((r: any, idx: number) => (
                             <li key={idx} className="flex justify-between items-center py-0.5">
                               <span className="font-medium text-stone-200">{r.name}</span>
-                              <span className="italic text-amber-200/70 font-serif">({r.count} {r.count === 1 ? 'missive' : 'missives'})</span>
+                              <span className="italic text-amber-200/70 font-serif">({r.count} {r.count === 1 ? 'letter' : 'letters'})</span>
                             </li>
                           ))}
                         </ul>

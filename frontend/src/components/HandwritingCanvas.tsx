@@ -11,6 +11,7 @@ import {
   FileText
 } from 'lucide-react';
 import { waxSealAudio } from '../utils/waxSealAudio';
+import { confirmAction } from '../components/RealmDialog';
 
 export interface Point {
   x: number;
@@ -572,9 +573,9 @@ export default function HandwritingCanvas({
     });
   };
 
-  const handleClearPage = () => {
+  const handleClearPage = async () => {
     if (readOnly || disabled) return;
-    if (!window.confirm('Clear all ink strokes from this parchment page?')) return;
+    if (!(await confirmAction({ title: 'Clear This Page', message: 'Erase every ink stroke on this page? Your other pages are untouched.', confirmLabel: 'Clear Page', tone: 'danger' }))) return;
 
     setPagesStrokes(prev => {
       const next = prev.map((s, idx) => idx === activePageIndex ? [] : s);
@@ -605,9 +606,9 @@ export default function HandwritingCanvas({
     setActivePageIndex(pagesStrokes.length);
   };
 
-  const handleDeletePage = () => {
+  const handleDeletePage = async () => {
     if (readOnly || disabled || pagesStrokes.length <= 1) return;
-    if (!window.confirm(`Remove Page ${activePageIndex + 1}?`)) return;
+    if (!(await confirmAction({ title: 'Remove Page', message: `Remove page ${activePageIndex + 1} and everything written on it?`, confirmLabel: 'Remove Page', tone: 'danger' }))) return;
 
     setPagesStrokes(prev => {
       const next = prev.filter((_, idx) => idx !== activePageIndex);
@@ -920,7 +921,7 @@ export default function HandwritingCanvas({
                   onClick={handleAddPage}
                   disabled={pagesStrokes.length >= 10}
                   className="px-3 py-1 rounded-sm border border-amber-600/60 bg-amber-950/80 hover:bg-amber-900 text-amber-200 text-xs font-bold flex items-center gap-1 transition-all shadow cursor-pointer"
-                  title="Attach an additional parchment sheet to this missive"
+                  title="Attach an additional parchment sheet to this letter"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Page Sheet</span>

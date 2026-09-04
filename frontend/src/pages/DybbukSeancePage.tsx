@@ -9,6 +9,7 @@ import {
   getUserProfile, sendLetter 
 } from '../api';
 import { waxSealAudio } from '../utils/waxSealAudio';
+import { notify } from '../components/RealmDialog';
 
 export default function DybbukSeancePage({ user }: { user: any }) {
   const [dybbukMode, setDybbukMode] = useState(false);
@@ -48,7 +49,7 @@ export default function DybbukSeancePage({ user }: { user: any }) {
         setSpectralLetters(spectralOnly);
       }
     } catch (e) {
-      console.error('Failed to load spectral history:', e);
+      console.error('Could not load spectral history:', e);
     } finally {
       setLoadingHistory(false);
     }
@@ -62,10 +63,10 @@ export default function DybbukSeancePage({ user }: { user: any }) {
     try {
       const res = await summonDybbukLetter(user.id || user._id, tone);
       setSummonResult(res.letter);
-      setActionMsg(res.message || '👻 A Dybbuk Missive hath manifested from the Astral Veil!');
+      setActionMsg(res.message || '👻 A Dybbuk Letter has manifested from the Astral Veil!');
       await fetchSpectralHistory();
     } catch (e: any) {
-      alert(e.message || 'The Astral Veil resisted thy invocation.');
+      notify.error(e.message || 'The Astral Veil resisted. Please try again.');
     } finally {
       setSummoning(false);
     }
@@ -77,18 +78,18 @@ export default function DybbukSeancePage({ user }: { user: any }) {
       setDybbukMode(res.dybbukMode);
       if (res.dybbukMode) waxSealAudio.playDybbukWhisper();
       setActionMsg(res.dybbukMode 
-        ? '👻 Dybbuk Auto-Manifestation Awakened! Missives shall arrive periodically.' 
+        ? '👻 Automatic Dybbuk letters are on. They will arrive from time to time.' 
         : '👻 Dybbuk Mode Quieted. The Astral Veil rests.');
       setTimeout(() => setActionMsg(null), 4500);
     } catch (e: any) {
-      alert(e.message || 'Failed to toggle Dybbuk Mode');
+      notify.error(e.message || 'Could not toggle Dybbuk Mode');
     }
   };
 
   const handleSendSpectralMissive = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!spectralContent.trim()) {
-      alert('Pray tell, inscribe words before parting the veil.');
+      notify.error('Write something before you part the veil.');
       return;
     }
     setSendingSpectral(true);
@@ -102,13 +103,13 @@ export default function DybbukSeancePage({ user }: { user: any }) {
         font: spectralFont,
         status: 'pending'
       });
-      setActionMsg('✨ Thy spectral epistle has crossed the ethereal boundary!');
+      setActionMsg('✨ Your spectral epistle has crossed the ethereal boundary!');
       setShowSpectralComposer(false);
       setSpectralRecipient('');
       setSpectralContent('');
       setTimeout(() => setActionMsg(null), 4000);
     } catch (e: any) {
-      alert(e.message || 'Failed to dispatch spectral missive');
+      notify.error(e.message || 'Could not dispatch spectral letter');
     } finally {
       setSendingSpectral(false);
     }
@@ -124,7 +125,7 @@ export default function DybbukSeancePage({ user }: { user: any }) {
       {/* Back Navigation Bar & Tone Switcher */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
         <Link to="/" className="btn-gold-saloon text-xs py-2 px-4 flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" /> Back to Thy Scriptorium
+          <ArrowLeft className="w-4 h-4" /> Back to Writing
         </Link>
         
         {/* Language Tone Switcher */}
@@ -249,7 +250,7 @@ export default function DybbukSeancePage({ user }: { user: any }) {
               className="btn-astral text-xs sm:text-sm py-3 px-6 flex items-center gap-2.5 animate-spectral-mist shadow-xl"
             >
               <Sparkles className={`w-4 h-4 text-purple-200 ${summoning ? 'animate-spin' : ''}`} />
-              <span>{summoning ? 'Parting the Astral Veil...' : `✦ Invoke Spectral Missive (${tone === 'modern' ? 'Modern' : 'Classical'})`}</span>
+              <span>{summoning ? 'Parting the Astral Veil...' : `✦ Invoke Spectral Letter (${tone === 'modern' ? 'Modern' : 'Classical'})`}</span>
             </button>
 
             <button
@@ -263,14 +264,14 @@ export default function DybbukSeancePage({ user }: { user: any }) {
               }}
             >
               <Ghost className={`w-4 h-4 ${dybbukMode ? 'text-emerald-200 animate-bounce' : 'text-purple-400'}`} />
-              <span>Dybbuk Auto-Manifestation: {dybbukMode ? 'AWAKENED' : 'QUIETED'}</span>
+              <span>Automatic Dybbuk letters: {dybbukMode ? 'ON' : 'OFF'}</span>
             </button>
 
             <button
               onClick={() => setShowSpectralComposer(true)}
               className="btn-gold-saloon text-xs sm:text-sm py-3 px-5 flex items-center gap-2"
             >
-              <Feather className="w-4 h-4" /> <span>Inscribe Spectral Epistle</span>
+              <Feather className="w-4 h-4" /> <span>Write a Spectral Letter</span>
             </button>
           </div>
         </div>
@@ -289,7 +290,7 @@ export default function DybbukSeancePage({ user }: { user: any }) {
             <div className="flex items-start justify-between pb-4 mb-4" style={{ borderBottom: '1px solid rgba(168,85,247,0.3)' }}>
               <div>
                 <span className="text-[11px] uppercase tracking-widest font-bold px-2.5 py-0.5 rounded-sm" style={{ background: '#581C87', color: '#F3E8FF', fontFamily: "'Cinzel', serif" }}>
-                  ✦ Manifested Manifestation
+                  ✦ Newly Summoned
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold mt-2" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
                   {summonResult.spectralSender?.name || 'Spectral Entity'}
@@ -351,11 +352,11 @@ export default function DybbukSeancePage({ user }: { user: any }) {
               <div className="flex items-center gap-2 mb-2">
                 <Ghost className="w-6 h-6 text-purple-400" />
                 <h3 className="text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-                  Inscribe into the Astral Veil
+                  Send Into the Astral Veil
                 </h3>
               </div>
               <p className="text-xs italic mb-5" style={{ color: '#D8B4FE' }}>
-                Dispatched missives shall cross the boundary of mortal time and manifest as spectral parchment.
+                Letters sent here cross the boundary of mortal time and arrive as spectral parchment.
               </p>
 
               <form onSubmit={handleSendSpectralMissive} className="space-y-4">
@@ -393,7 +394,7 @@ export default function DybbukSeancePage({ user }: { user: any }) {
 
                 <div>
                   <label className="block text-xs uppercase tracking-wider font-bold mb-1" style={{ color: '#E9D5FF', fontFamily: "'Cinzel', serif" }}>
-                    Thy Spectral Words
+                    Your Spectral Words
                   </label>
                   <textarea
                     rows={6}
@@ -439,7 +440,7 @@ export default function DybbukSeancePage({ user }: { user: any }) {
           <div>
             <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2.5" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
               <Ghost className="w-6 h-6 text-purple-400" />
-              Spectral Missives Manifested ({spectralLetters.length})
+              Spectral Letters ({spectralLetters.length})
             </h2>
             <p className="text-xs sm:text-sm italic" style={{ color: '#D8B4FE' }}>
               Chronicles delivered from historical shades and astral entities.
@@ -461,8 +462,8 @@ export default function DybbukSeancePage({ user }: { user: any }) {
         ) : spectralLetters.length === 0 ? (
           <div className="py-12 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(168,85,247,0.3)', color: '#D8B4FE' }}>
             <Ghost className="w-12 h-12 mx-auto mb-2 opacity-50 text-purple-400" />
-            <p className="font-bold text-base" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>No spectral missives have arrived yet.</p>
-            <p className="text-xs sm:text-sm mt-1 italic font-serif">Click "Invoke Spectral Missive" or enable Dybbuk Mode to invite communications from beyond the veil.</p>
+            <p className="font-bold text-base" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>No spectral letters have arrived yet.</p>
+            <p className="text-xs sm:text-sm mt-1 italic font-serif">Click "Invoke Spectral Letter" or enable Dybbuk Mode to invite communications from beyond the veil.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -540,7 +541,7 @@ export default function DybbukSeancePage({ user }: { user: any }) {
                 <div className="flex items-center gap-2 mb-1">
                   <Ghost className="w-6 h-6 text-purple-700 animate-pulse" />
                   <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: '#2E1065' }}>
-                    {openLetter.spectralSender?.name || 'Spectral Dybbuk Missive'}
+                    {openLetter.spectralSender?.name || 'Spectral Dybbuk Letter'}
                   </h3>
                 </div>
                 <p className="text-xs italic mb-4" style={{ color: '#7E22CE' }}>

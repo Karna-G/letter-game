@@ -81,7 +81,7 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     if (!isHandwritten && (!content || !content.trim())) {
-      return res.status(400).json({ message: 'The nameless missive cannot be empty.' });
+      return res.status(400).json({ message: 'The nameless letter cannot be empty.' });
     }
     if (isHandwritten && (!handwrittenPages || handwrittenPages.length === 0)) {
       return res.status(400).json({ message: 'Handwritten parchment strokes are required.' });
@@ -91,7 +91,7 @@ router.post('/', async (req, res) => {
     const dedupeKey = userId ? `${userId}:${(content || '').slice(0, 30)}` : `${(content || '').slice(0, 50)}`;
     const lastSub = recentSubmissions.get(dedupeKey);
     if (lastSub && Date.now() - lastSub < 4000) {
-      return res.status(429).json({ message: 'Thy nameless words have already been released to the sanctuary.' });
+      return res.status(429).json({ message: 'Your nameless words have already been released to the sanctuary.' });
     }
     recentSubmissions.set(dedupeKey, Date.now());
     setTimeout(() => recentSubmissions.delete(dedupeKey), 8000);
@@ -254,7 +254,7 @@ router.get('/:id', async (req, res) => {
     ).lean();
 
     if (!letter) {
-      return res.status(404).json({ message: 'Nameless missive not found in the chamber.' });
+      return res.status(404).json({ message: 'Nameless letter not found in the chamber.' });
     }
 
     const isMine = !!(currentUserId && letter.senderRef && String(letter.senderRef) === String(currentUserId));
@@ -297,7 +297,7 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching nameless letter:', error);
-    res.status(500).json({ message: 'Failed to retrieve missive details.' });
+    res.status(500).json({ message: 'Failed to retrieve letter details.' });
   }
 });
 
@@ -311,18 +311,18 @@ router.post('/:id/thoughts', async (req, res) => {
     const { content, avatarIcon, inkColor, resonanceBadge } = req.body;
 
     if (!content || !content.trim()) {
-      return res.status(400).json({ message: 'Thy thought cannot be empty.' });
+      return res.status(400).json({ message: 'Your thought cannot be empty.' });
     }
 
     const letter = await NamelessLetter.findById(req.params.id);
     if (!letter) {
-      return res.status(404).json({ message: 'Nameless missive not found.' });
+      return res.status(404).json({ message: 'Nameless letter not found.' });
     }
 
     // Rule 1: Author cannot comment on their own letter
     if (currentUserId && letter.senderRef && String(letter.senderRef) === String(currentUserId)) {
       return res.status(403).json({ 
-        message: 'Thou art the author of this epistle. Thou mayest only read the reflections others inscribed.' 
+        message: 'You are the author of this letter. You may only read the reflections others inscribed.' 
       });
     }
 
@@ -331,7 +331,7 @@ router.post('/:id/thoughts', async (req, res) => {
       const alreadyCommented = letter.thoughts.some(t => t.userRef && String(t.userRef) === String(currentUserId));
       if (alreadyCommented) {
         return res.status(400).json({ 
-          message: 'Thou hast already sealed thy single reflection upon this missive.' 
+          message: 'You have already sealed your single reflection upon this letter.' 
         });
       }
     }
@@ -383,18 +383,18 @@ router.post('/:id/resonate', async (req, res) => {
 
     const letter = await NamelessLetter.findById(req.params.id);
     if (!letter) {
-      return res.status(404).json({ message: 'Nameless missive not found.' });
+      return res.status(404).json({ message: 'Nameless letter not found.' });
     }
 
     // Rule 1: Author cannot resonate with their own letter
     if (currentUserId && letter.senderRef && String(letter.senderRef) === String(currentUserId)) {
       return res.status(403).json({ 
-        message: 'The author may not resonate with their own missive.' 
+        message: 'The author may not resonate with their own letter.' 
       });
     }
 
     if (!currentUserId) {
-      return res.status(401).json({ message: 'Thou must be logged in to resonate.' });
+      return res.status(401).json({ message: 'You must be logged in to resonate.' });
     }
 
     // Rule 2: Each user can only resonate once
@@ -402,7 +402,7 @@ router.post('/:id/resonate', async (req, res) => {
     const alreadyResonated = letter.resonators.find(r => r.userRef && String(r.userRef) === String(currentUserId));
     if (alreadyResonated) {
       return res.status(400).json({ 
-        message: 'Thou hast already resonated with this missive.' 
+        message: 'You have already resonated with this letter.' 
       });
     }
 
@@ -421,7 +421,7 @@ router.post('/:id/resonate', async (req, res) => {
     });
   } catch (error) {
     console.error('Error adding resonance:', error);
-    res.status(500).json({ message: 'Failed to resonate with missive.' });
+    res.status(500).json({ message: 'Failed to resonate with letter.' });
   }
 });
 
@@ -448,7 +448,7 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Nameless letter not found in the chamber.' });
     }
 
-    res.json({ message: 'Nameless epistle purged from the chamber successfully.' });
+    res.json({ message: 'Nameless letter purged from the chamber successfully.' });
   } catch (error) {
     console.error('Error purging nameless letter:', error);
     res.status(500).json({ message: 'Failed to purge nameless letter.' });

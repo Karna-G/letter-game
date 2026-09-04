@@ -26,6 +26,7 @@ import { PickupAlertSettingsCard } from './components/PickupAlertSettingsCard';
 import DeliveryProofModal, { type DeliveryProofRequestData } from './components/DeliveryProofModal';
 import CentralHubRegistryModal from './components/CentralHubRegistryModal';
 import TomRiddlesDiaryModal from './components/TomRiddlesDiaryModal';
+import RealmDialogHost, { notify, confirmAction } from './components/RealmDialog';
 import MailboxPetCompanion, { MAILBOX_PETS } from './components/MailboxPetCompanion';
 import PhantomGazettePopup from './components/PhantomGazettePopup';
 import HandwrittenLetterPaper from './components/HandwrittenLetterPaper';
@@ -91,7 +92,7 @@ const getFontSizeClass = (fontSize?: string) => {
 const getRankFromXP = (xp: number) => {
   const ranks = [
     { name: 'Novice', req: 0, icon: '📝', desc: 'A beginner carrier learning the routes.' },
-    { name: 'Courier', req: 100, icon: '🏃', desc: 'A reliable runner for standard missives.' },
+    { name: 'Courier', req: 100, icon: '🏃', desc: 'A reliable runner for standard letters.' },
     { name: 'Rider', req: 500, icon: '🐎', desc: 'Fast delivery across greater distances.' },
     { name: 'Navigator', req: 1000, icon: '🧭', desc: 'Expert pathfinder in uncharted lands.' },
     { name: 'Postmaster', req: 2500, icon: '🎩', desc: 'Oversees regional distributions.' },
@@ -146,7 +147,7 @@ export const NOTE_STATUS_MOODS: Record<string, { icon: string; label: string; de
   tavern: { icon: '☕', label: 'Tavern Rest', desc: 'Partaking in warm brew & tales' },
   weather: { icon: '🌧️', label: 'Storm Bound', desc: 'Sheltered against howling gales' },
   crown: { icon: '👑', label: 'Sovereign Post', desc: 'Fulfilling high imperial duties' },
-  seal: { icon: '⚜️', label: 'Sealed Decree', desc: 'Bearing confidential royal missives' },
+  seal: { icon: '⚜️', label: 'Sealed Decree', desc: 'Bearing confidential royal letters' },
 };
 
 export const NOTE_STATUS_PRESETS = [
@@ -155,7 +156,7 @@ export const NOTE_STATUS_PRESETS = [
   { text: '🕯️ Inscribing late-night soliloquies by candlelight.', mood: 'candle' },
   { text: '☕ Paused at the Postal Tavern for warm mulled cider.', mood: 'tavern' },
   { text: '🌧️ Awaiting fair skies; storm delays upon the trail.', mood: 'weather' },
-  { text: '💌 Bearing urgent sealed missives for noble scribes.', mood: 'seal' },
+  { text: '💌 Bearing urgent sealed letters for noble scribes.', mood: 'seal' },
   { text: '🧭 Seeking postal quests upon the grand realm map.', mood: 'compass' },
   { text: '🪶 Quill dipped in midnight ink, awaiting inspiration.', mood: 'quill' },
 ];
@@ -225,13 +226,13 @@ function CartographicNoteStatusModal({
         privacy,
         mood
       });
-      setSuccess(res.message || 'Status proclaimed across the realm!');
+      setSuccess(res.message || 'Status posted. Others can see it on the map now.');
       onStatusUpdated(res);
       setTimeout(() => {
         onClose();
       }, 900);
     } catch (e: any) {
-      setError(e.message || 'Failed to proclaim status.');
+      setError(e.message || 'Could not post your status. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -254,7 +255,7 @@ function CartographicNoteStatusModal({
         onClose();
       }, 700);
     } catch (e: any) {
-      setError(e.message || 'Failed to clear status.');
+      setError(e.message || 'Could not clear status.');
     } finally {
       setLoading(false);
     }
@@ -285,15 +286,15 @@ function CartographicNoteStatusModal({
         <div className="space-y-2 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
             <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-            <span>Interactive Cartographic Status</span>
+            <span>Your Status Note</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-bold tracking-wide" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
-            Proclaim Thy Note Status
+            Post Your Status Note
           </h2>
 
           <p className="text-xs sm:text-sm italic leading-relaxed" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-            Inscribe a live status to be exhibited above thy avatar upon the realm map, inside the Sovereign Hall of Fame, in fellowship scrolls, and to those inspecting thy profile.
+            Write a short status. It appears above your avatar on the realm map, in the Hall of Fame, in your fellowship list, and on your profile.
           </p>
         </div>
 
@@ -305,7 +306,7 @@ function CartographicNoteStatusModal({
               ⏳ 1 Solar Day Duration (24 Hours)
             </span>
             <span className="italic text-stone-300">
-              Each proclaimed note status remains vibrant upon the realm for exactly 24 hours. After one day, it gently fades, prompting thee to upload a new proclamation.
+              Every status note lasts exactly 24 hours. After that it fades on its own, and you can post a new one.
               {remaining && !remaining.isExpired && (
                 <strong className="block text-emerald-300 font-mono mt-1">Current status: {remaining.text}</strong>
               )}
@@ -378,7 +379,7 @@ function CartographicNoteStatusModal({
                 <span>🤝</span> Fellowship Only
               </div>
               <p className="text-[10px] italic mt-1 text-stone-400">
-                Visible exclusively to thy accepted companions & friends.
+                Visible exclusively to your accepted companions & friends.
               </p>
             </button>
 
@@ -395,7 +396,7 @@ function CartographicNoteStatusModal({
                 <span>🔒</span> Private Soliloquy
               </div>
               <p className="text-[10px] italic mt-1 text-stone-400">
-                Visible only to thyself within thy private ledger.
+                Visible only to yourself within your private ledger.
               </p>
             </button>
           </div>
@@ -405,7 +406,7 @@ function CartographicNoteStatusModal({
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-              Inscribe Thy Note (Max 200 Characters):
+              Your Status Note (200 characters max):
             </label>
             <span className={`text-[11px] font-mono ${noteText.length > 180 ? 'text-red-400 font-bold' : 'text-stone-400'}`}>
               {noteText.length} / 200
@@ -506,7 +507,7 @@ function CartographicNoteStatusModal({
               className="btn-velvet-burgundy text-xs py-2.5 px-6 flex items-center justify-center gap-2 font-bold"
             >
               <PenTool className="w-4 h-4" />
-              {loading ? 'Proclaiming...' : '✦ Proclaim to Realm'}
+              {loading ? 'Posting…' : '✦ Post Status'}
             </button>
           </div>
         </div>
@@ -532,7 +533,7 @@ function TravellerProfileModal({ userId, viewerId, onClose }: TravellerProfileMo
       setError('');
       getUserProfile(userId, viewerId)
         .then(setProfile)
-        .catch(err => setError(err.message || 'Failed to load profile'))
+        .catch(err => setError(err.message || 'Could not load profile'))
         .finally(() => setLoading(false));
     } else {
       setProfile(null);
@@ -561,7 +562,7 @@ function TravellerProfileModal({ userId, viewerId, onClose }: TravellerProfileMo
         {loading ? (
           <div className="text-center p-8 space-y-2 animate-pulse" style={{ color: 'var(--antique-gold)' }}>
             <Scroll className="w-8 h-8 mx-auto animate-bounce" />
-            <p className="font-serif italic text-sm">Consulting the Sovereign Registry...</p>
+            <p className="font-serif italic text-sm">Consulting the registry…</p>
           </div>
         ) : error ? (
           <div className="p-4 rounded-sm bg-red-950/60 border border-red-500/40 text-red-200 text-sm">
@@ -607,7 +608,7 @@ function TravellerProfileModal({ userId, viewerId, onClose }: TravellerProfileMo
               </div>
             ) : (
               <p className="text-xs italic text-stone-400 p-3 rounded-sm bg-stone-900/40 border border-stone-800 text-center">
-                No active cartographic status proclaimed upon the realm.
+                No status note posted yet.
               </p>
             )}
 
@@ -646,7 +647,7 @@ function TravellerProfileModal({ userId, viewerId, onClose }: TravellerProfileMo
                 onClick={onClose}
                 className="btn-velvet-burgundy flex-1 text-xs py-2.5 justify-center gap-1.5"
               >
-                <Feather className="w-3.5 h-3.5" /> Inscribe Epistle
+                <Feather className="w-3.5 h-3.5" /> Write a Letter
               </Link>
               <button
                 onClick={onClose}
@@ -738,7 +739,7 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
           <div className="gold-rule gold-rule-dark max-w-[200px] mx-auto my-3" />
 
           <p className="italic text-base md:text-lg" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--parchment-dark)', fontStyle: 'italic' }}>
-            {mode === 'login' ? '“Speak thy true title, that the salon doors may part.”' : '“Inscribe thy mark upon the sovereign registry.”'}
+            {mode === 'login' ? '“Welcome back to the salon — sign in to collect your letters.”' : '“Join the salon. Choose a name, and the doors will open.”'}
           </p>
         </div>
 
@@ -756,7 +757,7 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
                 border: 'none', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
             >
-              Enter the Salon
+              Sign In
             </button>
             <button
               onClick={() => { setMode('register'); setError(''); }}
@@ -768,7 +769,7 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
                 border: 'none', borderLeft: '1px solid rgba(212, 175, 55, 0.25)', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
             >
-              Inscribe New Scribe
+              Create Account
             </button>
           </div>
 
@@ -776,30 +777,30 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
             <AnimatePresence mode="wait">
               {mode === 'register' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.35 }}>
-                  <label className="small-caps block text-xs mb-1.5" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Noble Name & Epithet</label>
-                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-3.5 rounded-sm focus:outline-none transition-all" style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)', fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem' }} placeholder="Lord Byron of Westminster" required />
+                  <label className="small-caps block text-xs mb-1.5" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Your Name — how other scribes will know you</label>
+                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-3.5 rounded-sm focus:outline-none transition-all" style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)', fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem' }} placeholder="e.g. Lord Byron of Westminster" required />
                 </motion.div>
               )}
             </AnimatePresence>
 
             <div>
-              <label className="small-caps block text-xs mb-1.5" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Guild Scroll Address</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3.5 rounded-sm focus:outline-none transition-all" style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)', fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem' }} placeholder="quill@postme.realm" required />
+              <label className="small-caps block text-xs mb-1.5" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Email Address</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3.5 rounded-sm focus:outline-none transition-all" style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)', fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem' }} placeholder="you@example.com" required />
             </div>
 
             <div>
-              <label className="small-caps block text-xs mb-1.5" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Secret Cipher Passphrase</label>
+              <label className="small-caps block text-xs mb-1.5" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Password — at least 6 characters</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3.5 rounded-sm focus:outline-none transition-all" style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)', fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem' }} placeholder="••••••••" required minLength={6} />
             </div>
 
             <AnimatePresence mode="wait">
               {mode === 'register' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.35 }}>
-                  <label className="small-caps block text-xs mb-2" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Thy Realm Calling</label>
+                  <label className="small-caps block text-xs mb-2" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Choose Your Role — you can only pick one</label>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { value: 'sender', label: 'Salon Scribe', icon: '✍️', desc: 'Craft & dispatch epistles' },
-                      { value: 'mailman', label: 'Royal Courier', icon: '📮', desc: 'Carry the realm’s post' },
+                      { value: 'sender', label: 'Scribe', icon: '✍️', desc: 'Write and send letters' },
+                      { value: 'mailman', label: 'Courier', icon: '📮', desc: 'Deliver letters to others' },
                     ].map((r) => (
                       <button key={r.value} type="button" onClick={() => setRole(r.value)} className="p-3.5 text-left transition-all rounded-sm" style={{
                         background: role === r.value ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'rgba(255, 253, 249, 0.06)',
@@ -821,7 +822,7 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
             {error && <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="p-3 rounded-sm text-sm italic" style={{ background: '#430E17', color: '#FFF', border: '1px solid #7A1E2E' }}>⚠ {error}</motion.div>}
 
             <button type="submit" disabled={loading} className="w-full py-4 rounded-sm text-sm font-bold transition-all btn-velvet-burgundy justify-center" style={{ width: '100%' }}>
-              {loading ? 'Verifying Credentials...' : mode === 'login' ? '✦ Unseal the Salon Doors' : '⚜ Inscribe Name & Enter'}
+              {loading ? 'Checking your details…' : mode === 'login' ? '✦ Sign In' : '⚜ Create My Account'}
             </button>
           </form>
         </div>
@@ -1089,6 +1090,7 @@ function App() {
   if (!user) return (
     <>
       <CustomCursor />
+      <RealmDialogHost />
       <AuthPage onAuth={(loggedInUser) => {
         // Feature: Admin Auto-Redirect
         if (loggedInUser.role === 'admin') {
@@ -1130,6 +1132,9 @@ function App() {
       onClose={() => setDeliveryProofRequest(null)}
       onSuccess={() => setDeliveryProofRequest(null)}
     />
+
+    {/* Themed notices & confirmations (replaces browser alert/confirm) */}
+    <RealmDialogHost />
 
     {/* Central Hub Proofs & Penalty Audit Registry Modal */}
     <CentralHubRegistryModal
@@ -1198,7 +1203,7 @@ function App() {
             </div>
 
             <span className="text-xs uppercase tracking-[0.2em] font-bold text-amber-400 block mb-1" style={{ fontFamily: "'Cinzel', serif" }}>
-              Royal Missive Handover Request
+              Royal Letter Handover Request
             </span>
             <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel Decorative', serif" }}>
               Scribe {incomingPickupRequest.senderName}
@@ -1219,7 +1224,7 @@ function App() {
             </div>
 
             <p className="text-xs italic text-amber-300/90 mb-5 font-serif">
-              "Noble Mailman, please accept custody of my sealed missive."
+              "Noble Mailman, please accept custody of my sealed letter."
             </p>
 
             <div className="grid grid-cols-2 gap-3">
@@ -1282,10 +1287,10 @@ function App() {
             {user.role === 'admin' ? (
               <>
                 <Link to="/admin" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold" style={{ color: '#EF9A9A' }}>
-                  <Shield className="w-4 h-4" /> <span>Tribunal</span>
+                  <Shield className="w-4 h-4" /> <span>Moderation</span>
                 </Link>
-                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFE600', textShadow: '0 0 14px rgba(255,230,0,0.6)' }} title="Chamber of Nameless Words">
-                  <Feather className="w-4 h-4" style={{ color: '#FFE600' }} /> <span style={{ color: '#FFE600' }}>Nameless Words</span>
+                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFE600', textShadow: '0 0 14px rgba(255,230,0,0.6)' }} title="Anonymous Letters — write with no name attached">
+                  <Feather className="w-4 h-4" style={{ color: '#FFE600' }} /> <span style={{ color: '#FFE600' }}>Anonymous</span>
                 </Link>
                 <Link to="/leaderboard" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Trophy className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Hall of Fame</span>
@@ -1296,21 +1301,21 @@ function App() {
                 <button
                   onClick={() => openCentralHubRegistry()}
                   className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-100 cursor-pointer"
-                  title="Central Hub Proofs & Penalties"
+                  title="Delivery proofs and courier penalties"
                 >
-                  <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Hub Proofs</span>
+                  <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Delivery Proofs</span>
                 </button>
               </>
             ) : (
               <>
                 <Link to="/" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
-                  <User className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Thy Ledger</span>
+                  <User className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>My Desk</span>
                 </Link>
                 <Link to="/scanner" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
-                  <Scan className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Scan Seal</span>
+                  <Scan className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Scan QR</span>
                 </Link>
-                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFE600', textShadow: '0 0 14px rgba(255,230,0,0.6)' }} title="Chamber of Nameless Words">
-                  <Feather className="w-4 h-4" style={{ color: '#FFE600' }} /> <span style={{ color: '#FFE600' }}>Nameless Words</span>
+                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFE600', textShadow: '0 0 14px rgba(255,230,0,0.6)' }} title="Anonymous Letters — write with no name attached">
+                  <Feather className="w-4 h-4" style={{ color: '#FFE600' }} /> <span style={{ color: '#FFE600' }}>Anonymous</span>
                 </Link>
                 <Link to="/leaderboard" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Trophy className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Hall of Fame</span>
@@ -1321,16 +1326,16 @@ function App() {
                 <button
                   onClick={() => openTomRiddlesDiary()}
                   className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-100 cursor-pointer"
-                  title="Tom Riddle's Ephemeral Synchronous Diary"
+                  title="Tom Riddle's Diary — a shared page where words vanish after reading"
                 >
                   <BookOpen className="w-4 h-4 text-[#D4AF37]" /> <span>Diary</span>
                 </button>
                 <button
                   onClick={() => openCentralHubRegistry()}
                   className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-[#EEDC82] hover:text-amber-100 cursor-pointer"
-                  title="Central Postal Hub Delivery Proofs"
+                  title="Proof that your letters were delivered to the right person"
                 >
-                  <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Hub Proofs</span>
+                  <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Delivery Proofs</span>
                 </button>
               </>
             )}
@@ -1341,7 +1346,7 @@ function App() {
                 <span className="text-sm font-bold" style={{ color: 'var(--parchment)', fontFamily: "'Cinzel', serif" }}>{user.name}</span>
                 <span className="text-xs italic" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>({user.role === 'mailman' ? 'Courier' : user.role === 'admin' ? 'Master' : 'Scribe'})</span>
               </div>
-              <button onClick={() => { logout(); setUser(null); }} className="transition-colors p-1" style={{ color: 'var(--gold-muted)' }} title="Depart the Realm">
+              <button onClick={() => { logout(); setUser(null); }} className="transition-colors p-1" style={{ color: 'var(--gold-muted)' }} title="Sign out">
                 <LogOut className="w-5 h-5 hover:text-red-400" />
               </button>
             </div>
@@ -1416,11 +1421,11 @@ function UserProfile({ user }: { user: any }) {
           <div className="mb-6 p-4 rounded-sm flex flex-col items-center animate-pulse" style={{ background: 'rgba(107,29,42,0.4)', border: '1px solid rgba(212,175,55,0.4)' }}>
             <span className="font-bold text-base tracking-widest uppercase flex items-center gap-2" style={{ color: '#EF9A9A', fontFamily: "'Cinzel', serif" }}>
               <Flame className="w-5 h-5 text-orange-400" />
-              Sovereign Guild Sanction Imposed
+              Your Account Is Suspended
               <Flame className="w-5 h-5 text-orange-400" />
             </span>
             <span className="mt-2 text-base italic text-center" style={{ color: 'var(--parchment-light)' }}>
-              Thou art forbidden from dispatching epistles until:
+              You cannot send letters until:
               <strong className="block mt-1 px-3 py-1 rounded-sm text-lg" style={{ background: 'rgba(67,14,23,0.7)', color: '#FFF' }}>
                 {new Date(liveUser.restrictedUntil).toLocaleString()}
               </strong>
@@ -1440,7 +1445,7 @@ function UserProfile({ user }: { user: any }) {
             </h1>
 
             <p className="italic text-xl md:text-2xl max-w-xl leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--parchment-dark)', fontStyle: 'italic' }}>
-              “All the realm is a stage, and every missive a silent soliloquy. Inscribe thy thoughts with immortal ink.”
+              “All the realm is a stage, and every letter a silent soliloquy. Write yours in ink that outlasts you.”
             </p>
 
             {/* Quick Action Button Bar with subtle motion */}
@@ -1451,7 +1456,7 @@ function UserProfile({ user }: { user: any }) {
                 </div>
               ) : (
                 <Link to="/compose" className="btn-velvet-burgundy text-sm sm:text-base py-2.5 px-5 animate-glow-pulse">
-                  <PenTool className="w-4 h-4" /> <span>✦ Inscribe Epistle</span>
+                  <PenTool className="w-4 h-4" /> <span>✦ Write a Letter</span>
                 </Link>
               )}
 
@@ -1459,14 +1464,14 @@ function UserProfile({ user }: { user: any }) {
                 <Inbox className="w-4 h-4" /> <span>Mailbox</span>
               </Link>
 
-              <Link to="/sent?tab=drafts" className="btn-gold-saloon text-sm sm:text-base py-2.5 px-4 flex items-center gap-1.5" title="Access thy preserved drafts in Scriptorium">
+              <Link to="/sent?tab=drafts" className="btn-gold-saloon text-sm sm:text-base py-2.5 px-4 flex items-center gap-1.5" title="Open your saved drafts">
                 <Scroll className="w-4 h-4 text-amber-400" /> <span>📜 Drafts</span>
               </Link>
 
               <button
                 onClick={() => openStoryHeraldStudio()}
                 className="btn-gold-saloon text-sm sm:text-base py-2.5 px-4 flex items-center gap-1.5 cursor-pointer"
-                title="Proclaim 9:16 Royal Story Herald"
+                title="Share a 9:16 story card for social media"
               >
                 <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" /> <span>Story Herald</span>
               </button>
@@ -1483,7 +1488,7 @@ function UserProfile({ user }: { user: any }) {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
                       <Radio className="w-3 h-3 text-amber-400 animate-pulse" />
-                      <span>Interactive Cartographic Status</span>
+                      <span>Your Status Note</span>
                     </span>
 
                     {liveUser?.noteStatus && !liveUser?.isNoteExpired && (
@@ -1492,7 +1497,7 @@ function UserProfile({ user }: { user: any }) {
                         color: liveUser.noteStatusPrivacy === 'private' ? '#FCA5A5' : liveUser.noteStatusPrivacy === 'friends' ? '#D8B4FE' : '#6EE7B7',
                         border: `1px solid ${liveUser.noteStatusPrivacy === 'private' ? 'rgba(239,68,68,0.4)' : liveUser.noteStatusPrivacy === 'friends' ? 'rgba(168,85,247,0.4)' : 'rgba(16,185,129,0.4)'}`
                       }}>
-                        {liveUser.noteStatusPrivacy === 'private' ? '🔒 Private' : liveUser.noteStatusPrivacy === 'friends' ? '🤝 Fellowship Only' : '🌐 Public Realm'}
+                        {liveUser.noteStatusPrivacy === 'private' ? '🔒 Only Me' : liveUser.noteStatusPrivacy === 'friends' ? '🤝 Friends Only' : '🌐 Everyone'}
                       </span>
                     )}
 
@@ -1519,11 +1524,11 @@ function UserProfile({ user }: { user: any }) {
                     </div>
                   ) : liveUser?.noteStatus && liveUser?.isNoteExpired ? (
                     <p className="text-xs italic text-amber-300/80 pt-1 font-serif">
-                      ⚠️ Thy previous note status hath completed its 24-hour cycle. Proclaim a fresh status upon the realm!
+                      ⚠️ Your status note expired after 24 hours. Post a new one to appear on the map again.
                     </p>
                   ) : (
                     <p className="text-xs italic text-stone-400 pt-1 font-serif">
-                      ❧ No active status inscribed. Inscribe a note status to be exhibited upon the map, leaderboard, and profile for 1 day.
+                      ❧ No status note yet. Post one and it will show on the map, the leaderboard, and your profile for 24 hours.
                     </p>
                   )}
                 </div>
@@ -1533,7 +1538,7 @@ function UserProfile({ user }: { user: any }) {
                   className="btn-gold-saloon text-xs py-2 px-4 whitespace-nowrap flex items-center gap-1.5 self-end sm:self-center"
                 >
                   <PenTool className="w-3.5 h-3.5" />
-                  <span>{liveUser?.noteStatus && !liveUser?.isNoteExpired ? 'Update Status' : 'Inscribe Status'}</span>
+                  <span>{liveUser?.noteStatus && !liveUser?.isNoteExpired ? 'Update Status' : 'Post a Status'}</span>
                 </button>
               </div>
             </div>
@@ -1546,7 +1551,7 @@ function UserProfile({ user }: { user: any }) {
                 <div className="flex items-center gap-2">
                   <Crown className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} />
                   <span className="small-caps text-sm font-bold" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                    {user.role === 'mailman' ? "Courier's Royal Registry" : "Scribe's Sovereign Ledger"}
+                    {user.role === 'mailman' ? "Your Courier Record" : "Your Ledger"}
                   </span>
                 </div>
                 <span className="text-xs uppercase tracking-widest px-2.5 py-0.5 rounded-sm font-bold" style={{ background: 'rgba(212,175,55,0.1)', color: 'var(--parchment-dark)', border: '1px solid rgba(212,175,55,0.2)' }}>
@@ -1633,13 +1638,13 @@ function UserProfile({ user }: { user: any }) {
 
                   <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.15)' }}>
                     <span className="text-xs uppercase tracking-wider block mb-1 font-bold" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
-                      Epistles Penned
+                      Letters Written
                     </span>
                     <span className="text-2xl md:text-3xl font-extrabold block" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
                       {liveUser?.lettersSent ?? 0}
                     </span>
                     <span className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-                      Dispatched to realm
+                      Sent so far
                     </span>
                   </div>
                 </div>
@@ -1656,7 +1661,7 @@ function UserProfile({ user }: { user: any }) {
                       Mailbox Companion
                     </span>
                     <span className="text-xs font-bold text-stone-200">
-                      {liveUser?.mailboxPet === 'none' ? 'No Companion Appointed' : `${MAILBOX_PETS[liveUser?.mailboxPet as keyof typeof MAILBOX_PETS]?.name || 'Barnaby'} (${MAILBOX_PETS[liveUser?.mailboxPet as keyof typeof MAILBOX_PETS]?.title || 'Imperial Pigeon'})`}
+                      {liveUser?.mailboxPet === 'none' ? 'No companion yet — pick one at your mailbox' :`${MAILBOX_PETS[liveUser?.mailboxPet as keyof typeof MAILBOX_PETS]?.name || 'Barnaby'} (${MAILBOX_PETS[liveUser?.mailboxPet as keyof typeof MAILBOX_PETS]?.title || 'Imperial Pigeon'})`}
                     </span>
                   </div>
                 </div>
@@ -1672,7 +1677,7 @@ function UserProfile({ user }: { user: any }) {
               <div className="mt-3 pt-3 flex justify-between items-center text-sm" style={{ borderTop: '1px dashed rgba(212,175,55,0.2)' }}>
                 <span className="italic" style={{ color: 'var(--parchment-dark)' }}>“Verba volant, scripta manent.”</span>
                 <Link to={user.role === 'mailman' ? "/mailman" : "/directory"} className="underline hover:text-white font-bold text-xs sm:text-sm" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                  {user.role === 'mailman' ? "Mailman Ledger →" : "Inspect Roster →"}
+                  {user.role === 'mailman' ? "My Delivery Record →" : "View Couriers →"}
                 </Link>
               </div>
             </div>
@@ -1690,7 +1695,7 @@ function UserProfile({ user }: { user: any }) {
             <span>📜</span> The Guild Chambers & Post Desks
           </h2>
           <span className="text-xs uppercase tracking-widest hidden sm:inline" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
-            Select a Salon Chamber
+            Choose where to go
           </span>
         </div>
 
@@ -1700,8 +1705,8 @@ function UserProfile({ user }: { user: any }) {
           {isBanned ? (
             <div className="theatrical-card p-6 md:p-8 opacity-50 cursor-not-allowed">
               <AlertTriangle className="w-8 h-8 mb-3 text-red-400" />
-              <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--parchment)' }}>Compose Chamber Locked</h3>
-              <p className="text-xs italic" style={{ color: 'var(--warm-gray-light)' }}>Thou must await the conclusion of thy guild sanction before inscribing missives.</p>
+              <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--parchment)' }}>Writing Is Locked</h3>
+              <p className="text-xs italic" style={{ color: 'var(--warm-gray-light)' }}>You can write again once your suspension ends.</p>
             </div>
           ) : (
             <Link to="/compose" className="theatrical-card p-6 md:p-8 no-underline group block relative overflow-hidden rounded-sm hover:-translate-y-2 transition-all shadow-xl" style={{
@@ -1716,22 +1721,22 @@ function UserProfile({ user }: { user: any }) {
                     <span>✍️</span> <span>Sovereign Scriptorium</span>
                   </span>
                   <h3 className="text-2xl font-bold mt-2 transition-colors group-hover:text-white" style={{ fontFamily: "'Cinzel', serif", color: 'var(--antique-gold)' }}>
-                    Compose Thy Epistle
+                    Write a Letter
                   </h3>
                   <p className="text-sm italic leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--parchment-dark)' }}>
-                    Select calligraphic scripts, apply custom wax seals, choose exquisite postage stamps, and send thy missive across the realm via royal couriers.
+                    Pick a handwriting style, seal it with wax, choose a stamp, and send it across the realm by courier.
                   </p>
                 </div>
                 <PenTool className="w-10 h-10 transition-transform group-hover:scale-110 group-hover:rotate-6 flex-shrink-0 animate-float-slow" style={{ color: 'var(--antique-gold)' }} />
               </div>
               <div className="mt-4 pt-3 flex items-center justify-between text-xs relative z-10" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
                 <span className="small-caps" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>19 Ancient Scripts & Wax Seals</span>
-                <span className="font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform" style={{ color: 'var(--antique-gold)' }}>Inscribe Now →</span>
+                <span className="font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform" style={{ color: 'var(--antique-gold)' }}>Start Writing →</span>
               </div>
             </Link>
           )}
 
-          {/* Thy Sovereign Mailbox Card with Custom Chamber Background */}
+          {/* Your Mailbox Card with Custom Chamber Background */}
           <Link to="/mailbox" className="theatrical-card p-6 md:p-8 no-underline group block relative overflow-hidden rounded-sm hover:-translate-y-2 transition-all shadow-xl" style={{
             backgroundImage: `linear-gradient(135deg, rgba(24, 21, 18, 0.90) 0%, rgba(14, 13, 12, 0.82) 100%), url(${mailboxChamberBg})`,
             backgroundSize: 'cover',
@@ -1744,10 +1749,10 @@ function UserProfile({ user }: { user: any }) {
                   <span>📬</span> <span>Royal Letter Registry</span>
                 </span>
                 <h3 className="text-2xl font-bold mt-2 transition-colors group-hover:text-white" style={{ fontFamily: "'Cinzel', serif", color: 'var(--antique-gold)' }}>
-                  Thy Sovereign Mailbox
+                  Your Mailbox
                 </h3>
                 <p className="text-sm italic leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--parchment-dark)' }}>
-                  Unseal incoming missives with authentic wax fractures, reveal sender seals, summon spectral Dybbuk letters, and preserve cherished epistles.
+                  Break the wax on letters that have arrived, see who sent them, summon a ghostly Dybbuk letter, and keep the ones worth keeping.
                 </p>
               </div>
               <Inbox className="w-10 h-10 transition-transform group-hover:scale-110 flex-shrink-0 animate-float-slow" style={{ color: 'var(--antique-gold)' }} />
@@ -1782,7 +1787,7 @@ function UserProfile({ user }: { user: any }) {
                   The Grand Archive
                 </h3>
                 <p className="text-sm sm:text-base italic leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--parchment-dark)' }}>
-                  A majestic sanctuary of preserved correspondence, illuminated scrolls, sealed missives, and historical kingdom letters safeguarded eternally against time and decay.
+                  Every letter you have written, received, or sealed — kept safe here forever and searchable whenever you need it.
                 </p>
               </div>
               <div className="p-3.5 rounded-sm bg-amber-950/70 border border-amber-500/50 shadow-lg animate-float-gentle hidden sm:flex flex-shrink-0">
@@ -1790,12 +1795,12 @@ function UserProfile({ user }: { user: any }) {
               </div>
             </div>
             <div className="mt-5 pt-3 flex items-center justify-between text-xs relative z-10" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
-              <span className="small-caps text-amber-200/90 font-serif">Searchable Historical Scrolls & Inscribed Epistles</span>
+              <span className="small-caps text-amber-200/90 font-serif">Search by sender, recipient, or words</span>
               <span className="font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform text-amber-300">Enter Grand Archive →</span>
             </div>
           </Link>
 
-          {/* Dispatched Missives Card */}
+          {/* Dispatched Letters Card */}
           <Link to="/sent" className="md:col-span-4 theatrical-card p-6 no-underline group flex flex-col justify-between relative overflow-hidden rounded-sm hover:-translate-y-2 transition-all shadow-xl" style={{
             backgroundImage: `linear-gradient(135deg, rgba(24, 21, 18, 0.94) 0%, rgba(14, 13, 12, 0.88) 100%), url(${antiqueScrollsPile})`,
             backgroundSize: 'cover',
@@ -1812,14 +1817,14 @@ function UserProfile({ user }: { user: any }) {
                 </span>
               </div>
               <h3 className="text-xl font-bold transition-colors group-hover:text-white" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-                Dispatched Missives
+                Letters You've Sent
               </h3>
               <p className="text-xs italic mt-1.5 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>
-                Track dispatched missives across the 4-stage royal journey, access scriptorium drafts, and attempt postmaster riddle unsends.
+                Follow each letter through its four stages — drafted, sealed, in transit, delivered. Open your drafts, or try to recall one.
               </p>
             </div>
             <div className="mt-4 pt-3 flex items-center justify-between text-xs" style={{ borderTop: '1px solid rgba(212,175,55,0.2)' }}>
-              <span className="small-caps" style={{ color: 'var(--gold-muted)' }}>Royal Saddlebags</span>
+              <span className="small-caps" style={{ color: 'var(--gold-muted)' }}>Track every stage</span>
               <span className="font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform" style={{ color: 'var(--antique-gold)' }}>Track Letters →</span>
             </div>
           </Link>
@@ -1837,9 +1842,9 @@ function UserProfile({ user }: { user: any }) {
             <div className="relative z-10">
               <Compass className="w-7 h-7 mb-3 transition-transform group-hover:rotate-45" style={{ color: 'var(--antique-gold)' }} />
               <h3 className="text-base font-bold transition-colors group-hover:text-white small-caps" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-                Realm Map & GPS
+                Realm Map
               </h3>
-              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>Live courier routes & travellers.</p>
+              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>See couriers and scribes moving near you, live.</p>
             </div>
             <div className="mt-3 pt-2 text-[11px] font-bold text-amber-300/80 relative z-10 border-t border-amber-900/30 flex items-center justify-between">
               <span>Open Map</span>
@@ -1857,12 +1862,12 @@ function UserProfile({ user }: { user: any }) {
             <div className="relative z-10">
               <Users className="w-7 h-7 mb-3 transition-transform group-hover:scale-110" style={{ color: 'var(--antique-gold)' }} />
               <h3 className="text-base font-bold transition-colors group-hover:text-white small-caps" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-                Fellowship Scribes
+                Fellowship
               </h3>
-              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>Guild friendships & scholars.</p>
+              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>Your friends, and requests waiting on you.</p>
             </div>
             <div className="mt-3 pt-2 text-[11px] font-bold text-amber-300/80 relative z-10 border-t border-amber-900/30 flex items-center justify-between">
-              <span>View Scribes</span>
+              <span>View Friends</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
           </Link>
@@ -1879,10 +1884,10 @@ function UserProfile({ user }: { user: any }) {
               <h3 className="text-base font-bold transition-colors group-hover:text-white small-caps" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
                 Philately & Seals
               </h3>
-              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>Royal stamps & wax insignias.</p>
+              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>The stamps you have collected so far.</p>
             </div>
             <div className="mt-3 pt-2 text-[11px] font-bold text-amber-300/80 relative z-10 border-t border-amber-900/30 flex items-center justify-between">
-              <span>Inspect Seals</span>
+              <span>View Stamps</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
           </Link>
@@ -1897,12 +1902,12 @@ function UserProfile({ user }: { user: any }) {
             <div className="relative z-10">
               <Scroll className="w-7 h-7 mb-3 transition-transform group-hover:scale-110" style={{ color: 'var(--antique-gold)' }} />
               <h3 className="text-base font-bold transition-colors group-hover:text-white small-caps" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-                The Mailman's Registry
+                Courier Directory
               </h3>
-              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>Courier records & imperial roster.</p>
+              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>Who delivers well, and who to trust.</p>
             </div>
             <div className="mt-3 pt-2 text-[11px] font-bold text-amber-300/80 relative z-10 border-t border-amber-900/30 flex items-center justify-between">
-              <span>View Registry</span>
+              <span>View Couriers</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
           </Link>
@@ -1926,7 +1931,7 @@ function UserProfile({ user }: { user: any }) {
                     Courier Dispatch & Delivery Terminal
                   </h3>
                   <p className="text-xs sm:text-sm italic mt-1 max-w-2xl leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>
-                    View pending parcel quests, claim deliveries across the realm, and confirm drop-offs via QR Wax Seal scan.
+                    See letters waiting for pickup, claim deliveries near you, and confirm each drop-off by scanning its QR seal.
                   </p>
                 </div>
               </div>
@@ -1956,7 +1961,7 @@ function UserProfile({ user }: { user: any }) {
                 Community Notice Board
               </h3>
               <p className="text-sm italic leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--parchment-dark)' }}>
-                Stay informed with official proclamations, realm maintenance, feature announcements, and festival quests posted by the Postmasters.
+                Announcements, updates, and events posted by the Postmasters — read them here first.
               </p>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
@@ -1984,14 +1989,14 @@ function UserProfile({ user }: { user: any }) {
                   <span>🏛️</span> <span>Public Realm Archive</span>
                 </span>
                 <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-amber-900/40 text-amber-300 border border-amber-500/30 font-bold uppercase tracking-wider">
-                  Open Chronicle
+                  Public Archive
                 </span>
               </div>
               <h3 className="text-2xl sm:text-3xl font-bold transition-colors group-hover:text-white" style={{ fontFamily: "'Cinzel', serif", color: 'var(--antique-gold)' }}>
                 The Dead Letter Office
               </h3>
               <p className="text-sm italic leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--parchment-dark)' }}>
-                Explore ignored, undelivered, and abandoned letters released into the public archive. Unroll lost manuscripts and forgotten words from across the realm.
+                Letters that were never opened, never claimed, or simply abandoned. Anyone may read them — that is the point.
               </p>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
@@ -1999,7 +2004,7 @@ function UserProfile({ user }: { user: any }) {
                 <Archive className="w-8 h-8 text-amber-300" />
               </div>
               <span className="btn-gold-saloon text-xs py-2.5 px-5 font-bold shadow-lg">
-                Inspect Dead Letters →
+                Read Dead Letters →
               </span>
             </div>
           </div>
@@ -2012,7 +2017,7 @@ function UserProfile({ user }: { user: any }) {
           </Link>
 
           <Link to="/trash" className="inline-flex items-center gap-2 text-xs opacity-75 hover:opacity-100 transition-opacity" style={{ color: 'var(--warm-gray)', fontFamily: "'Cinzel', serif" }}>
-            <Trash2 className="w-3.5 h-3.5" /> <span>Inspect Wastebin & Ash Pit</span>
+            <Trash2 className="w-3.5 h-3.5" /> <span>Open Wastebin</span>
           </Link>
         </div>
       </div>
@@ -2137,10 +2142,10 @@ function ProfileActiveTravellers({ currentUser }: { currentUser: any }) {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b border-amber-900/40 pb-3">
         <div>
           <h3 className="text-xl sm:text-2xl font-bold flex items-center gap-2" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-            <Compass className="w-6 h-6 text-amber-400" /> Active Guild Travellers on Radar
+            <Compass className="w-6 h-6 text-amber-400" /> Who's Nearby Right Now
           </h3>
           <p className="text-xs italic text-amber-200/70 font-serif">
-            Members currently sharing their live journey and cartographic note statuses upon the realm.
+            People sharing their location and status notes on the map right now.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -2157,7 +2162,7 @@ function ProfileActiveTravellers({ currentUser }: { currentUser: any }) {
       {otherActive.length === 0 ? (
         <div className="p-8 text-center rounded-sm bg-stone-900/40 border border-dashed border-stone-800 text-stone-400 italic font-serif">
           <p className="font-semibold text-sm">No other travellers are currently sharing location on the map.</p>
-          <p className="text-xs mt-1 text-stone-500">When fellow mailmen or senders open the Realm Map, their live location and note statuses appear here instantly.</p>
+          <p className="text-xs mt-1 text-stone-500">When other couriers or scribes open the Realm Map, they appear here straight away.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2194,7 +2199,7 @@ function ProfileActiveTravellers({ currentUser }: { currentUser: any }) {
           {/* Active Senders */}
           <div className="p-4 rounded-sm bg-stone-900/70 border border-amber-900/30">
             <p className="font-bold text-xs uppercase tracking-wider mb-3 flex items-center justify-between font-mono text-amber-300">
-              <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-amber-400" /> Senders & Scholars ({senders.length})</span>
+              <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-amber-400" /> Scribes ({senders.length})</span>
             </p>
             {senders.length === 0 ? (
               <p className="text-xs italic text-stone-500 font-serif">No senders currently active on radar.</p>
@@ -2247,10 +2252,10 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
   const handleSeizeMissive = async (token: string) => {
     try {
       const res = await scanLetter(token);
-      alert(res.message || 'Missive seized successfully!');
+      notify.success(res.message || 'Letter picked up. It is now in your bag.');
       fetchQuests();
     } catch (e: any) {
-      alert(e.message || 'Error seizing missive');
+      notify.error(e.message || 'Could not pick up that letter. Please try again.');
     }
   };
 
@@ -2269,10 +2274,10 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
           </div>
           <h3 className="text-xl sm:text-3xl font-bold flex items-center gap-2.5" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
             <Scroll className="w-7 h-7 flex-shrink-0" style={{ color: 'var(--antique-gold)' }} />
-            <span>Thy Active Deliveries (In-Transit)</span>
+            <span>Deliveries You're Carrying</span>
           </h3>
           <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-            Missives thou hast scanned and art currently conveying across the realm.
+            Letters you have scanned and are carrying across the realm right now.
           </p>
         </div>
         <div className="flex flex-wrap gap-2.5">
@@ -2288,7 +2293,7 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
       {quests.length === 0 ? (
         <div className="p-8 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)' }}>
           <Star className="w-8 h-8 mx-auto text-amber-400/60 mb-2 animate-float-gentle" />
-          <p className="font-bold text-base" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Thou hast no missives currently in transit.</p>
+          <p className="font-bold text-base" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>You are not carrying any letters right now.</p>
           <p className="text-xs text-stone-400 mt-1 font-serif italic">Scan a sender's wax seal or claim a letter from the Realm Map to begin transport.</p>
         </div>
       ) : (
@@ -2320,7 +2325,7 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
                     onClick={() => handleSeizeMissive(q.qrCodeToken)} 
                     className="w-full sm:w-auto btn-velvet-burgundy text-xs py-2 px-4 shadow"
                   >
-                    Seize Missive
+                    Pick Up Letter
                   </button>
                 ) : (
                   <button 
@@ -2366,7 +2371,7 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
                 For Recipient: <strong>{selectedQR.receiverName}</strong>
               </p>
               <p className="text-xs text-stone-300 italic mb-5">
-                Present this seal to the recipient so they may scan and receive their missive into their Mailbox.
+                Show this seal to the recipient. When they scan it, the letter lands in their mailbox.
               </p>
 
               <div className="flex justify-center p-4 bg-[#FFFDF9] border-2 border-[var(--antique-gold)] rounded-sm mb-4 inline-block shadow-inner">
@@ -2517,16 +2522,16 @@ function ComposeLetter() {
 
   const handleSend = async () => {
     if (!receiverRef || !receiverRef.trim()) {
-      setError('A valid recipient scribe name must be provided from the Guild registry to seal and dispatch a letter. (For anonymous missives without a recipient, use "Nameless Words").');
+      setError('Enter the name of a scribe from the Guild registry to send this letter. To write without a recipient, use “Nameless Words” instead.');
       return;
     }
     if (isHandwritten) {
       if (!handwrittenPages || handwrittenPages.length === 0) {
-        setError('Please write thy message on the parchment before dispatching.');
+        setError('Write your message on the parchment before sending.');
         return;
       }
     } else {
-      if (!content.trim()) { setError('The missive cannot be empty.'); return; }
+      if (!content.trim()) { setError('Your letter is empty — write something first.'); return; }
     }
     setLoading(true); setError('');
     try {
@@ -2557,7 +2562,7 @@ function ComposeLetter() {
       setCreatedLetterId(res?._id || currentDraftId || '');
       setCreatedQR(res.qrCodeToken);
     } catch (e: any) {
-      setError(e.message || 'Failed to dispatch letter');
+      setError(e.message || 'Could not dispatch letter');
       setLoading(false);
     }
   };
@@ -2600,10 +2605,10 @@ function ComposeLetter() {
         const res = await sendLetter(draftPayload);
         setCurrentDraftId(res._id);
       }
-      setError('Draft saved to thy archives successfully!');
+      setError('Draft saved. You will find it under Drafts.');
       setTimeout(() => navigate('/sent'), 1500);
     } catch (e: any) {
-      setError(e.message || 'Failed to save draft');
+      setError(e.message || 'Could not save draft');
     } finally {
       setLoading(false);
     }
@@ -2611,7 +2616,7 @@ function ComposeLetter() {
 
   const handleOpenStoryHerald = () => {
     if (!receiverRef || !receiverRef.trim()) {
-      setError('A valid recipient scribe name must be provided from the Guild registry to proclaim a Story Herald.');
+      setError('A valid recipient scribe name must be provided from the Guild registry to create a Story Herald card.');
       return;
     }
     openStoryHeraldStudio({
@@ -2636,12 +2641,12 @@ function ComposeLetter() {
   const handleOpenNamelessModal = () => {
     if (isHandwritten) {
       if (!handwrittenPages || handwrittenPages.length === 0) {
-        setError('Please write thy message on the parchment before releasing nameless words.');
+        setError('Write your message before posting it anonymously.');
         return;
       }
     } else {
       if (!content.trim()) {
-        setError('The nameless missive cannot be empty.');
+        setError('Your anonymous letter is empty — write something first.');
         return;
       }
     }
@@ -2671,7 +2676,7 @@ function ComposeLetter() {
       setShowNamelessModal(false);
       navigate('/nameless-words');
     } catch (e: any) {
-      setError(e.message || 'Failed to release nameless words');
+      setError(e.message || 'Could not release nameless words');
       setLoading(false);
     }
   };
@@ -2695,7 +2700,7 @@ function ComposeLetter() {
             <Flame className="w-5 h-5 text-orange-400" /> Guild Sanction Imposed <Flame className="w-5 h-5 text-orange-400" />
           </span>
           <p className="mt-1 text-sm italic text-center" style={{ color: 'var(--parchment-light)' }}>
-            Thy quill is locked until: <strong className="text-white">{new Date(liveUser.restrictedUntil).toLocaleString()}</strong>
+            You cannot write until: <strong className="text-white">{new Date(liveUser.restrictedUntil).toLocaleString()}</strong>
           </p>
         </div>
       )}
@@ -2720,10 +2725,10 @@ function ComposeLetter() {
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-bold tracking-wide" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)', textShadow: '0 4px 15px rgba(0,0,0,0.8)' }}>
-              Compose Thy Epistle
+              Write a Letter
             </h2>
             <p className="italic text-base sm:text-lg mt-1" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--gold-muted)' }}>
-              “Inscribe words that defy the boundaries of time and realm.”
+              “Write words that outlast both time and distance.”
             </p>
           </div>
 
@@ -2731,7 +2736,7 @@ function ComposeLetter() {
             {/* Recipient Input */}
             <div>
               <label className="small-caps block text-sm sm:text-base font-bold mb-2" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                To Whom It May Concern (Name / Realm Address / Open Missive):
+                Send To — the scribe's name or email address:
               </label>
               <input 
                 type="text" 
@@ -2745,7 +2750,7 @@ function ComposeLetter() {
                   border: '1px solid var(--border-subtle)',
                   boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
                 }}
-                placeholder="e.g., Lady Gwendolyn / scholar@postme.realm (Leave blank for public missive)" 
+                placeholder="e.g. Lady Gwendolyn — or scholar@example.com"
               />
             </div>
 
@@ -2850,7 +2855,7 @@ function ComposeLetter() {
                         className="text-lg sm:text-xl font-medium tracking-wide block truncate"
                         style={{ color: 'var(--antique-gold)', fontFamily: getFontFamily(selectedFont) }}
                       >
-                        Thy Words Carry the Wind & Fire
+                        Your words carry wind and fire
                       </span>
                     </div>
                   </div>
@@ -2874,7 +2879,7 @@ function ComposeLetter() {
               ) : (
                 <div className="space-y-2">
                   <label className="small-caps block text-sm sm:text-base font-bold" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                    Parchment Inscription:
+                    Your Letter:
                   </label>
                   <div className="relative">
                     <textarea 
@@ -2890,7 +2895,7 @@ function ComposeLetter() {
                         fontFamily: getFontFamily(selectedFont),
                         boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.08)'
                       }}
-                      placeholder="Pen thy thoughts upon this timeless parchment..." 
+                      placeholder="Write your letter here…"
                     />
                   </div>
                 </div>
@@ -2914,7 +2919,7 @@ function ComposeLetter() {
                   />
                   <span className="small-caps text-sm font-bold flex items-center gap-1.5" style={{ color: burnAfterReading ? '#EF9A9A' : 'var(--parchment-dark)', fontFamily: "'Cinzel', serif" }}>
                     <Flame className="w-4 h-4 text-orange-400" />
-                    <span>Incinerate Post Reading (Self-Destruct)</span>
+                    <span>Burn after reading</span>
                   </span>
                 </label>
 
@@ -2964,7 +2969,7 @@ function ComposeLetter() {
                   />
                   <span className="small-caps text-sm font-bold flex items-center gap-1.5" style={{ color: isTimeCapsule ? '#FFE082' : 'var(--parchment-dark)', fontFamily: "'Cinzel', serif" }}>
                     <Clock className="w-4 h-4 text-amber-400" />
-                    <span>Time Capsule (Sealed Arrival Timer)</span>
+                    <span>Time capsule — opens on a future date</span>
                   </span>
                 </label>
 
@@ -3031,7 +3036,7 @@ function ComposeLetter() {
             <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-4 gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
               <div className="flex items-center space-x-2 justify-center sm:justify-start" style={{ color: 'var(--antique-gold)' }}>
                 <Shield className="w-5 h-5 flex-shrink-0" />
-                <span className="text-xs uppercase tracking-wider font-semibold" style={{ fontFamily: "'Cinzel', serif" }}>Wax Seal Authentication</span>
+                <span className="text-xs uppercase tracking-wider font-semibold" style={{ fontFamily: "'Cinzel', serif" }}>Choose Your Wax Seal</span>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
@@ -3048,7 +3053,7 @@ function ComposeLetter() {
                   onClick={handleOpenNamelessModal}
                   disabled={loading || isBanned}
                   className="btn-gold-saloon justify-center text-sm py-3 px-6 flex items-center gap-1.5"
-                  title="Release this missive anonymously to the Chamber of Nameless Words (15-Day Lifespan)"
+                  title="Post this anonymously to Nameless Words — readable for 15 days, then deleted"
                 >
                   <Feather className="w-4 h-4 text-amber-300" />
                   <span>Nameless Words</span>
@@ -3070,7 +3075,7 @@ function ComposeLetter() {
                   className="btn-velvet-burgundy justify-center text-sm py-3 px-8 animate-glow-pulse"
                 >
                   <PenTool className="w-4 h-4" />
-                  <span>{loading && createdQR ? 'Affixing Seal...' : 'Seal & Dispatch'}</span>
+                  <span>{loading && createdQR ? 'Sealing…' : 'Seal & Send'}</span>
                 </button>
               </div>
             </div>
@@ -3097,14 +3102,14 @@ function ComposeLetter() {
                   Release Nameless Words
                 </h3>
                 <p className="text-xs italic text-amber-300/80 font-serif">
-                  Thy epistle will float anonymously in the Sanctuary for 15 days. Wandering souls may read and resonate.
+                  Your letter will sit anonymously in the Sanctuary for 15 days. Anyone may read it and react — no name attached, ever.
                 </p>
               </div>
 
               {/* Topic / Subject Input */}
               <div className="space-y-1.5 text-left pt-2">
                 <label className="block text-xs font-bold text-amber-300 uppercase tracking-wider font-serif">
-                  Epistle Topic / Subject:
+                  Topic (optional):
                 </label>
                 <input
                   type="text"
@@ -3152,7 +3157,7 @@ function ComposeLetter() {
                   onClick={() => setShowNamelessModal(false)}
                   className="w-full py-2 text-xs text-amber-400/70 hover:text-amber-200 font-serif text-center"
                 >
-                  Cancel & Return to Scriptorium
+                  Cancel
                 </button>
               </div>
             </div>
@@ -3167,8 +3172,8 @@ function ComposeLetter() {
             <div className="theatrical-card p-6 sm:p-8 max-w-md w-full relative text-center shadow-2xl animate-glow-pulse" style={{ border: '2px solid var(--antique-gold)' }}>
               <button onClick={handleQRClose} className="absolute top-3 right-3 text-gray-400 hover:text-white p-1"><X className="w-6 h-6" /></button>
               <Crown className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--antique-gold)' }} />
-              <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Epistle Sealed!</h3>
-              <p className="text-xs sm:text-sm italic mb-5" style={{ color: 'var(--gold-muted)' }}>Present this Royal Wax Seal (QR Code) to a Courier for pickup.</p>
+              <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Letter Sealed!</h3>
+              <p className="text-xs sm:text-sm italic mb-5" style={{ color: 'var(--gold-muted)' }}>Show this QR wax seal to a courier so they can collect it.</p>
               
               <div className="flex justify-center p-4 bg-white rounded-sm mb-4 inline-block shadow-inner" style={{ border: '2px solid var(--antique-gold)' }}>
                 <QRCodeCanvas value={createdQR} size={220} fgColor="#1A1A1A" />
@@ -3209,7 +3214,7 @@ function ComposeLetter() {
                   style={{ background: 'linear-gradient(135deg, #831843 0%, #581C87 50%, #92400E 100%)', color: '#FFF', border: '1px solid #D4AF37' }}
                 >
                   <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-                  <span>📜 Proclaim Royal Story Herald</span>
+                  <span>📜 Share Story Card</span>
                 </button>
                 <button 
                   type="button"
@@ -3223,7 +3228,7 @@ function ComposeLetter() {
                   <span>🏇 Hand Over to Mailman</span>
                 </button>
                 <button onClick={handleQRClose} className="btn-velvet-burgundy text-xs w-full justify-center">
-                  Dismiss & View Dispatched Missives →
+                  Done — view sent letters →
                 </button>
               </div>
             </div>
@@ -3320,7 +3325,7 @@ function LetterArchive() {
       await toggleLetterRead(id, !currentReadState);
       setLetters(prev => prev.map(l => l._id === id ? { ...l, isRead: !currentReadState, firstReadAt: !currentReadState ? Date.now() : undefined } : l));
     } catch (e: any) {
-      alert(e.message || 'Failed to update read state');
+      notify.error(e.message || 'Could not update read state');
     }
   };
 
@@ -3328,68 +3333,68 @@ function LetterArchive() {
     if (selectedIds.length === 0) return;
     try {
       await batchMarkRead(selectedIds, isRead);
-      setActionMsg(`Marked ${selectedIds.length} missives as ${isRead ? 'read' : 'unread'}.`);
+      setActionMsg(`Marked ${selectedIds.length} letters as ${isRead ? 'read' : 'unread'}.`);
       setTimeout(() => setActionMsg(null), 3500);
       setLetters(prev => prev.map(l => selectedIds.includes(l._id) ? { ...l, isRead, firstReadAt: isRead ? Date.now() : undefined } : l));
       setSelectedIds([]);
     } catch (e: any) {
-      alert(e.message || 'Failed to batch update');
+      notify.error(e.message || 'Could not batch update');
     }
   };
 
   const handleBatchTrash = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Move ${selectedIds.length} selected missives to thy Guild Wastebin?`)) return;
+    if (!(await confirmAction({ title: 'Move to Wastebin', message: `Move ${selectedIds.length} selected letter${selectedIds.length === 1 ? '' : 's'} to your wastebin? You can restore them later.`, confirmLabel: 'Move to Wastebin' }))) return;
     try {
       await batchTrashLetters(selectedIds);
-      setActionMsg(`Moved ${selectedIds.length} missives to thy Wastebin.`);
+      setActionMsg(`Moved ${selectedIds.length} letters to your wastebin.`);
       setTimeout(() => setActionMsg(null), 3500);
       setLetters(prev => prev.filter(l => !selectedIds.includes(l._id)));
       setSelectedIds([]);
       fetchArchiveLetters();
     } catch (e: any) {
-      alert(e.message || 'Failed to trash selected missives');
+      notify.error(e.message || 'Could not trash selected letters');
     }
   };
 
   const handleBatchAbandon = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Abandon ${selectedIds.length} selected missives to The Dead Letter Office? They will be deposited in the public realm archive for anyone to read.`)) return;
+    if (!(await confirmAction({ title: 'Release to the Dead Letter Office', message: `Abandon ${selectedIds.length} selected letter${selectedIds.length === 1 ? '' : 's'}? They will be placed in the public archive, where anyone in the realm can read them.`, confirmLabel: 'Abandon Letter', tone: 'danger' }))) return;
     try {
       await batchAbandonLetters(selectedIds);
-      setActionMsg(`Released ${selectedIds.length} missives to The Dead Letter Office.`);
+      setActionMsg(`Released ${selectedIds.length} letters to The Dead Letter Office.`);
       setTimeout(() => setActionMsg(null), 4000);
       setLetters(prev => prev.filter(l => !selectedIds.includes(l._id)));
       setSelectedIds([]);
       fetchArchiveLetters();
     } catch (e: any) {
-      alert(e.message || 'Failed to batch abandon missives.');
+      notify.error(e.message || 'Could not batch abandon letters.');
     }
   };
 
   const handleAbandonLetter = async (id: string, title: string) => {
-    if (!window.confirm(`Abandon "${title}" to The Dead Letter Office? It will be preserved in the public realm archive for anyone to read.`)) return;
+    if (!(await confirmAction({ title: 'Release to the Dead Letter Office', message: `Abandon “${title}”? It will be placed in the public archive, where anyone in the realm can read it.`, confirmLabel: 'Abandon Letter', tone: 'danger' }))) return;
     try {
       await abandonLetter(id);
-      setActionMsg('Missive released to The Dead Letter Office.');
+      setActionMsg('Letter released to The Dead Letter Office.');
       setTimeout(() => setActionMsg(null), 4000);
       setLetters(prev => prev.filter(l => l._id !== id));
       fetchArchiveLetters();
     } catch (e: any) {
-      alert(e.message || 'Failed to abandon missive.');
+      notify.error(e.message || 'Could not abandon letter.');
     }
   };
 
   const handleRemoveLetter = async (id: string, title: string) => {
-    if (!window.confirm(`Move "${title}" to the Guild Wastebin?`)) return;
+    if (!(await confirmAction({ title: 'Move to Wastebin', message: `Move “${title}” to your wastebin? You can restore it later.`, confirmLabel: 'Move to Wastebin' }))) return;
     setLetters(prev => prev.filter(l => l._id !== id));
     try {
       await removeLetterToTrash(id);
-      setActionMsg('Missive transferred to thy Wastebin.');
+      setActionMsg('Letter transferred to your wastebin.');
       setTimeout(() => setActionMsg(null), 3500);
       fetchArchiveLetters();
     } catch (e: any) {
-      alert(e.message || 'Failed to remove letter.');
+      notify.error(e.message || 'Could not remove letter.');
       fetchArchiveLetters();
     }
   };
@@ -3442,7 +3447,7 @@ function LetterArchive() {
               The Grand Archive
             </h2>
             <p className="text-sm sm:text-base italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-              A comprehensive chronicle of all missives written, received, and sealed upon the realm (Latest to Oldest).
+              Every letter you have written, received, or sealed — newest first.
             </p>
           </div>
           <div className="flex flex-wrap gap-2.5">
@@ -3450,7 +3455,7 @@ function LetterArchive() {
               <Trash2 className="w-4 h-4 text-amber-500" /> Open Wastebin
             </Link>
             <Link to="/" className="btn-velvet-burgundy text-xs py-2 px-4">
-              ← Thy Ledger
+              ← My Desk
             </Link>
           </div>
         </div>
@@ -3480,10 +3485,10 @@ function LetterArchive() {
         {/* Archive Filter Tabs */}
         <div className="flex flex-wrap gap-2 mb-6" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
           {[
-            { key: 'all', label: 'All Chronicles', count: letters.length },
-            { key: 'incoming', label: 'Incoming Missives', count: letters.filter(l => l.direction === 'incoming').length },
-            { key: 'outgoing', label: 'Dispatched Missives', count: letters.filter(l => l.direction === 'outgoing').length },
-            { key: 'drafts', label: 'Unsealed Drafts', count: letters.filter(l => l.status === 'draft').length },
+            { key: 'all', label: 'All Letters', count: letters.length },
+            { key: 'incoming', label: 'Incoming Letters', count: letters.filter(l => l.direction === 'incoming').length },
+            { key: 'outgoing', label: 'Dispatched Letters', count: letters.filter(l => l.direction === 'outgoing').length },
+            { key: 'drafts', label: 'Drafts', count: letters.filter(l => l.status === 'draft').length },
           ].map(t => (
             <button
               key={t.key}
@@ -3540,7 +3545,7 @@ function LetterArchive() {
                 onClick={handleBatchAbandon}
                 className="btn-gold-saloon text-[11px] py-1.5 px-3 flex items-center gap-1"
                 style={{ background: '#78350F', color: '#FEF3C7', border: '1px solid #D97706' }}
-                title="Abandon selected missives to The Dead Letter Office public archive"
+                title="Abandon selected letters to The Dead Letter Office public archive"
               >
                 <Archive className="w-3 h-3 text-amber-300" /> Abandon ({selectedIds.length})
               </button>
@@ -3562,8 +3567,8 @@ function LetterArchive() {
         ) : filteredLetters.length === 0 ? (
           <div className="text-center py-16 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
             <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }} />
-            <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No chronicles found matching thy query.</p>
-            <p className="text-sm mt-1 italic font-serif">Inscribe missives or await correspondence to populate thy archives.</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No letters match your search.</p>
+            <p className="text-sm mt-1 italic font-serif">Write a letter or wait for one to arrive — they will appear here.</p>
           </div>
         ) : (
           <>
@@ -3760,7 +3765,7 @@ function LetterArchive() {
                           border: '1px solid rgba(212,175,55,0.4)',
                           fontFamily: "'Cinzel', serif"
                         }}
-                        title="Proclaim 9:16 Royal Story Herald"
+                        title="Share a 9:16 story card for social media"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                         <span>Herald</span>
@@ -3788,7 +3793,7 @@ function LetterArchive() {
             {/* ── Pagination / Load More Controls ── */}
             <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
               <p className="text-xs sm:text-sm font-mono" style={{ color: 'var(--gold-muted)' }}>
-                Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredLetters.length)}</strong> of <strong className="text-amber-300">{filteredLetters.length}</strong> missives (Latest to Oldest)
+                Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredLetters.length)}</strong> of <strong className="text-amber-300">{filteredLetters.length}</strong> letters (Latest to Oldest)
               </p>
               
               <div className="flex flex-wrap items-center gap-2.5">
@@ -3797,7 +3802,7 @@ function LetterArchive() {
                     onClick={() => setVisibleCount(c => c + 5)}
                     className="btn-gold-saloon text-xs py-2 px-5 shadow"
                   >
-                    See More (+5 Missives)
+                    See More (+5 Letters)
                   </button>
                 )}
                 {visibleCount < filteredLetters.length && (
@@ -3845,7 +3850,7 @@ function LetterArchive() {
                     <div className="flex items-center gap-2 mb-1">
                       <Ghost className="w-6 h-6 text-purple-700 animate-pulse" />
                       <h3 className="text-xl sm:text-2xl font-bold" style={{ color: '#2E1065', fontFamily: "'Cinzel', serif" }}>
-                        Spectral Dybbuk Missive
+                        Spectral Dybbuk Letter
                       </h3>
                     </div>
                     <p className="text-xs italic mb-4" style={{ color: '#7E22CE' }}>
@@ -3857,7 +3862,7 @@ function LetterArchive() {
                     <div className="flex items-center gap-2 mb-1">
                       <Atom className="w-6 h-6 text-sky-700 animate-spin" />
                       <h3 className="text-xl sm:text-2xl font-bold" style={{ color: '#0C4A6E', fontFamily: "'Cinzel', serif" }}>
-                        {openLetter.collapsedVariant ? `Timeline: ${openLetter.collapsedVariant.label}` : "Schrödinger's Quantum Missive"}
+                        {openLetter.collapsedVariant ? `Timeline: ${openLetter.collapsedVariant.label}` : "Schrödinger's Quantum Letter"}
                       </h3>
                     </div>
                     <p className="text-xs italic mb-4" style={{ color: '#0284C7' }}>
@@ -3869,7 +3874,7 @@ function LetterArchive() {
                     <div className="flex items-center gap-2 mb-1">
                       <Waves className="w-6 h-6 text-emerald-700 animate-pulse" />
                       <h3 className="text-xl sm:text-2xl font-bold" style={{ color: '#064E3B', fontFamily: "'Cinzel', serif" }}>
-                        {openLetter.bottleMoniker || 'Ocean Bottle Missive'}
+                        {openLetter.bottleMoniker || 'Ocean Bottle Letter'}
                       </h3>
                     </div>
                     <p className="text-xs italic mb-4 text-emerald-800">
@@ -3879,7 +3884,7 @@ function LetterArchive() {
                 ) : (
                   <>
                     <h3 className="text-xl sm:text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: '#3A1F04' }}>
-                      {openLetter.direction === 'incoming' ? `Missive from ${openLetter.senderRef?.name || 'Unknown'}` : `Missive to ${openLetter.receiverRef?.name || openLetter.receiverRef || 'Unknown'}`}
+                      {openLetter.direction === 'incoming' ? `Letter from ${openLetter.senderRef?.name || 'Unknown'}` : `Letter to ${openLetter.receiverRef?.name || openLetter.receiverRef || 'Unknown'}`}
                     </h3>
                     <p className="text-xs italic mb-4" style={{ color: '#78350F' }}>
                       Recorded on {new Date(openLetter.createdAt).toLocaleString()} • Status: {openLetter.status}
@@ -3888,7 +3893,7 @@ function LetterArchive() {
                 )}
 
                 {(() => {
-                  const archiveSenderName = openLetter.senderRef?.name || 'Thy Correspondent';
+                  const archiveSenderName = openLetter.senderRef?.name || 'Your Correspondent';
                   const archiveDate = openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined;
                   return (
                     <LetterEnvelopeWrapper
@@ -4018,7 +4023,7 @@ function MyMailbox() {
       setActionMsg(res.message);
       setTimeout(() => setActionMsg(null), 4000);
     } catch (e: any) {
-      alert(e.message || "Failed to toggle Dybbuk Mode");
+      notify.error(e.message || "Could not toggle Dybbuk Mode");
     }
   };
 
@@ -4028,11 +4033,11 @@ function MyMailbox() {
     setSummoningDybbuk(true);
     try {
       const res = await summonDybbukLetter(u.id || u._id, tone);
-      setActionMsg(res.message || `👻 A Dybbuk Missive (${tone === 'modern' ? 'Modern' : 'Classical'}) has manifested in thy Mailbox!`);
+      setActionMsg(res.message || `👻 A Dybbuk Letter (${tone === 'modern' ? 'Modern' : 'Classical'}) has manifested in your mailbox!`);
       setTimeout(() => setActionMsg(null), 5000);
       fetchMyMailbox();
     } catch (e: any) {
-      alert(e.message || "Failed to summon Dybbuk Missive");
+      notify.error(e.message || "Could not summon a Dybbuk letter. Please try again.");
     } finally {
       setSummoningDybbuk(false);
     }
@@ -4047,11 +4052,11 @@ function MyMailbox() {
         userId: u.id || u._id,
         tone
       });
-      setActionMsg(`⚛️ A Schrödinger Quantum Box (${tone === 'modern' ? 'Modern' : 'Classical'}) has manifested in thy Mailbox!`);
+      setActionMsg(`⚛️ A Schrödinger Quantum Box (${tone === 'modern' ? 'Modern' : 'Classical'}) has manifested in your mailbox!`);
       setTimeout(() => setActionMsg(null), 5000);
       fetchMyMailbox();
     } catch (e: any) {
-      alert(e.message || "Failed to summon Schrödinger Box");
+      notify.error(e.message || "Could not summon a Schrödinger box. Please try again.");
     } finally {
       setSummoningSchrodinger(false);
     }
@@ -4074,7 +4079,7 @@ function MyMailbox() {
         fetchMyMailbox();
       }, 1600);
     } catch (e: any) {
-      alert(e.message || "Failed to collapse quantum wavefunction");
+      notify.error(e.message || "Could not collapse quantum wavefunction");
       setCollapseStep('superposition');
     }
   };
@@ -4084,7 +4089,7 @@ function MyMailbox() {
       await toggleLetterRead(id, !currentReadState);
       setMyMailbox(prev => prev.map(l => l._id === id ? { ...l, isRead: !currentReadState, firstReadAt: !currentReadState ? Date.now() : undefined } : l));
     } catch (e: any) {
-      alert(e.message || 'Failed to update read state');
+      notify.error(e.message || 'Could not update read state');
     }
   };
 
@@ -4092,67 +4097,67 @@ function MyMailbox() {
     if (selectedIds.length === 0) return;
     try {
       await batchMarkRead(selectedIds, isRead);
-      setActionMsg(`Marked ${selectedIds.length} missives as ${isRead ? 'read' : 'unread'}.`);
+      setActionMsg(`Marked ${selectedIds.length} letters as ${isRead ? 'read' : 'unread'}.`);
       setTimeout(() => setActionMsg(null), 3500);
       setMyMailbox(prev => prev.map(l => selectedIds.includes(l._id) ? { ...l, isRead, firstReadAt: isRead ? Date.now() : undefined } : l));
       setSelectedIds([]);
     } catch (e: any) {
-      alert(e.message || 'Failed to batch update');
+      notify.error(e.message || 'Could not batch update');
     }
   };
 
   const handleBatchTrash = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Move ${selectedIds.length} selected missives to thy Guild Wastebin?`)) return;
+    if (!(await confirmAction({ title: 'Move to Wastebin', message: `Move ${selectedIds.length} selected letter${selectedIds.length === 1 ? '' : 's'} to your wastebin? You can restore them later.`, confirmLabel: 'Move to Wastebin' }))) return;
     try {
       await batchTrashLetters(selectedIds);
-      setActionMsg(`Moved ${selectedIds.length} missives to thy Wastebin.`);
+      setActionMsg(`Moved ${selectedIds.length} letters to your wastebin.`);
       setTimeout(() => setActionMsg(null), 3500);
       setMyMailbox(prev => prev.filter(l => !selectedIds.includes(l._id)));
       setSelectedIds([]);
       fetchMyMailbox();
     } catch (e: any) {
-      alert(e.message || 'Failed to trash selected missives');
+      notify.error(e.message || 'Could not trash selected letters');
     }
   };
 
   const handleBatchAbandon = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Abandon ${selectedIds.length} selected missives to The Dead Letter Office? They will be deposited in the public realm archive for anyone to read.`)) return;
+    if (!(await confirmAction({ title: 'Release to the Dead Letter Office', message: `Abandon ${selectedIds.length} selected letter${selectedIds.length === 1 ? '' : 's'}? They will be placed in the public archive, where anyone in the realm can read them.`, confirmLabel: 'Abandon Letter', tone: 'danger' }))) return;
     try {
       await batchAbandonLetters(selectedIds);
-      setActionMsg(`Released ${selectedIds.length} missives to The Dead Letter Office.`);
+      setActionMsg(`Released ${selectedIds.length} letters to The Dead Letter Office.`);
       setTimeout(() => setActionMsg(null), 4000);
       setMyMailbox(prev => prev.filter(l => !selectedIds.includes(l._id)));
       setSelectedIds([]);
       fetchMyMailbox();
     } catch (e: any) {
-      alert(e.message || "Failed to batch abandon missives.");
+      notify.error(e.message || "Could not batch abandon letters.");
     }
   };
 
   const handleAbandonLetter = async (id: string) => {
-    if (!window.confirm("Abandon this missive to The Dead Letter Office? It will be released into the public archive for all realm scholars to read.")) return;
+    if (!(await confirmAction({ title: 'Release to the Dead Letter Office', message: 'Abandon this letter? It will be placed in the public archive, where anyone in the realm can read it.', confirmLabel: 'Abandon Letter', tone: 'danger' }))) return;
     try {
       await abandonLetter(id);
-      setActionMsg("Missive forsaken and released to The Dead Letter Office.");
+      setActionMsg("Letter forsaken and released to The Dead Letter Office.");
       setTimeout(() => setActionMsg(null), 4000);
       setMyMailbox(prev => prev.filter(l => l._id !== id));
       fetchMyMailbox();
     } catch (e: any) {
-      alert(e.message || "Failed to abandon missive.");
+      notify.error(e.message || "Could not abandon letter.");
     }
   };
 
   const handleRemoveInboxLetter = async (id: string) => {
-    if (!window.confirm("Move this missive to thy Guild Wastebin?")) return;
+    if (!(await confirmAction({ title: 'Move to Wastebin', message: 'Move this letter to your wastebin? You can restore it later.', confirmLabel: 'Move to Wastebin' }))) return;
     try {
       await removeLetterToTrash(id);
-      setActionMsg("Missive removed to thy Wastebin.");
+      setActionMsg("Letter removed to your wastebin.");
       setTimeout(() => setActionMsg(null), 3500);
       fetchMyMailbox();
     } catch (e: any) {
-      alert(e.message || "Failed to remove missive.");
+      notify.error(e.message || "Could not remove letter.");
     }
   };
 
@@ -4262,10 +4267,10 @@ function MyMailbox() {
               </div>
               <h2 className="text-2xl sm:text-4xl font-bold tracking-wide flex items-center justify-center sm:justify-start gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
                 <Inbox className="w-8 h-8 flex-shrink-0" style={{ color: 'var(--antique-gold)' }} />
-                Thy Sovereign Mailbox
+                Your Mailbox
               </h2>
               <p className="text-sm sm:text-base italic" style={{ color: 'var(--gold-muted)' }}>
-                Missives delivered to thee by royal couriers across the realm (Latest to Oldest).
+                Letters brought to you by couriers — newest first.
               </p>
             </div>
           </div>
@@ -4294,7 +4299,7 @@ function MyMailbox() {
               <Trash2 className="w-4 h-4 text-amber-500" /> Wastebin
             </Link>
             <Link to="/" className="btn-velvet-burgundy text-xs py-2 px-4">
-              ← Thy Ledger
+              ← My Desk
             </Link>
           </div>
         </div>
@@ -4317,7 +4322,7 @@ function MyMailbox() {
               <p className="text-[11px] sm:text-xs text-purple-200/80 leading-relaxed italic line-clamp-1 sm:line-clamp-none">
                 {tone === 'modern'
                   ? 'Spectral transmissions analyzing your recent messages.'
-                  : 'Phantom scribes craft personalized missives from beyond the veil.'}
+                  : 'Phantom scribes craft personalized letters from beyond the veil.'}
               </p>
             </div>
 
@@ -4375,8 +4380,8 @@ function MyMailbox() {
               </div>
               <p className="text-[11px] sm:text-xs text-sky-200/80 leading-relaxed italic line-clamp-1 sm:line-clamp-none">
                 {tone === 'modern'
-                  ? 'Multi-mood missives locked in superposition.'
-                  : 'Multi-mood missives collapsing on observation.'}
+                  ? 'Multi-mood letters locked in superposition.'
+                  : 'Letters holding two moods at once, decided the moment they are opened.'}
               </p>
             </div>
 
@@ -4420,7 +4425,7 @@ function MyMailbox() {
                 </span>
               </div>
               <p className="text-[11px] sm:text-xs text-emerald-200/80 leading-relaxed italic line-clamp-1 sm:line-clamp-none">
-                Anonymous corked parchment cast into open tides with geographic decay.
+                Anonymous notes cast into the sea — people closer to you are likelier to find them.
               </p>
             </div>
 
@@ -4446,7 +4451,7 @@ function MyMailbox() {
         <div className="mb-6">
           <input 
             type="text" 
-            placeholder="Search missives by sender or content keywords..." 
+            placeholder="Search letters by sender or content keywords..." 
             value={searchQuery} 
             onChange={(e) => { setSearchQuery(e.target.value); setVisibleCount(5); }} 
             className="w-full p-3.5 rounded-sm text-base sm:text-lg font-serif italic focus:outline-none transition-all shadow-inner"
@@ -4496,7 +4501,7 @@ function MyMailbox() {
                 onClick={handleBatchAbandon}
                 className="btn-gold-saloon text-[11px] py-1.5 px-3 flex items-center gap-1"
                 style={{ background: '#78350F', color: '#FEF3C7', border: '1px solid #D97706' }}
-                title="Abandon selected missives to The Dead Letter Office public archive"
+                title="Abandon selected letters to The Dead Letter Office public archive"
               >
                 <Archive className="w-3 h-3 text-amber-300" /> Abandon ({selectedIds.length})
               </button>
@@ -4513,8 +4518,8 @@ function MyMailbox() {
         {myMailbox.length === 0 ? (
           <div className="p-12 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
             <Inbox className="w-12 h-12 mx-auto mb-2 opacity-60" style={{ color: 'var(--antique-gold)' }} />
-            <p className="font-bold text-lg" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Thy mailbox is currently empty.</p>
-            <p className="text-sm mt-1 italic font-serif">Missives delivered by royal mailmen, summoned from the astral veil, or washed ashore in corked glass bottles will appear here.</p>
+            <p className="font-bold text-lg" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Your mailbox is currently empty.</p>
+            <p className="text-sm mt-1 italic font-serif">Letters brought by couriers, summoned from the spirit world, or washed ashore in bottles will appear here.</p>
           </div>
         ) : (
           <>
@@ -4582,7 +4587,7 @@ function MyMailbox() {
                               <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider" style={{ background: '#581C87', color: '#E9D5FF' }}>
                                 <Ghost className="w-3.5 h-3.5 text-purple-300" /> Dybbuk Spectral
                               </span>
-                              <span>Missive from {displaySender}</span>
+                              <span>Letter from {displaySender}</span>
                             </>
                           ) : isSchrodinger ? (
                             <>
@@ -4593,7 +4598,7 @@ function MyMailbox() {
                                 <Atom className="w-3.5 h-3.5 text-sky-200 animate-spin" />
                                 {isSuperposition ? `⚛️ Quantum Superposition (${l.schrodingerVariants?.length || 3} States)` : `✦ Collapsed: ${l.collapsedVariant?.label || 'Reality Chosen'}`}
                               </span>
-                              <span>Schrödinger Missive from {displaySender}</span>
+                              <span>Schrödinger Letter from {displaySender}</span>
                             </>
                           ) : isBottle ? (
                             <>
@@ -4608,7 +4613,7 @@ function MyMailbox() {
 
                           {(l.isTorn || l.status === 'torn') && (
                             <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-red-950 text-red-300 border border-red-700 animate-pulse">
-                              <Scissors className="w-3.5 h-3.5 text-red-400" /> Torn Missive
+                              <Scissors className="w-3.5 h-3.5 text-red-400" /> Torn Letter
                             </span>
                           )}
 
@@ -4653,7 +4658,7 @@ function MyMailbox() {
                           })} 
                           className="px-2.5 py-1.5 bg-red-950 text-red-300 rounded-sm text-xs font-bold shadow hover:bg-red-900 flex items-center gap-1 border border-red-800" 
                           style={{ fontFamily: "'Cinzel', serif" }}
-                          title="Report this missive to the Guild Master Tribunal"
+                          title="Report this letter to the Guild Master Tribunal"
                         >
                           <AlertTriangle className="w-3.5 h-3.5"/>
                         </button>
@@ -4686,7 +4691,7 @@ function MyMailbox() {
                           ) : isBottle ? (
                             '✦ Uncork & Read'
                           ) : (
-                            '✦ Read Missive'
+                            '✦ Read Letter'
                           )}
                         </button>
                       )}
@@ -4716,7 +4721,7 @@ function MyMailbox() {
                           color: 'var(--antique-gold)',
                           border: '1px solid rgba(212,175,55,0.4)'
                         }}
-                        title="Proclaim 9:16 Royal Story Herald"
+                        title="Share a 9:16 story card for social media"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                         <span>Herald</span>
@@ -4739,7 +4744,7 @@ function MyMailbox() {
             {/* ── Pagination / Load More Controls ── */}
             <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
               <p className="text-xs sm:text-sm font-mono" style={{ color: 'var(--gold-muted)' }}>
-                Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredMailbox.length)}</strong> of <strong className="text-amber-300">{filteredMailbox.length}</strong> missives (Latest to Oldest)
+                Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredMailbox.length)}</strong> of <strong className="text-amber-300">{filteredMailbox.length}</strong> letters (Latest to Oldest)
               </p>
               
               <div className="flex flex-wrap items-center gap-2.5">
@@ -4748,7 +4753,7 @@ function MyMailbox() {
                     onClick={() => setVisibleCount(c => c + 5)}
                     className="btn-gold-saloon text-xs py-2 px-5 shadow"
                   >
-                    See More (+5 Missives)
+                    See More (+5 Letters)
                   </button>
                 )}
                 {visibleCount < filteredMailbox.length && (
@@ -4801,7 +4806,7 @@ function MyMailbox() {
                   </h3>
 
                   <p className="text-sm italic leading-relaxed" style={{ color: '#BAE6FD' }}>
-                    This missive exists across <strong className="text-sky-300">{collapsingLetter.schrodingerVariants?.length || 3} alternate reality timelines</strong>. Breaking the seal forces the quantum wave to collapse into 1 permanent truth!
+                    This letter exists across <strong className="text-sky-300">{collapsingLetter.schrodingerVariants?.length || 3} alternate reality timelines</strong>. Breaking the seal forces the quantum wave to collapse into 1 permanent truth!
                   </p>
 
                   <div className="p-4 rounded-sm text-left space-y-2 text-xs" style={{ background: 'rgba(2,132,199,0.1)', border: '1px solid rgba(56,189,248,0.3)' }}>
@@ -4911,11 +4916,11 @@ function MyMailbox() {
                       <div className="flex items-center gap-2 mb-1">
                         <Scissors className="w-6 h-6 text-red-700 animate-pulse" />
                         <h3 className="text-xl sm:text-2xl font-bold font-serif" style={{ color: '#7F1D1D', fontFamily: "'Cinzel', serif" }}>
-                          ⚠️ Torn Missive (Damaged in Transit)
+                          ⚠️ Torn Letter (Damaged in Transit)
                         </h3>
                       </div>
                       <p className="text-xs italic mb-4 text-red-800 font-serif">
-                        From: <span className="font-bold">{openLetter.senderRef?.name || 'A Scribe'}</span> • The sender attempted to recall this missive through the Postmaster's Riddle, but failed—leaving the parchment torn directly down the middle.
+                        From: <span className="font-bold">{openLetter.senderRef?.name || 'A Scribe'}</span> • The sender attempted to recall this letter through the Postmaster's Riddle, but failed—leaving the parchment torn directly down the middle.
                       </p>
                     </div>
 
@@ -4965,7 +4970,7 @@ function MyMailbox() {
                     <div className="flex items-center gap-2 mb-1">
                       <Ghost className="w-6 h-6 text-purple-700 animate-pulse" />
                       <h3 className="text-xl sm:text-2xl font-bold font-serif" style={{ color: '#2E1065', fontFamily: "'Cinzel', serif" }}>
-                        Spectral Dybbuk Missive
+                        Spectral Dybbuk Letter
                       </h3>
                     </div>
                     <p className="text-xs italic mb-4" style={{ color: '#7E22CE' }}>
@@ -4977,7 +4982,7 @@ function MyMailbox() {
                     <div className="flex items-center gap-2 mb-1">
                       <Atom className="w-6 h-6 text-sky-700 animate-spin" />
                       <h3 className="text-xl sm:text-2xl font-bold font-serif" style={{ color: '#0C4A6E', fontFamily: "'Cinzel', serif" }}>
-                        {openLetter.collapsedVariant ? `Timeline: ${openLetter.collapsedVariant.label}` : "Schrödinger's Paradox Missive"}
+                        {openLetter.collapsedVariant ? `Timeline: ${openLetter.collapsedVariant.label}` : "Schrödinger's Paradox Letter"}
                       </h3>
                     </div>
                     <p className="text-xs italic mb-4" style={{ color: '#0284C7' }}>
@@ -4989,7 +4994,7 @@ function MyMailbox() {
                     <div className="flex items-center gap-2 mb-1">
                       <Waves className="w-6 h-6 text-emerald-700 animate-pulse" />
                       <h3 className="text-xl sm:text-2xl font-bold font-serif" style={{ color: '#064E3B', fontFamily: "'Cinzel', serif" }}>
-                        {openLetter.bottleMoniker || 'Ocean Bottle Missive'}
+                        {openLetter.bottleMoniker || 'Ocean Bottle Letter'}
                       </h3>
                     </div>
                     <p className="text-xs italic mb-4 text-emerald-800">
@@ -5006,12 +5011,12 @@ function MyMailbox() {
 
                 {openLetter.burnAfterReading && (
                   <p className="text-red-700 text-sm italic mb-4 flex items-center gap-1.5 font-semibold">
-                    <Flame className="w-4 h-4 text-orange-600 animate-bounce" /> This missive dissolves into ash as thou readeth — {Math.max(0, Math.ceil((openLetter.burnTimerSeconds || 60) * (1 - fadeProgress)))}s remain.
+                    <Flame className="w-4 h-4 text-orange-600 animate-bounce" /> This letter dissolves into ash as you read — {Math.max(0, Math.ceil((openLetter.burnTimerSeconds || 60) * (1 - fadeProgress)))}s remain.
                   </p>
                 )}
 
                 {!openLetter.isTorn && openLetter.status !== 'torn' && (() => {
-                  const senderDisplayName = (openLetter.senderRef?.role === 'admin' || (openLetter.senderRef?.name || '').toLowerCase().includes('guild master') || (openLetter.senderRef?.name || '').toLowerCase().includes('admin')) ? 'The Guild Master' : (openLetter.senderRef?.name || 'Thy Correspondent');
+                  const senderDisplayName = (openLetter.senderRef?.role === 'admin' || (openLetter.senderRef?.name || '').toLowerCase().includes('guild master') || (openLetter.senderRef?.name || '').toLowerCase().includes('admin')) ? 'The Guild Master' : (openLetter.senderRef?.name || 'Your Correspondent');
                   const letterDate = openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined;
                   return (
                     <motion.div animate={{ opacity: openLetter.burnAfterReading ? 1 - fadeProgress : 1 }} className="my-2">
@@ -5072,7 +5077,7 @@ function MyMailbox() {
                       className="px-3 py-1.5 bg-red-950 text-red-300 rounded-sm text-xs font-bold shadow hover:bg-red-900 flex items-center gap-1 border border-red-800"
                       style={{ fontFamily: "'Cinzel', serif" }}
                     >
-                      <AlertTriangle className="w-3.5 h-3.5" /> Report Missive
+                      <AlertTriangle className="w-3.5 h-3.5" /> Report Letter
                     </button>
                   )}
                   <button
@@ -5116,28 +5121,28 @@ function DispatchTimeline({ letter, onClose }: { letter: any; onClose: () => voi
       label: 'DRAFTED IN SCRIPTORIUM', 
       time: draftedTime,
       active: true,
-      desc: 'Missive inscribed and preserved in the author\'s parchment records.' 
+      desc: 'Letter written and saved to your drafts.' 
     },
     { 
       key: 'sealed', 
       label: 'WAX SEALED & STAGED', 
       time: sealedTime,
       active: !isDraft,
-      desc: 'Affixed with sovereign wax seal & QR token, awaiting courier acquisition.' 
+      desc: 'Sealed with wax and a QR token. Waiting for a courier to collect it.' 
     },
     { 
       key: 'transit', 
       label: 'CARRIED IN ROYAL SADDLEBAG', 
       time: transitTime,
       active: isInTransit || isDelivered || isTorn || !!letter.pickedUpAt,
-      desc: 'Courier has scanned seal and is traversing the realm. (Postmaster Riddle Recall available in this stage)' 
+      desc: 'A courier scanned the seal and is carrying your letter. You can still try to recall it at this stage.' 
     },
     { 
       key: 'delivered', 
       label: 'SAFELY DELIVERED TO MAILBOX', 
       time: deliveredTime,
       active: isDelivered || isTorn,
-      desc: isTorn ? 'Delivered damaged to recipient mailbox after failed recall.' : 'Safely placed into recipient\'s sovereign mailbox.' 
+      desc: isTorn ? 'Delivered damaged to recipient mailbox after failed recall.' : 'Safely delivered to the recipient\'s mailbox.' 
     },
   ];
 
@@ -5146,7 +5151,7 @@ function DispatchTimeline({ letter, onClose }: { letter: any; onClose: () => voi
       <div className="theatrical-card p-6 sm:p-8 max-w-md w-full relative shadow-2xl animate-glow-pulse" style={{ border: '2px solid var(--antique-gold)' }}>
         <button onClick={onClose} className="absolute top-3 right-3 text-gray-400 hover:text-white p-1"><X className="w-6 h-6" /></button>
         <h3 className="text-2xl font-bold mb-6 flex items-center gap-2" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-          <Clock className="w-6 h-6 text-[var(--antique-gold)]" /> Thy Letter's Odyssey
+          <Clock className="w-6 h-6 text-[var(--antique-gold)]" /> Your Letter's Journey
         </h3>
         <div className="space-y-5">
           {stages.map((s, i) => (
@@ -5239,7 +5244,7 @@ function SentLetters() {
       await toggleLetterRead(id, !currentReadState);
       setMyLetters(prev => prev.map(l => l._id === id ? { ...l, isRead: !currentReadState, firstReadAt: !currentReadState ? Date.now() : undefined } : l));
     } catch (e: any) {
-      alert(e.message || 'Failed to update read state');
+      notify.error(e.message || 'Could not update read state');
     }
   };
 
@@ -5247,55 +5252,55 @@ function SentLetters() {
     if (selectedIds.length === 0) return;
     try {
       await batchMarkRead(selectedIds, isRead);
-      setActionMsg(`Marked ${selectedIds.length} missives as ${isRead ? 'read' : 'unread'}.`);
+      setActionMsg(`Marked ${selectedIds.length} letters as ${isRead ? 'read' : 'unread'}.`);
       setTimeout(() => setActionMsg(null), 3500);
       setMyLetters(prev => prev.map(l => selectedIds.includes(l._id) ? { ...l, isRead, firstReadAt: isRead ? Date.now() : undefined } : l));
       setSelectedIds([]);
     } catch (e: any) {
-      alert(e.message || 'Failed to batch update');
+      notify.error(e.message || 'Could not batch update');
     }
   };
 
   const handleBatchTrash = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Move ${selectedIds.length} selected missives to thy Guild Wastebin?`)) return;
+    if (!(await confirmAction({ title: 'Move to Wastebin', message: `Move ${selectedIds.length} selected letter${selectedIds.length === 1 ? '' : 's'} to your wastebin? You can restore them later.`, confirmLabel: 'Move to Wastebin' }))) return;
     try {
       await batchTrashLetters(selectedIds);
-      setActionMsg(`Moved ${selectedIds.length} missives to thy Wastebin.`);
+      setActionMsg(`Moved ${selectedIds.length} letters to your wastebin.`);
       setTimeout(() => setActionMsg(null), 3500);
       setMyLetters(prev => prev.filter(l => !selectedIds.includes(l._id)));
       setSelectedIds([]);
       fetchMyLetters();
     } catch (e: any) {
-      alert(e.message || 'Failed to trash selected missives');
+      notify.error(e.message || 'Could not trash selected letters');
     }
   };
 
   const handleBatchAbandon = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Abandon ${selectedIds.length} selected dispatched missives to The Dead Letter Office? They will be deposited in the public realm archive for anyone to read.`)) return;
+    if (!(await confirmAction({ title: 'Release to the Dead Letter Office', message: `Abandon ${selectedIds.length} sent letter${selectedIds.length === 1 ? '' : 's'}? They will be placed in the public archive, where anyone in the realm can read them.`, confirmLabel: 'Abandon Letter', tone: 'danger' }))) return;
     try {
       await batchAbandonLetters(selectedIds);
-      setActionMsg(`Released ${selectedIds.length} missives to The Dead Letter Office.`);
+      setActionMsg(`Released ${selectedIds.length} letters to The Dead Letter Office.`);
       setTimeout(() => setActionMsg(null), 4000);
       setMyLetters(prev => prev.filter(l => !selectedIds.includes(l._id)));
       setSelectedIds([]);
       fetchMyLetters();
     } catch (e: any) {
-      alert(e.message || 'Failed to batch abandon missives.');
+      notify.error(e.message || 'Could not batch abandon letters.');
     }
   };
 
   const handleAbandonSentLetter = async (id: string) => {
-    if (!window.confirm("Abandon this dispatched missive to The Dead Letter Office? It will be stored in the public archive for all realm scholars to read.")) return;
+    if (!(await confirmAction({ title: 'Release to the Dead Letter Office', message: 'Abandon this sent letter? It will be placed in the public archive, where anyone in the realm can read it.', confirmLabel: 'Abandon Letter', tone: 'danger' }))) return;
     try {
       await abandonLetter(id);
-      setActionMsg("Missive abandoned and transferred to The Dead Letter Office.");
+      setActionMsg("Letter abandoned and transferred to The Dead Letter Office.");
       setTimeout(() => setActionMsg(null), 4000);
       setMyLetters(prev => prev.filter(l => l._id !== id));
       fetchMyLetters();
     } catch (e: any) {
-      alert(e.message || 'Failed to abandon missive.');
+      notify.error(e.message || 'Could not abandon letter.');
     }
   };
 
@@ -5309,7 +5314,7 @@ function SentLetters() {
       setRiddleData(data);
       setRiddleTimeLeft(data.timeLimitSeconds || 90);
     } catch (e: any) {
-      alert(e.message || "Failed to summon the Postmaster's Riddle");
+      notify.error(e.message || "Could not load the Postmaster's riddle. Please try again.");
       setRecallingLetter(null);
     } finally {
       setRiddleLoading(false);
@@ -5319,7 +5324,7 @@ function SentLetters() {
   const handleExecuteRecall = async (isTimeout = false) => {
     if (!recallingLetter || !riddleData || submittingRecall) return;
     if (!isTimeout && selectedOption === null) {
-      alert("Pray choose an option before submitting thy answer to the Postmaster!");
+      notify.info("Please choose an option before submitting your answer to the Postmaster!");
       return;
     }
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
@@ -5341,7 +5346,7 @@ function SentLetters() {
       setRecallResult(res);
       fetchMyLetters();
     } catch (e: any) {
-      alert(e.message || "Failed to process Postmaster's Riddle");
+      notify.error(e.message || "Could not process Postmaster's Riddle");
     } finally {
       setSubmittingRecall(false);
     }
@@ -5369,16 +5374,16 @@ function SentLetters() {
   const handleRemoveSentLetter = async (id: string, isDraft: boolean) => {
     const promptText = isDraft 
       ? "Move this draft to the Guild Wastebin?" 
-      : "Move this sent missive to the Guild Wastebin?";
-    if (!window.confirm(promptText)) return;
+      : "Move this sent letter to the Guild Wastebin?";
+    if (!(await confirmAction({ title: 'Move to Wastebin', message: promptText, confirmLabel: 'Move to Wastebin' }))) return;
     setLoading(true);
     try {
       await removeLetterToTrash(id);
-      setActionMsg(isDraft ? "Draft moved to Wastebin." : "Sent missive moved to Wastebin.");
+      setActionMsg(isDraft ? "Draft moved to Wastebin." : "Sent letter moved to Wastebin.");
       setTimeout(() => setActionMsg(null), 3500);
       fetchMyLetters();
     } catch (e: any) {
-      alert(e.message || 'Failed to remove letter');
+      notify.error(e.message || 'Could not remove letter');
     } finally {
       setLoading(false);
     }
@@ -5471,10 +5476,10 @@ function SentLetters() {
             </div>
             <h2 className="text-2xl sm:text-4xl font-bold tracking-wide flex items-center gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)', textShadow: '0 4px 15px rgba(0,0,0,0.8)' }}>
               <Send className="w-8 h-8 flex-shrink-0" style={{ color: 'var(--antique-gold)' }} />
-              Thy Dispatched Missives
+              Your Dispatched Letters
             </h2>
             <p className="text-sm sm:text-base italic mt-1" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-              Preserved drafts, staged epistles, saddlebag deliveries, and dispatched scrolls (Latest to Oldest).
+              Your drafts, sealed letters, letters with couriers, and letters already delivered — newest first.
             </p>
           </div>
           <div className="flex gap-2.5">
@@ -5482,7 +5487,7 @@ function SentLetters() {
               <Trash2 className="w-4 h-4 text-amber-500" /> Wastebin
             </Link>
             <Link to="/" className="btn-velvet-burgundy text-xs py-2 px-4">
-              ← Thy Ledger
+              ← My Desk
             </Link>
           </div>
         </div>
@@ -5499,7 +5504,7 @@ function SentLetters() {
             onClick={() => { setActiveTab('all'); setVisibleCount(5); setSelectedIds([]); }}
             className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'all' ? 'bg-[#D4AF37] text-stone-950 shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
           >
-            <span>All Missives</span>
+            <span>All Letters</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-950/40 text-inherit">{myLetters.length}</span>
           </button>
 
@@ -5508,7 +5513,7 @@ function SentLetters() {
             className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'drafts' ? 'bg-[#D4AF37] text-stone-950 shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
           >
             <Scroll className="w-3.5 h-3.5" />
-            <span>Scriptorium Drafts</span>
+            <span>Drafts</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-950/40 text-inherit">{draftsCount}</span>
           </button>
 
@@ -5517,7 +5522,7 @@ function SentLetters() {
             className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'transit' ? 'bg-amber-600 text-white shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
           >
             <Clock className="w-3.5 h-3.5" />
-            <span>In Royal Saddlebag</span>
+            <span>With a Courier</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-950/40 text-inherit">{transitCount}</span>
           </button>
 
@@ -5526,7 +5531,7 @@ function SentLetters() {
             className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'staged' ? 'bg-[#D4AF37] text-stone-950 shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
           >
             <Crown className="w-3.5 h-3.5" />
-            <span>Wax Sealed & Staged</span>
+            <span>Sealed & Waiting</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-950/40 text-inherit">{stagedCount}</span>
           </button>
 
@@ -5535,7 +5540,7 @@ function SentLetters() {
             className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'torn' ? 'bg-red-800 text-red-100 shadow-md font-mono' : 'bg-stone-900/80 text-red-300/70 border border-red-900/50 hover:text-red-200'}`}
           >
             <Scissors className="w-3.5 h-3.5 text-red-400" />
-            <span>Torn Missives</span>
+            <span>Torn Letters</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-950/40 text-inherit">{tornCount}</span>
           </button>
         </div>
@@ -5543,7 +5548,7 @@ function SentLetters() {
         <div className="mb-6">
           <input 
             type="text" 
-            placeholder="Search dispatched missives by recipient, moniker, or content words..." 
+            placeholder="Search dispatched letters by recipient, moniker, or content words..." 
             value={searchQuery} 
             onChange={(e) => { setSearchQuery(e.target.value); setVisibleCount(5); }} 
             className="w-full p-3.5 rounded-sm text-base sm:text-lg font-serif italic focus:outline-none transition-all shadow-inner"
@@ -5593,7 +5598,7 @@ function SentLetters() {
                 onClick={handleBatchAbandon}
                 className="btn-gold-saloon text-[11px] py-1.5 px-3 flex items-center gap-1"
                 style={{ background: '#78350F', color: '#FEF3C7', border: '1px solid #D97706' }}
-                title="Abandon selected dispatched missives to The Dead Letter Office public archive"
+                title="Abandon selected dispatched letters to The Dead Letter Office public archive"
               >
                 <Archive className="w-3 h-3 text-amber-300" /> Abandon ({selectedIds.length})
               </button>
@@ -5611,7 +5616,7 @@ function SentLetters() {
           <div className="p-12 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
             <Send className="w-12 h-12 mx-auto mb-2 opacity-60" style={{ color: 'var(--antique-gold)' }} />
             <p className="font-bold text-lg" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
-              {activeTab === 'drafts' ? 'No drafts preserved in thy Scriptorium.' : (activeTab === 'transit' ? 'No letters currently in courier saddlebags.' : 'Thou hast no missives matching this filter.')}
+              {activeTab === 'drafts' ? 'You have not saved any drafts yet.' : (activeTab === 'transit' ? 'No letters are with a courier right now.' : 'You have no letters matching this filter.')}
             </p>
             <p className="text-sm mt-1 italic font-serif">
               {activeTab === 'drafts' ? 'Save drafts while composing to resume editing here anytime.' : 'Drafted and dispatched letters will appear here.'}
@@ -5692,7 +5697,7 @@ function SentLetters() {
                           )}
                           {isInTransit && (
                             <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-yellow-950 text-yellow-300 border border-yellow-700 animate-pulse">
-                              <Clock className="w-3.5 h-3.5 text-yellow-400" /> In Royal Saddlebag (Stage 3)
+                              <Clock className="w-3.5 h-3.5 text-yellow-400" /> With a Courier (Stage 3)
                             </span>
                           )}
                           {isDybbuk ? (
@@ -5700,7 +5705,7 @@ function SentLetters() {
                               <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider" style={{ background: '#581C87', color: '#E9D5FF' }}>
                                 <Ghost className="w-3.5 h-3.5 text-purple-300" /> Dybbuk Spectral
                               </span>
-                              <span>Spectral Missive to {l.receiverRef?.name || 'Departed Entity'}</span>
+                              <span>Spectral Letter to {l.receiverRef?.name || 'Departed Entity'}</span>
                             </>
                           ) : isSchrodinger ? (
                             <>
@@ -5719,8 +5724,8 @@ function SentLetters() {
                             </>
                           ) : (
                             <>
-                              {isDraft ? 'Draft to ' : (isTorn ? 'Torn Missive to ' : 'Sent Letter to ')}
-                              <span style={{ color: isTorn ? '#FCA5A5' : 'var(--antique-gold)' }}>{l.receiverRef?.name || l.receiverRef || 'Open Missive'}</span>
+                              {isDraft ? 'Draft to ' : (isTorn ? 'Torn Letter to ' : 'Sent Letter to ')}
+                              <span style={{ color: isTorn ? '#FCA5A5' : 'var(--antique-gold)' }}>{l.receiverRef?.name || l.receiverRef || 'Open Letter'}</span>
                             </>
                           )}
                         </p>
@@ -5732,7 +5737,7 @@ function SentLetters() {
                           ) : isBottle ? (
                             <span>Drifted <strong className="text-emerald-300">{l.bottleDrift?.distanceKm || 0} km</strong> • Wax: {l.bottleWaxColor || 'gold'} • Status: <strong className="text-emerald-400">{l.bottleDrift?.driftStatus || 'drifting'}</strong></span>
                           ) : isTorn ? (
-                            <span className="text-red-300 font-bold">⚠️ Ripped During Recall • Delivery cancelled and preserved in thy records (-5 reputation)</span>
+                            <span className="text-red-300 font-bold">⚠️ Ripped During Recall • Delivery cancelled and preserved in your records (-5 reputation)</span>
                           ) : isDraft ? (
                             <span className="text-amber-300 font-serif">Draft created on {new Date(l.createdAt).toLocaleString()} • Ready for Scriptorium editing</span>
                           ) : isInTransit ? (
@@ -5809,7 +5814,7 @@ function SentLetters() {
                           color: 'var(--antique-gold)',
                           border: '1px solid rgba(212,175,55,0.4)'
                         }}
-                        title="Proclaim 9:16 Royal Story Herald"
+                        title="Share a 9:16 story card for social media"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                         <span>Herald</span>
@@ -5827,7 +5832,7 @@ function SentLetters() {
             {/* ── Pagination / Load More Controls ── */}
             <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
               <p className="text-xs sm:text-sm font-mono" style={{ color: 'var(--gold-muted)' }}>
-                Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredLetters.length)}</strong> of <strong className="text-amber-300">{filteredLetters.length}</strong> missives (Latest to Oldest)
+                Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredLetters.length)}</strong> of <strong className="text-amber-300">{filteredLetters.length}</strong> letters (Latest to Oldest)
               </p>
               
               <div className="flex flex-wrap items-center gap-2.5">
@@ -5836,7 +5841,7 @@ function SentLetters() {
                     onClick={() => setVisibleCount(c => c + 5)}
                     className="btn-gold-saloon text-xs py-2 px-5 shadow"
                   >
-                    See More (+5 Missives)
+                    See More (+5 Letters)
                   </button>
                 )}
                 {visibleCount < filteredLetters.length && (
@@ -5885,11 +5890,11 @@ function SentLetters() {
                       <div className="flex items-center gap-2 mb-1">
                         <Scissors className="w-6 h-6 text-red-700 animate-pulse" />
                         <h3 className="text-xl sm:text-2xl font-bold" style={{ color: '#7F1D1D', fontFamily: "'Cinzel', serif" }}>
-                          ⚠️ Torn Missive (Damaged in Transit)
+                          ⚠️ Torn Letter (Damaged in Transit)
                         </h3>
                       </div>
                       <p className="text-xs italic text-red-800 font-serif">
-                        This missive was torn directly down the middle when the Postmaster's Recall Challenge failed.
+                        This letter was torn directly down the middle when the Postmaster's Recall Challenge failed.
                       </p>
                     </div>
 
@@ -5973,7 +5978,7 @@ function SentLetters() {
                 ) : (
                   <>
                     <h3 className="text-xl sm:text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: '#3A1F04' }}>
-                      Missive to {openLetter.receiverRef?.name || openLetter.receiverRef || 'Recipient'}
+                      Letter to {openLetter.receiverRef?.name || openLetter.receiverRef || 'Recipient'}
                     </h3>
                     <p className="text-xs italic mb-4" style={{ color: '#78350F' }}>
                       Dispatched on {new Date(openLetter.createdAt).toLocaleString()} • Status: {openLetter.status}
@@ -5982,7 +5987,7 @@ function SentLetters() {
                 )}
 
                 {!openLetter.isTorn && openLetter.status !== 'torn' && (() => {
-                  const sentSenderName = openLetter.senderRef?.name || getStoredUser()?.name || 'Thy Self';
+                  const sentSenderName = openLetter.senderRef?.name || getStoredUser()?.name || 'Your Self';
                   const sentDate = openLetter.createdAt ? new Date(openLetter.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : undefined;
                   return (
                     <LetterEnvelopeWrapper
@@ -6058,13 +6063,13 @@ function SentLetters() {
               {/* Header Badge & Title */}
               <div>
                 <span className="text-[11px] uppercase tracking-widest font-bold px-3 py-1 rounded bg-amber-950 text-amber-300 font-mono border border-amber-800 animate-pulse">
-                  ✦ Sovereign Intercept Challenge ✦
+                  ✦ The Postmaster's Riddle ✦
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold mt-2" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
                   The Postmaster's Riddle
                 </h3>
                 <p className="text-xs text-amber-200/80 italic mt-1 font-serif">
-                  Solve the riddle to intercept thy missive and recall it to Drafts. Failure shall tear the parchment in two and diminish thy honour.
+                  Solve the riddle to intercept your letter and recall it to Drafts. Failure shall tear the parchment in two and diminish your honour.
                 </p>
               </div>
 
@@ -6150,7 +6155,7 @@ function SentLetters() {
                           onClick={() => setRecallingLetter(null)}
                           className="btn-gold-saloon text-xs py-2.5 px-6"
                         >
-                          Acknowledge Missive Destruction & Close
+                          Acknowledge Letter Destruction & Close
                         </button>
                       </div>
                     </div>
@@ -6513,7 +6518,7 @@ function GuildWastebin() {
       arr.sort((a, b) => new Date(b.trashedAt || b.updatedAt || b.createdAt || 0).getTime() - new Date(a.trashedAt || a.updatedAt || a.createdAt || 0).getTime());
       setTrashedLetters(arr);
     } catch (e) {
-      console.error("Failed to load wastebin:", e);
+      console.error("Could not load wastebin:", e);
     } finally {
       setLoading(false);
     }
@@ -6527,11 +6532,11 @@ function GuildWastebin() {
     setActionLoading(true);
     try {
       const res = await restoreLetterFromTrash(id);
-      setActionMsg(res.message || "Letter restored to thy active chronicles.");
+      setActionMsg(res.message || "Letter restored to your desk.");
       setTimeout(() => setActionMsg(null), 3500);
       fetchTrash();
     } catch (e: any) {
-      alert(e.message || "Failed to restore letter.");
+      notify.error(e.message || "Could not restore letter.");
     } finally {
       setActionLoading(false);
     }
@@ -6542,12 +6547,12 @@ function GuildWastebin() {
     setActionLoading(true);
     try {
       const res = await batchRestoreLetters(selectedIds);
-      setActionMsg(res.message || `Restored ${selectedIds.length} missives to thy active desk.`);
+      setActionMsg(res.message || `Restored ${selectedIds.length} letters to your active desk.`);
       setTimeout(() => setActionMsg(null), 3500);
       setSelectedIds([]);
       fetchTrash();
     } catch (e: any) {
-      alert(e.message || "Failed to batch restore letters.");
+      notify.error(e.message || "Could not batch restore letters.");
     } finally {
       setActionLoading(false);
     }
@@ -6555,16 +6560,16 @@ function GuildWastebin() {
 
   const handleBatchBurn = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Permanently burn ${selectedIds.length} selected missives to cinder and ash? This cannot be undone!`)) return;
+    if (!(await confirmAction({ title: 'Burn to Ash', message: `Permanently burn ${selectedIds.length} selected letter${selectedIds.length === 1 ? '' : 's'}? Once burned, they cannot be recovered.`, confirmLabel: 'Burn Forever', tone: 'danger' }))) return;
     setActionLoading(true);
     try {
       const res = await batchBurnPermanent(selectedIds);
-      setActionMsg(res.message || `Consumed ${selectedIds.length} missives into ash.`);
+      setActionMsg(res.message || `Consumed ${selectedIds.length} letters into ash.`);
       setTimeout(() => setActionMsg(null), 3500);
       setSelectedIds([]);
       fetchTrash();
     } catch (e: any) {
-      alert(e.message || "Failed to batch burn letters.");
+      notify.error(e.message || "Could not batch burn letters.");
     } finally {
       setActionLoading(false);
     }
@@ -6576,10 +6581,10 @@ function GuildWastebin() {
       try {
         await burnLetterPermanent(letter._id);
         setTrashedLetters(prev => prev.filter(l => l._id !== letter._id));
-        setActionMsg("Missive consumed to ash by the eternal flame.");
+        setActionMsg("Letter consumed to ash by the eternal flame.");
         setTimeout(() => setActionMsg(null), 3500);
       } catch (e: any) {
-        alert(e.message || "Failed to incinerate letter.");
+        notify.error(e.message || "Could not incinerate letter.");
       } finally {
         setBurningLetter(null);
       }
@@ -6592,10 +6597,10 @@ function GuildWastebin() {
       try {
         await emptyTrash();
         setTrashedLetters([]);
-        setActionMsg("Thy entire wastebin has been reduced to cinder and ash.");
+        setActionMsg("Your entire wastebin has been reduced to cinder and ash.");
         setTimeout(() => setActionMsg(null), 4000);
       } catch (e: any) {
-        alert(e.message || "Failed to empty wastebin.");
+        notify.error(e.message || "Could not empty wastebin.");
       } finally {
         setBurningEntireTrash(false);
       }
@@ -6643,7 +6648,7 @@ function GuildWastebin() {
               The Guild's Wastebin
             </h2>
             <p className="text-sm sm:text-base italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-              Discarded drafts, removed missives, and items awaiting the eternal flame (Latest to Oldest).
+              Deleted drafts and letters, waiting here until you burn them for good — newest first.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
@@ -6658,7 +6663,7 @@ function GuildWastebin() {
               </button>
             )}
             <Link to="/" className="btn-gold-saloon text-xs py-2 px-4">
-              ← Thy Ledger
+              ← My Desk
             </Link>
           </div>
         </div>
@@ -6674,8 +6679,8 @@ function GuildWastebin() {
           {[
             { key: 'all', label: 'All Discarded', count: trashedLetters.length },
             { key: 'drafts', label: 'Drafts', count: trashedLetters.filter(l => l.removedFrom === 'draft').length },
-            { key: 'outbox', label: 'Sent Missives', count: trashedLetters.filter(l => l.removedFrom === 'outbox').length },
-            { key: 'inbox', label: 'Received Missives', count: trashedLetters.filter(l => l.removedFrom === 'inbox').length },
+            { key: 'outbox', label: 'Sent Letters', count: trashedLetters.filter(l => l.removedFrom === 'outbox').length },
+            { key: 'inbox', label: 'Received Letters', count: trashedLetters.filter(l => l.removedFrom === 'inbox').length },
           ].map(t => (
             <button
               key={t.key}
@@ -6743,14 +6748,14 @@ function GuildWastebin() {
         ) : filteredTrash.length === 0 ? (
           <div className="text-center py-16 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
             <Trash2 className="w-12 h-12 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }} />
-            <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Thy Wastebin is pristine and empty.</p>
-            <p className="text-sm mt-1 italic font-serif">Any missives or drafts removed from thy desk will wait here before permanent burning.</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Your wastebin is empty.</p>
+            <p className="text-sm mt-1 italic font-serif">Letters and drafts you delete wait here until you burn them for good.</p>
           </div>
         ) : (
           <>
             <div className="space-y-4">
               {displayedTrash.map((l: any, i) => {
-                const originLabel = l.removedFrom === 'draft' ? 'Draft' : (l.removedFrom === 'inbox' ? 'Received Missive' : 'Sent Missive');
+                const originLabel = l.removedFrom === 'draft' ? 'Draft' : (l.removedFrom === 'inbox' ? 'Received Letter' : 'Sent Letter');
                 const targetName = l.receiverRef?.name || l.receiverRef || 'Unspecified';
                 const senderName = l.senderRef?.name || 'Unknown';
                 const isSelected = selectedIds.includes(l._id);
@@ -6872,7 +6877,7 @@ function GuildWastebin() {
               <div className="parchment-scroll-surface p-6 sm:p-8 relative rounded-sm shadow-2xl">
                 <button onClick={handleCloseLetter} className="absolute top-3 right-3 text-stone-600 hover:text-stone-950 p-1"><X className="w-6 h-6" /></button>
                 <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: '#3A1F04' }}>
-                  Discarded Missive ({openLetter.removedFrom})
+                  Discarded Letter ({openLetter.removedFrom})
                 </h3>
                 <p className="text-xs italic mb-4" style={{ color: '#78350F' }}>
                   Removed on {new Date(openLetter.trashedAt || openLetter.updatedAt).toLocaleString()}
@@ -6914,7 +6919,7 @@ function GuildWastebin() {
               {/* Header Badge & Title */}
               <div>
                 <span className="text-[11px] uppercase tracking-widest font-bold px-3 py-1 rounded bg-red-950 text-red-300 font-mono border border-red-800">
-                  ✦ Sovereign Incineration ✦
+                  ✦ Burn Forever ✦
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold mt-2 text-white" style={{ fontFamily: "'Cinzel Decorative', serif" }}>
                   Incinerating Epistle
@@ -6988,7 +6993,7 @@ function GuildWastebin() {
             }}>
               <div>
                 <span className="text-[11px] uppercase tracking-widest font-bold px-3 py-1 rounded bg-red-950 text-red-300 font-mono border border-red-800">
-                  ✦ Sovereign Incineration ✦
+                  ✦ Burn Forever ✦
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold mt-2 text-white" style={{ fontFamily: "'Cinzel Decorative', serif" }}>
                   Alchemical Iron Furnace
@@ -7025,7 +7030,7 @@ function GuildWastebin() {
               </div>
 
               <p className="text-xs font-mono text-amber-300 tracking-wider animate-pulse">
-                🔥 Thermal decomposition active • All chronicles reduced to cinder...
+                🔥 Burning • All letters turning to ash…
               </p>
             </div>
           </motion.div>
@@ -7088,11 +7093,11 @@ function MailmanDashboard({ user }: { user: any }) {
   const handleSeizeMissive = async (token: string) => {
     try {
       const res = await scanLetter(token);
-      alert(res.message || 'Missive seized successfully!');
+      notify.success(res.message || 'Letter picked up. It is now in your bag.');
       fetchQuests();
       fetchLiveUser();
     } catch (e: any) {
-      alert(e.message || 'Error seizing missive');
+      notify.error(e.message || 'Could not pick up that letter. Please try again.');
     }
   };
 
@@ -7148,7 +7153,7 @@ function MailmanDashboard({ user }: { user: any }) {
 
       {/* ── Courier Stats & Active Saddlebag Grid ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Thy Courier Credentials */}
+        {/* Your Courier Credentials */}
         <div className="theatrical-card p-6 sm:p-8 relative overflow-hidden rounded-sm" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
           border: '1px solid rgba(212, 175, 55, 0.35)',
@@ -7157,7 +7162,7 @@ function MailmanDashboard({ user }: { user: any }) {
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
           <h3 className="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2.5 tracking-wide" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
             <Crown className="w-6 h-6 text-amber-400" />
-            <span>Thy Courier Ledger</span>
+            <span>Your Courier Ledger</span>
           </h3>
 
           <div className="space-y-3.5">
@@ -7186,7 +7191,7 @@ function MailmanDashboard({ user }: { user: any }) {
           </div>
         </div>
 
-        {/* Thy Active Deliveries (Saddlebag) */}
+        {/* Your Active Deliveries (Saddlebag) */}
         <div className="theatrical-card p-6 sm:p-8 relative overflow-hidden rounded-sm" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
           border: '1px solid rgba(212, 175, 55, 0.35)',
@@ -7202,8 +7207,8 @@ function MailmanDashboard({ user }: { user: any }) {
             {quests.length === 0 ? (
               <div className="text-center py-6">
                 <Star className="w-8 h-8 mx-auto text-amber-400/60 mb-2 animate-float-gentle" />
-                <p className="text-stone-300 font-serif italic">No active letters currently in thy saddlebag.</p>
-                <p className="text-xs text-amber-300/70 mt-1 font-mono">Scan unstamped missives across the realm to begin transport.</p>
+                <p className="text-stone-300 font-serif italic">No active letters currently in your saddlebag.</p>
+                <p className="text-xs text-amber-300/70 mt-1 font-mono">Scan unstamped letters across the realm to begin transport.</p>
               </div>
             ) : (
               <div className="space-y-3 text-left">
@@ -7215,7 +7220,7 @@ function MailmanDashboard({ user }: { user: any }) {
                   >
                     <div className="w-full sm:w-auto">
                       <p className="font-bold text-base" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-                        Deliver to: <span style={{ color: 'var(--antique-gold)' }}>{q.receiverRef?.name || 'Open Missive'}</span>
+                        Deliver to: <span style={{ color: 'var(--antique-gold)' }}>{q.receiverRef?.name || 'Open Letter'}</span>
                       </p>
                       <p className="text-xs italic text-stone-400 font-serif mt-0.5">
                         Sender: <strong className="text-stone-300">{q.senderRef?.name || 'A Noble Scribe'}</strong>
@@ -7226,7 +7231,7 @@ function MailmanDashboard({ user }: { user: any }) {
                         onClick={() => handleSeizeMissive(q.qrCodeToken)}
                         className="w-full sm:w-auto btn-velvet-burgundy text-xs py-2 px-4 shadow"
                       >
-                        Seize Missive
+                        Pick Up Letter
                       </button>
                     ) : (
                       <button
@@ -7282,7 +7287,7 @@ function MailmanDashboard({ user }: { user: any }) {
                 For Recipient: <strong>{selectedQR.receiverName}</strong>
               </p>
               <p className="text-xs text-stone-300 italic mb-5">
-                Present this royal cryptographic seal to the recipient so they may scan and read their missive.
+                Present this royal cryptographic seal to the recipient so they may scan and read their letter.
               </p>
 
               <div className="flex justify-center p-4 bg-[#FFFDF9] border-2 border-[var(--antique-gold)] rounded-sm mb-4 inline-block shadow-inner">
@@ -7395,7 +7400,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
       setShowDraftModal(false);
       fetchBoardNotices();
     } catch (err: any) {
-      setError(err.message || 'Failed to proclaim decree.');
+      setError(err.message || 'Could not post the notice. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -7406,17 +7411,17 @@ function CommunityNoticeBoard({ user }: { user: any }) {
       await togglePinNotice(id);
       fetchBoardNotices();
     } catch (err: any) {
-      alert(err.message || 'Failed to pin/unpin notice.');
+      notify.error(err.message || 'Could not pin/unpin notice.');
     }
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Strike down and remove "${title}" from the Community Notice Board?`)) return;
+    if (!(await confirmAction({ title: 'Remove Notice', message: `Remove “${title}” from the Community Notice Board? Everyone in the realm will stop seeing it.`, confirmLabel: 'Remove Notice', tone: 'danger' }))) return;
     try {
       await deleteNotice(id);
       setNotices(prev => prev.filter(n => n._id !== id));
     } catch (err: any) {
-      alert(err.message || 'Failed to remove notice.');
+      notify.error(err.message || 'Could not remove notice.');
     }
   };
 
@@ -7453,7 +7458,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
         </h1>
 
         <p className="max-w-2xl mx-auto text-sm sm:text-base italic leading-relaxed mt-2" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-          “Official decrees, realm updates, and herald announcements proclaimed by the Imperial Postmasters for all citizens and couriers.”
+          “Announcements, updates, and event news from the Postmasters — for every scribe and courier in the realm.”
         </p>
 
         {/* Real-time sync indicator & Admin Inscribe Button */}
@@ -7470,11 +7475,11 @@ function CommunityNoticeBoard({ user }: { user: any }) {
               style={{ fontFamily: "'Cinzel', serif" }}
             >
               <PenTool className="w-3.5 h-3.5 text-amber-300" />
-              <span>Inscribe Royal Decree</span>
+              <span>Post a Notice</span>
             </button>
           ) : (
             <span className="inline-flex items-center gap-1.5 text-xs text-amber-300/70 italic font-serif">
-              <Shield className="w-3.5 h-3.5 text-amber-400" /> Only Admins may proclaim notices
+              <Shield className="w-3.5 h-3.5 text-amber-400" /> Only admins can post notices
             </span>
           )}
         </div>
@@ -7530,13 +7535,13 @@ function CommunityNoticeBoard({ user }: { user: any }) {
         <div className="text-center p-12 animate-pulse space-y-3" style={{ color: 'var(--antique-gold)' }}>
           <Megaphone className="w-12 h-12 mx-auto animate-bounce opacity-70" />
           <p className="font-serif italic text-lg" style={{ fontFamily: "'Cinzel', serif" }}>
-            Unrolling Sovereign Notice Parchments & Imperial Chronicles...
+            Unrolling the notice board…
           </p>
         </div>
       ) : filteredNotices.length === 0 ? (
         <div className="theatrical-card p-12 text-center rounded-sm bg-stone-950/60 border border-dashed border-stone-800 text-stone-400 italic font-serif">
           <Scroll className="w-12 h-12 mx-auto mb-3 opacity-40 text-amber-400" />
-          <p className="text-lg font-bold text-stone-300">No proclamations found under this category.</p>
+          <p className="text-lg font-bold text-stone-300">No notices in this category yet.</p>
           <p className="text-xs mt-1 text-stone-500">When the Postmasters post updates or warnings, they will immediately manifest upon this board.</p>
         </div>
       ) : (
@@ -7635,7 +7640,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-amber-900/25 text-xs italic font-serif" style={{ color: 'var(--gold-muted)' }}>
                   <span className="flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Proclaimed by <strong>{notice.postedByName || 'Postmaster Tribunal'}</strong></span>
+                    <span>Posted by <strong>{notice.postedByName || 'Postmaster Tribunal'}</strong></span>
                   </span>
                   <span className="font-mono text-[11px] opacity-80">{dateStr}</span>
                 </div>
@@ -7669,7 +7674,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
                 <div className="flex items-center gap-2">
                   <Megaphone className="w-6 h-6 text-amber-400" />
                   <h3 className="text-xl sm:text-2xl font-bold tracking-wide" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-                    Inscribe Royal Proclamation
+                    Post a Notice
                   </h3>
                 </div>
                 <button
@@ -7747,7 +7752,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
                     maxLength={2000}
                     value={newContent}
                     onChange={(e) => setNewContent(e.target.value)}
-                    placeholder="Inscribe the detailed decree, herald announcement, or maintenance notice for all citizens to read..."
+                    placeholder="Write the announcement, update, or maintenance notice for everyone to read…"
                     required
                     className="w-full text-sm p-3 rounded-sm bg-stone-950/90 border border-amber-900/50 text-stone-200 placeholder-stone-600 focus:outline-none focus:border-amber-400 font-serif leading-relaxed"
                   />
@@ -7768,7 +7773,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
                     className="btn-velvet-burgundy text-xs py-2 px-6 font-bold flex items-center gap-1.5 shadow-lg"
                   >
                     <Megaphone className="w-4 h-4 text-amber-300" />
-                    <span>{submitting ? 'Broadcasting...' : 'Proclaim Decree to Realm'}</span>
+                    <span>{submitting ? 'Posting…' : 'Post Notice'}</span>
                   </button>
                 </div>
               </form>
@@ -7799,7 +7804,7 @@ function Leaderboard() {
       <div className="text-center p-12 animate-pulse space-y-3" style={{ color: 'var(--antique-gold)' }}>
         <Trophy className="w-12 h-12 mx-auto animate-bounce opacity-70" />
         <p className="font-serif italic text-lg" style={{ fontFamily: "'Cinzel', serif" }}>
-          Consulting the Sovereign Hall of Fame & Imperial Guild Ledgers...
+          Loading the Hall of Fame…
         </p>
       </div>
     );
@@ -7825,7 +7830,7 @@ function Leaderboard() {
         </h1>
 
         <p className="max-w-2xl mx-auto text-sm sm:text-base italic leading-relaxed mt-2" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-          “Immortalizing the swiftest couriers who traverse untamed frontiers, and honoring the noble scribes whose epistolary reputation resounds across the kingdom.”
+          “Honouring the fastest couriers on the frontier, and the scribes whose letters have earned them a name across the kingdom.”
         </p>
 
         {/* ── Mailman of the Month Crown Jewel Showcase ── */}
@@ -8107,7 +8112,7 @@ function QRScanner() {
       setTimeout(() => navigate('/'), 4000);
     } catch (e: any) {
       const errMsg = e.message || 'Invalid Wax Seal';
-      const isWrongPerson = errMsg.includes('not addressed to thee');
+      const isWrongPerson = errMsg.includes('not addressed to you');
       setMessage(errMsg);
       setIsMisdelivery(isWrongPerson);
       // Check if backend confirmed penalty was applied
@@ -8139,7 +8144,7 @@ function QRScanner() {
           Scan Royal Wax Seal
         </h2>
         <p className="text-sm sm:text-base italic mb-6" style={{ color: 'var(--gold-muted)' }}>
-          Align the wax seal's QR token within the optical frame to authenticate and process thy missive.
+          Align the wax seal's QR token within the optical frame to authenticate and process your letter.
         </p>
 
         {message ? (
@@ -8178,7 +8183,7 @@ function QRScanner() {
                   {message}
                 </h3>
                 <p className="text-xs italic text-amber-200/80 max-w-md font-serif">
-                  The wax seal has been authenticated by royal courier. Missive is now secure within the royal saddlebag and en-route across the realm.
+                  The wax seal has been authenticated by royal courier. Letter is now secure within the royal saddlebag and en-route across the realm.
                 </p>
               </div>
             ) : (
@@ -8193,17 +8198,17 @@ function QRScanner() {
                   <div className="absolute -bottom-1 -left-1 w-3 h-3 rounded-full bg-emerald-300 animate-ping" style={{ animationDelay: '0.4s' }} />
                 </div>
                 <span className="text-[11px] uppercase tracking-widest font-mono font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                  ✦ Wax Seal Fractured & Missive Unsealed ✦
+                  ✦ Wax Seal Fractured & Letter Unsealed ✦
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
                   {message}
                 </h3>
                 <p className="text-xs italic text-emerald-200/80 max-w-md font-serif">
-                  The royal missive has been authenticated and delivered directly into thy Sovereign Mailbox.
+                  The letter has been verified and delivered straight into your mailbox.
                 </p>
               </div>
             )}
-            <p className="text-xs italic font-mono pt-2" style={{ color: 'var(--gold-muted)' }}>Redirecting to thy sovereign desk...</p>
+            <p className="text-xs italic font-mono pt-2" style={{ color: 'var(--gold-muted)' }}>Taking you back to your desk…</p>
           </div>
         ) : (
           <div className="p-5 rounded-sm relative overflow-hidden flex flex-col justify-center items-center" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(212,175,55,0.25)' }}>
@@ -8216,7 +8221,7 @@ function QRScanner() {
             ) : !cameraActive && (
               <div className="p-8 sm:p-12 flex flex-col items-center space-y-4">
                 <Scan className="w-16 h-16 animate-float-slow" style={{ color: 'var(--antique-gold)' }} />
-                <p className="text-sm sm:text-base italic" style={{ color: 'var(--gold-muted)' }}>Tap below to ignite thy optical chamber lens.</p>
+                <p className="text-sm sm:text-base italic" style={{ color: 'var(--gold-muted)' }}>Tap below to ignite your optical chamber lens.</p>
                 <button onClick={startCamera} className="btn-velvet-burgundy text-sm py-3 px-8 animate-glow-pulse">
                   <Scan className="w-4 h-4" /> <span>✦ Activate Magical Lens</span>
                 </button>
@@ -8244,7 +8249,7 @@ function QRScanner() {
               type="text" 
               value={result} 
               onChange={(e) => setResult(e.target.value)} 
-              placeholder="Paste or inscribe token ID (e.g. POST-8f2a...)" 
+              placeholder="Paste the token ID (e.g. POST-8f2a…)" 
               className="flex-1 p-3 rounded-sm font-mono text-sm focus:outline-none"
               style={{ background: '#FFFDF9', color: '#1A1A1A', border: '1px solid var(--border-subtle)' }} 
             />
@@ -8481,7 +8486,7 @@ function MapTracker() {
           id: handoverData.mailmanId || '',
           name: handoverData.mailmanName || 'Royal Mailman',
           status: 'dispatched',
-          message: `📜 Missive Successfully Dispatched & Transferred to Mailman ${handoverData.mailmanName}'s Saddlebag!`
+          message: `📜 Letter Successfully Dispatched & Transferred to Mailman ${handoverData.mailmanName}'s Saddlebag!`
         });
         setShowRadarDispatchBox(true);
 
@@ -8555,7 +8560,7 @@ function MapTracker() {
 
   const fetchLocation = () => {
     if (!navigator.geolocation) {
-      setError("Browser Geolocation is not supported. Thou canst click on the map to set thy coordinates manually.");
+      setError("Browser Geolocation is not supported. You can click on the map to set your coordinates manually.");
       updateCoordinates(DEFAULT_COORDS, "Using Imperial Postal Hub coordinates.");
       return;
     }
@@ -8590,7 +8595,7 @@ function MapTracker() {
         console.warn('Geolocation warning (using default/fallback):', err);
         setLocating(false);
         setLocatingSuccess(null);
-        setError("GPS signal unreached (using Realm coordinates). Thou canst click anywhere on the map to reposition thy pin.");
+        setError("GPS signal unreached (using Realm coordinates). You can click anywhere on the map to reposition your pin.");
         updateCoordinates(DEFAULT_COORDS, "Realm Coordinates active upon map.");
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
@@ -8606,7 +8611,7 @@ function MapTracker() {
       socketRef.current.emit('leave-map', { userId: user.id || user._id });
     }
     setIsSharingLocation(false);
-    setLocatingSuccess("Location sharing paused. Thou art now cloaked from the realm.");
+    setLocatingSuccess("Location sharing paused. You are now cloaked from the realm.");
     setTimeout(() => setLocatingSuccess(null), 4500);
   };
 
@@ -8640,10 +8645,10 @@ function MapTracker() {
   const claimLetter = async (letter: any) => {
     try {
       const res = await scanLetter(letter.qrCodeToken);
-      alert(res.message || 'Letter claimed! It is now in thy deliveries.');
+      notify.success(res.message || 'Letter claimed! It is now in your deliveries.');
       refreshMapData();
     } catch (e: any) {
-      alert(e.message || 'Could not claim letter.');
+      notify.error(e.message || 'Could not claim letter.');
     }
   };
 
@@ -8672,7 +8677,7 @@ function MapTracker() {
       letterId: letterToHandover?._id || '',
       letterToken: letterToHandover?.qrCodeToken || '',
       distanceMeters: targetCourier.calculatedDist,
-      message: "Noble Mailman, please accept custody of my sealed missive."
+      message: "Noble Mailman, please accept custody of my sealed letter."
     });
   };
 
@@ -8773,8 +8778,8 @@ function MapTracker() {
           </h2>
           <p className="text-sm sm:text-base italic mt-1" style={{ color: 'var(--gold-muted)' }}>
             {user?.role === 'mailman' 
-              ? 'Real-time radar: Claim nearby missives and see active senders live across the realm.'
-              : 'Real-time radar: Track nearby royal mailmen and ping mailmen to accept custody of thy missives.'}
+              ? 'Real-time radar: Claim nearby letters and see active senders live across the realm.'
+              : 'Real-time radar: Track nearby royal mailmen and ping mailmen to accept custody of your letters.'}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
@@ -8802,7 +8807,7 @@ function MapTracker() {
                 : 'bg-white/5 text-amber-200/80 border-amber-500/30 hover:bg-white/10'
             }`}
             style={{ fontFamily: "'Cinzel', serif" }}
-            title="Click anywhere on the map to reposition thy pin"
+            title="Click anywhere on the map to reposition your pin"
           >
             <MapPin className="w-3.5 h-3.5 text-amber-400" />
             <span>{clickToMoveEnabled ? 'Click Map to Move' : 'Reposition Pin'}</span>
@@ -8813,7 +8818,7 @@ function MapTracker() {
               onClick={stopSharingLocation}
               className="px-3.5 py-2 rounded-sm font-bold text-xs shadow flex items-center gap-1.5 transition-colors text-white"
               style={{ background: '#7F1D1D', border: '1px solid #DC2626', fontFamily: "'Cinzel', serif" }}
-              title="Cloak thy position and stop sharing GPS location"
+              title="Cloak your position and stop sharing GPS location"
             >
               <X className="w-3.5 h-3.5" /> Cloak
             </button>
@@ -8872,7 +8877,7 @@ function MapTracker() {
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-bold flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
-                    <span>📡 Missive Dispatch Radar</span>
+                    <span>📡 Letter Dispatch Radar</span>
                     <span className="text-xs px-2 py-0.5 rounded-full font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
                       {vicinityRadius}m Radar
                     </span>
@@ -8897,7 +8902,7 @@ function MapTracker() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-emerald-300 flex items-center gap-2" style={{ fontFamily: "'Cinzel', serif" }}>
-                      <span>📜 Missive Successfully Dispatched!</span>
+                      <span>📜 Letter Successfully Dispatched!</span>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-800/80 text-emerald-200 border border-emerald-500/50 uppercase tracking-widest font-mono">
                         Handover Verified
                       </span>
@@ -8923,7 +8928,7 @@ function MapTracker() {
                       Mailman {dispatchedRequestMailman.name} Accepted!
                     </p>
                     <p className="text-xs italic text-emerald-100/90 font-serif">
-                      The mailman is on their way, please wait patiently! Present thy QR Seal below for scanning:
+                      The mailman is on their way, please wait patiently! Present your QR Seal below for scanning:
                     </p>
                   </div>
                 </div>
@@ -8957,7 +8962,7 @@ function MapTracker() {
                       Herald Dispatched to {dispatchedRequestMailman.name}...
                     </p>
                     <p className="text-xs italic text-amber-200/90 font-serif">
-                      Awaiting mailman's response to take custody of thy sealed missive.
+                      Awaiting mailman's response to take custody of your sealed letter.
                     </p>
                   </div>
                 </div>
@@ -8978,7 +8983,7 @@ function MapTracker() {
                     Mailman {dispatchedRequestMailman.name} is currently unavailable.
                   </p>
                   <p className="text-xs italic text-red-200 font-serif">
-                    Thou canst select another mailman in range or wait for them to be ready.
+                    You can select another mailman in range or wait for them to be ready.
                   </p>
                 </div>
                 <button
@@ -8992,14 +8997,14 @@ function MapTracker() {
               <div>
                 {user?.role === 'mailman' ? (
                   <div className="p-3 bg-amber-900/20 rounded border border-amber-500/30 text-xs text-amber-200/90 flex items-center justify-between">
-                    <span>🏇 Royal Mailman Mode: Broadcasting celestial coordinates. Scribes in thy perimeter can send pickup pings to thee.</span>
+                    <span>🏇 Courier mode is on: you are sharing your location. Scribes nearby can now ask you to collect a letter.</span>
                   </div>
                 ) : (
                   <div>
                     <p className="text-xs italic text-amber-200/80 mb-2.5 font-serif">
                       {nearbyMailmen.length > 0 
-                        ? `Select an active Royal Mailman within thy ${vicinityRadius}m radar to send a pickup request:`
-                        : `No Royal Mailmen currently within thy ${vicinityRadius}m perimeter.`}
+                        ? `Select an active Royal Mailman within your ${vicinityRadius}m radar to send a pickup request:`
+                        : `No Royal Mailmen currently within your ${vicinityRadius}m perimeter.`}
                     </p>
 
                     {nearbyMailmen.length > 0 ? (
@@ -9034,7 +9039,7 @@ function MapTracker() {
                       </div>
                     ) : (
                       <div className="p-3 rounded bg-black/30 border border-amber-500/20 text-xs text-amber-300/70 flex items-center justify-between">
-                        <span>💡 Try increasing thy radar radius above (e.g. 500m or 1000m) to reach more mailmen across the realm.</span>
+                        <span>💡 Try increasing your radar radius above (e.g. 500m or 1000m) to reach more mailmen across the realm.</span>
                       </div>
                     )}
                   </div>
@@ -9089,11 +9094,11 @@ function MapTracker() {
         <div className="flex flex-wrap items-center gap-3 text-xs font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-sm" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(59,130,246,0.5)', color: '#93C5FD' }}>
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block shadow-sm"></span> 
-            Thou ({user?.name || (user?.role === 'mailman' ? 'Mailman' : 'Scribe')})
+            You ({user?.name || (user?.role === 'mailman' ? 'Mailman' : 'Scribe')})
           </span>
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-sm" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(212,175,55,0.5)', color: 'var(--antique-gold)' }}>
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shadow-sm"></span> 
-            Missives ({lettersInVicinity.length})
+            Letters ({lettersInVicinity.length})
           </span>
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-sm" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(16,185,129,0.5)', color: '#6EE7B7' }}>
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-sm animate-pulse"></span> 
@@ -9130,7 +9135,7 @@ function MapTracker() {
           <Marker position={position} icon={createRealmDivIcon('self')}>
             <Popup>
               <div className="font-serif text-[#1A1A1A] text-center p-1.5 min-w-[170px]">
-                <p className="font-bold text-base border-b border-[#D8CCA8] pb-1">📍 Thou Art Here</p>
+                <p className="font-bold text-base border-b border-[#D8CCA8] pb-1">📍 You Are Here</p>
                 <p className="text-sm font-semibold mt-1" style={{ color: 'var(--burgundy)' }}>{user?.name}</p>
                 <p className="text-xs italic capitalize font-semibold">Role: {user?.role === 'mailman' ? '🏇 Royal Mailman' : '📜 Noble Scribe'}</p>
                 {liveUser?.noteStatus && !liveUser?.isNoteExpired && (
@@ -9167,7 +9172,7 @@ function MapTracker() {
               <Popup>
                 <div className="font-serif text-[#1A1A1A] p-1.5 min-w-[200px]">
                   <div className="flex items-center justify-between border-b border-[#D8CCA8] pb-1">
-                    <p className="font-bold text-base flex items-center gap-1">📜 Missive Awaits</p>
+                    <p className="font-bold text-base flex items-center gap-1">📜 Letter Awaits</p>
                     <span className="text-xs bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold">{letter.calculatedDist}m away</span>
                   </div>
                   <p className="text-xs mt-2"><span className="font-semibold">From:</span> {letter.senderRef?.name || 'Unknown'}</p>
@@ -9178,7 +9183,7 @@ function MapTracker() {
                       onClick={() => claimLetter(letter)}
                       className="mt-2.5 w-full py-1.5 px-3 bg-[#7A1E2E] hover:bg-[#5C1623] text-white text-xs font-bold rounded shadow transition-colors"
                     >
-                      Claim this Missive
+                      Claim this Letter
                     </button>
                   ) : (
                     <p className="text-[11px] italic mt-2 bg-[#FAF0E6] p-1 rounded border border-[#D8CCA8] text-center">
@@ -9232,7 +9237,7 @@ function MapTracker() {
 
                   {u.inVicinity && u.role === 'mailman' && (
                     <div className="mt-2 text-[10px] font-bold text-emerald-800 bg-emerald-100 py-1 px-2 rounded border border-emerald-300">
-                      🎯 Within Thy Alert Radius ({vicinityRadius}m)
+                      🎯 Within Your Alert Radius ({vicinityRadius}m)
                     </div>
                   )}
                 </div>
@@ -9246,10 +9251,10 @@ function MapTracker() {
         <div className="p-4 rounded-sm shadow" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
           <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
             <Scroll className="w-5 h-5 text-[var(--antique-gold)]" /> 
-            {lettersInVicinity.length} Missive{lettersInVicinity.length !== 1 ? 's' : ''} in {vicinityRadius}m Radar
+            {lettersInVicinity.length} Letter{lettersInVicinity.length !== 1 ? 's' : ''} in {vicinityRadius}m Radar
           </p>
           <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-            {lettersInVicinity.length > 0 ? 'Click pins upon the map to inspect waiting missives.' : 'No uncollected missives found within this radius.'}
+            {lettersInVicinity.length > 0 ? 'Click pins upon the map to inspect waiting letters.' : 'No uncollected letters found within this radius.'}
           </p>
         </div>
         <div className="p-4 rounded-sm shadow flex flex-col justify-between" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
@@ -9259,7 +9264,7 @@ function MapTracker() {
               {nearbyMailmen.length} Mailman{nearbyMailmen.length !== 1 ? 'men' : ''} in {vicinityRadius}m Radar
             </p>
             <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-              {nearbyMailmen.length > 0 ? 'Active mailmen currently within thy radar perimeter.' : `No active mailmen within ${vicinityRadius}m.`}
+              {nearbyMailmen.length > 0 ? 'Active mailmen currently within your radar perimeter.' : `No active mailmen within ${vicinityRadius}m.`}
             </p>
           </div>
           {user?.role !== 'mailman' && nearbyMailmen.length > 0 && (
@@ -9286,11 +9291,11 @@ function MapTracker() {
               {nearbySenders.length} Scribe{nearbySenders.length !== 1 ? 's' : ''} in {vicinityRadius}m Radar
             </p>
             <p className="text-xs sm:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-              {nearbySenders.length > 0 ? 'Active scholars and senders within thy radar.' : `No active scribes within ${vicinityRadius}m.`}
+              {nearbySenders.length > 0 ? 'Active scholars and senders within your radar.' : `No active scribes within ${vicinityRadius}m.`}
             </p>
           </div>
           <Link to="/compose" className="btn-velvet-burgundy mt-3 text-xs justify-center py-2 px-4">
-            ✍️ Inscribe Missive Here
+            ✍️ Write a Letter
           </Link>
         </div>
       </div>
@@ -9312,7 +9317,7 @@ function Gallery({ user }: { user: any }) {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
       <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
         <h2 className="text-4xl font-bold text-center mb-2 text-[#5C3A21] italic">The Royal Stamp Gallery</h2>
-        <p className="text-center text-[#8B5A2B] italic mb-2">Collect stamps from thy travels across the realm.</p>
+        <p className="text-center text-[#8B5A2B] italic mb-2">Collect stamps from your travels across the realm.</p>
         {user?.role !== 'mailman' && (
           <p className="text-center text-sm mb-8 text-[#5C3A21] font-semibold flex items-center justify-center gap-2">
             <Award className="w-4 h-4 text-[#8B5A2B]" /> Reputation: {liveUser?.reputationScore ?? 0} • {unlockedCount}/30 stamps unlocked
@@ -9331,7 +9336,7 @@ function Gallery({ user }: { user: any }) {
             { name: 'Dragon Scaled', desc: 'Survive extreme heat', emoji: '🐉', earned: false },
             { name: 'Ocean Bottle', desc: 'Sent a message in a bottle', emoji: '🍾', earned: false },
             { name: 'Time Traveler', desc: 'Sent a time capsule', emoji: '⏳', earned: false },
-            { name: 'Secret Keeper', desc: 'Sent an encrypted missive', emoji: '🗝️', earned: false },
+            { name: 'Secret Keeper', desc: 'Sent an encrypted letter', emoji: '🗝️', earned: false },
             { name: 'Wax Master', desc: 'Used 5 different wax colors', emoji: '🕯️', earned: false },
             { name: 'Guild Initiate', desc: 'Joined the postmaster guild', emoji: '🤝', earned: false },
             { name: 'Mountain Climber', desc: 'Delivered to high altitudes', emoji: '⛰️', earned: false },
@@ -9387,7 +9392,7 @@ function ReportModal({ reportedUser, onClose }: { reportedUser: any, onClose: ()
       setTimeout(onClose, 2500);
     } catch (e: any) {
       setStatus('error');
-      setErrorMsg(e.message || 'Failed to submit report.');
+      setErrorMsg(e.message || 'Could not submit report.');
     }
   };
 
@@ -9401,7 +9406,7 @@ function ReportModal({ reportedUser, onClose }: { reportedUser: any, onClose: ()
         </p>
         {reportedUser.letterId && (
           <p className="text-xs italic text-stone-600 mb-4 bg-amber-100/70 p-2 rounded border border-amber-300">
-            ⚖️ <strong>Tribunal Notice:</strong> Even if this missive was cast anonymously, the Guild Master Tribunal will unmask the true author's identity and apply sovereign sanctions.
+            ⚖️ <strong>Tribunal Notice:</strong> Even though this letter is anonymous to other players, the Guild Masters can still identify the author and act on abuse.
           </p>
         )}
         
@@ -9409,7 +9414,7 @@ function ReportModal({ reportedUser, onClose }: { reportedUser: any, onClose: ()
           <div className="p-4 bg-green-100 border border-green-400 text-green-800 rounded text-center">
             <CheckCircle className="w-8 h-8 mx-auto mb-2"/>
             <p className="font-bold">Report Filed Successfully</p>
-            <p className="text-sm italic">The Guild Tribunal has received the missive and will unmask & sanction transgressors.</p>
+            <p className="text-sm italic">The Guild Tribunal has received the letter and will unmask & sanction transgressors.</p>
           </div>
         ) : (
           <>
@@ -9464,7 +9469,7 @@ function FriendScannerModal({ onClose, onScan }: { onClose: () => void, onScan: 
         <button onClick={onClose} className="absolute top-3 right-3 text-gray-400 hover:text-white p-1"><X className="w-6 h-6" /></button>
         <Crown className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--antique-gold)' }} />
         <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Scan Companion's Seal</h3>
-        <p className="text-xs sm:text-sm italic mb-5" style={{ color: 'var(--gold-muted)' }}>Align thy magical lens with their QR Code to forge an enduring bond.</p>
+        <p className="text-xs sm:text-sm italic mb-5" style={{ color: 'var(--gold-muted)' }}>Align your magical lens with their QR Code to forge an enduring bond.</p>
         {error && <p className="text-red-400 font-bold mb-4 text-xs">{error}</p>}
         <div className="w-full bg-black rounded-sm overflow-hidden" style={{ border: '1px solid var(--antique-gold)' }}>
           <div id="friend-reader" className="w-full h-[250px]"></div>
@@ -9501,7 +9506,7 @@ function Fellowship({ user }: { user: any }) {
       setIncomingRequests(Array.isArray(requestsData?.incoming) ? requestsData.incoming : []);
       setOutgoingRequests(Array.isArray(requestsData?.outgoing) ? requestsData.outgoing : []);
     } catch (e) {
-      console.error("Failed to load fellowship data:", e);
+      console.error("Could not load fellowship data:", e);
     }
   };
 
@@ -9512,7 +9517,7 @@ function Fellowship({ user }: { user: any }) {
   const handleSendRequest = async (codeToUse?: string) => {
     const code = (codeToUse || friendCode).trim();
     if (!code) {
-      setError('Pray tell, enter a valid scroll address or ID code.');
+      setError('Enter a valid email address or ID code.');
       return;
     }
     setLoading(true);
@@ -9529,7 +9534,7 @@ function Fellowship({ user }: { user: any }) {
         setActiveTab('outgoing');
       }
     } catch (e: any) {
-      setError(e.message || 'Failed to dispatch friend request.');
+      setError(e.message || 'Could not dispatch friend request.');
     } finally {
       setLoading(false);
     }
@@ -9582,7 +9587,7 @@ function Fellowship({ user }: { user: any }) {
   };
 
   const handleRemove = async (friendId: string, friendName: string) => {
-    if (!window.confirm(`Dissolve thy sacred bond with ${friendName}?`)) return;
+    if (!(await confirmAction({ title: 'Remove Friend', message: `Remove ${friendName} from your fellowship? You can send them a new request later.`, confirmLabel: 'Remove Friend' }))) return;
     setActionLoadingId(friendId);
     setError('');
     setSuccess('');
@@ -9591,7 +9596,7 @@ function Fellowship({ user }: { user: any }) {
       setSuccess(res.message || 'Traveller removed from fellowship.');
       await fetchFellowshipData();
     } catch (e: any) {
-      setError(e.message || 'Failed to remove companion.');
+      setError(e.message || 'Could not remove companion.');
     } finally {
       setActionLoadingId(null);
     }
@@ -9616,15 +9621,15 @@ function Fellowship({ user }: { user: any }) {
             </div>
             <h2 className="text-2xl sm:text-4xl font-bold tracking-wide flex items-center gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
               <Users className="w-8 h-8 flex-shrink-0" style={{ color: 'var(--antique-gold)' }}/> 
-              Expand Thy Fellowship
+              Expand Your Fellowship
             </h2>
           </div>
           <Link to="/" className="btn-gold-saloon text-xs py-2 px-4">
-            ← Thy Ledger
+            ← My Desk
           </Link>
         </div>
         <p className="text-sm sm:text-base italic mb-6" style={{ color: 'var(--gold-muted)' }}>
-          Dispatch a friendship summons to another traveller via their Scroll Address (email) or secret ID Code.
+          Send a friend request using their email address or their secret ID code.
         </p>
         
         <div className="flex flex-col md:flex-row gap-3">
@@ -9670,7 +9675,7 @@ function Fellowship({ user }: { user: any }) {
         
         {/* User's Own ID & QR Code Badge */}
         <div className="mt-6 pt-6" style={{ borderTop: '1px dashed rgba(212,175,55,0.3)' }}>
-          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>Thy Secret Identification Code:</p>
+          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>Your Secret Identification Code:</p>
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="p-3 rounded-sm flex-1 flex justify-between items-center select-all cursor-pointer shadow-inner" style={{ background: '#FFFDF9', border: '1px solid var(--border-subtle)' }}>
               <span className="font-mono text-sm text-[#1A1A1A] font-bold">{user.id || user._id}</span>
@@ -9700,7 +9705,7 @@ function Fellowship({ user }: { user: any }) {
           }}
         >
           <Users className="w-4 h-4"/>
-          Thy Companions ({friends.length})
+          Your Companions ({friends.length})
         </button>
 
         <button
@@ -9748,7 +9753,7 @@ function Fellowship({ user }: { user: any }) {
         }}>
           <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
             <div>
-              <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Companions in Thy Fellowship</h3>
+              <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Companions in Your Fellowship</h3>
               <p className="text-xs sm:text-sm italic" style={{ color: 'var(--gold-muted)' }}>Mutually bonded travellers of the realm.</p>
             </div>
             <span className="text-xs font-bold px-3 py-1 rounded-sm" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
@@ -9759,7 +9764,7 @@ function Fellowship({ user }: { user: any }) {
           {friends.length === 0 ? (
             <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
               <Users className="w-14 h-14 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }}/>
-              <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Thy fellowship is currently empty.</p>
+              <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Your fellowship is currently empty.</p>
               <p className="text-sm mt-1 italic font-serif">
                 Send a friend request above or scan another traveller's seal to forge an alliance.
               </p>
@@ -9802,7 +9807,7 @@ function Fellowship({ user }: { user: any }) {
                       state={{ draft: { receiverRef: f.name } }} 
                       className="btn-velvet-burgundy flex-1 text-xs py-2 justify-center gap-1.5"
                     >
-                      <Feather className="w-3.5 h-3.5"/> Inscribe Letter
+                      <Feather className="w-3.5 h-3.5"/> Write Letter
                     </Link>
                     
                     <button 
@@ -9840,8 +9845,8 @@ function Fellowship({ user }: { user: any }) {
         }}>
           <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
             <div>
-              <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Incoming Friendship Summons</h3>
-              <p className="text-xs sm:text-sm italic" style={{ color: 'var(--gold-muted)' }}>Travellers seeking to forge a bond with thee.</p>
+              <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Friend Requests Received</h3>
+              <p className="text-xs sm:text-sm italic" style={{ color: 'var(--gold-muted)' }}>Travellers seeking to forge a bond with you.</p>
             </div>
             <span className="text-xs font-bold px-3 py-1 rounded-sm" style={{ background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.3)', fontFamily: "'Cinzel', serif" }}>
               {incomingRequests.length} Pending
@@ -9853,7 +9858,7 @@ function Fellowship({ user }: { user: any }) {
               <UserCheck className="w-14 h-14 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }}/>
               <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No incoming friend requests at this time.</p>
               <p className="text-sm mt-1 italic font-serif">
-                When another traveller sends thee a summons, it will appear here for thy review.
+                When someone sends you a friend request, it will appear here.
               </p>
             </div>
           ) : (
@@ -9912,8 +9917,8 @@ function Fellowship({ user }: { user: any }) {
         }}>
           <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
             <div>
-              <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Pending Sent Summons</h3>
-              <p className="text-xs sm:text-sm italic" style={{ color: 'var(--gold-muted)' }}>Requests thou hast dispatched awaiting a response.</p>
+              <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Friend Requests You Sent</h3>
+              <p className="text-xs sm:text-sm italic" style={{ color: 'var(--gold-muted)' }}>Requests you have dispatched awaiting a response.</p>
             </div>
             <span className="text-xs font-bold px-3 py-1 rounded-sm" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
               {outgoingRequests.length} Pending
@@ -9925,7 +9930,7 @@ function Fellowship({ user }: { user: any }) {
               <Clock className="w-14 h-14 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }}/>
               <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No outgoing requests pending.</p>
               <p className="text-sm mt-1 italic font-serif">
-                All thy summons have either been accepted or none have been sent yet.
+                You have no friend requests waiting — they have all been accepted, or you have not sent any yet.
               </p>
             </div>
           ) : (
@@ -9970,7 +9975,7 @@ function Fellowship({ user }: { user: any }) {
             <div className="theatrical-card p-6 sm:p-8 max-w-sm w-full relative text-center shadow-2xl animate-glow-pulse" style={{ border: '2px solid var(--antique-gold)' }}>
               <button onClick={() => setShowMyQR(false)} className="absolute top-3 right-3 text-gray-400 hover:text-white p-1"><X className="w-6 h-6" /></button>
               <Crown className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--antique-gold)' }} />
-              <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Thy Friendship Seal</h3>
+              <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Your Friendship Seal</h3>
               <p className="text-xs sm:text-sm italic mb-5" style={{ color: 'var(--gold-muted)' }}>Let another traveller scan this to forge an alliance.</p>
               <div className="flex justify-center p-4 bg-white rounded-sm mb-4 inline-block shadow-inner" style={{ border: '2px solid var(--antique-gold)' }}>
                 <QRCodeCanvas value={user.id || user._id} size={200} fgColor="#1A1A1A" />

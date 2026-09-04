@@ -10,6 +10,7 @@ import {
   type GazetteEdition 
 } from '../api';
 import { waxSealAudio } from '../utils/waxSealAudio';
+import { notify } from '../components/RealmDialog';
 
 export default function PhantomGazettePage() {
   const [gazettes, setGazettes] = useState<GazetteEdition[]>([]);
@@ -36,7 +37,7 @@ export default function PhantomGazettePage() {
         }
       }
     } catch (err) {
-      console.error('Failed to load gazettes:', err);
+      console.error('Could not load gazettes:', err);
     } finally {
       setLoading(false);
     }
@@ -75,7 +76,7 @@ export default function PhantomGazettePage() {
       setTimeout(() => setActionMsg(null), 5000);
       await fetchGazettes(res.gazette._id);
     } catch (err: any) {
-      alert(err.message || 'Failed to summon special gazette');
+      notify.error(err.message || 'Could not summon special gazette');
     } finally {
       setSummoning(false);
     }
@@ -128,7 +129,7 @@ export default function PhantomGazettePage() {
           </button>
 
           <Link to="/" className="btn-velvet-burgundy text-xs py-2 px-3.5">
-            ← Thy Ledger
+            ← My Desk
           </Link>
         </div>
       </div>
@@ -340,7 +341,7 @@ export default function PhantomGazettePage() {
                           Official Recipient Audit
                         </span>
                         <h4 className="text-base font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
-                          Thy Postal Chronicle
+                          Your Postal Chronicle
                         </h4>
                       </div>
 
