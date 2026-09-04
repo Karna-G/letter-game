@@ -78,7 +78,7 @@ export const NotificationChronicleDrawer: React.FC<NotificationChronicleDrawerPr
             style={{
               background: 'linear-gradient(165deg, #1C1814 0%, #12100E 100%)',
               border: '1px solid var(--antique-gold)',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.85), 0 0 20px rgba(212,175,55,0.2)'
+              boxShadow: '0 20px 40px rgba(0,0,0,0.85), 0 0 20px rgba(63, 169, 122,0.2)'
             }}
           >
             {/* Header */}
@@ -114,10 +114,10 @@ export const NotificationChronicleDrawer: React.FC<NotificationChronicleDrawerPr
                 <div className="py-8 text-center px-4">
                   <Compass className="w-8 h-8 mx-auto text-amber-500/40 mb-2 animate-spin-slow" />
                   <p className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-                    No couriers are near you right now.
+                    No postmen are near you right now.
                   </p>
                   <p className="text-[10px] text-amber-200/50 mt-1">
-                    When a courier comes close to you, the alert will appear here.
+                    When a postman comes close to you, the alert will appear here.
                   </p>
                 </div>
               ) : (

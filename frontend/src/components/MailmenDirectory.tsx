@@ -57,14 +57,14 @@ export default function MailmenDirectory() {
       {/* ── Hero Banner with Scenic Oil Painting Backdrop ── */}
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden text-center rounded-sm" style={{
         background: `linear-gradient(180deg, rgba(18,16,14,0.78) 0%, rgba(10,9,8,0.94) 100%), url(${courierDirectoryRosterBg}) center/cover no-repeat`,
-        border: '1px solid rgba(212, 175, 55, 0.4)',
+        border: '1px solid rgba(63, 169, 122, 0.4)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.7)'
       }}>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
           <Scroll className="w-3.5 h-3.5" />
-          <span>✦ Imperial Courier Registry & Service Records ✦</span>
+          <span>✦ Imperial Postman Registry & Service Records ✦</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-bold tracking-wide" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)', textShadow: '0 4px 15px rgba(0,0,0,0.8)' }}>
@@ -72,7 +72,7 @@ export default function MailmenDirectory() {
         </h1>
 
         <p className="max-w-2xl mx-auto text-sm sm:text-base italic leading-relaxed mt-2" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-          “The official record of every certified courier who braves storm and wilderness to carry your letters — and how well each one delivers.”
+          “The official record of every certified postman who braves storm and wilderness to carry your letters — and how well each one delivers.”
         </p>
 
         <div className="flex flex-wrap justify-center items-center gap-4 mt-5 text-xs font-mono">
@@ -83,12 +83,12 @@ export default function MailmenDirectory() {
       </div>
 
       {error && (
-        <p className="p-4 rounded-sm text-sm" style={{ background: '#4A1019', color: '#F5ECD7', border: '1px solid #6B1D2A' }}>
+        <p className="p-4 rounded-sm text-sm" style={{ background: '#7F1D1D', color: '#FFF', border: '1px solid #EF4444' }}>
           ⚠ {error}
         </p>
       )}
 
-      {/* ── Courier Cards Grid ── */}
+      {/* ── Postman Cards Grid ── */}
       <div className="grid gap-5">
         {mailmen.map((mailman) => {
           const isExpanded = expandedId === mailman._id;
@@ -99,11 +99,11 @@ export default function MailmenDirectory() {
               className="theatrical-card p-5 sm:p-7 transition-all rounded-sm relative overflow-hidden"
               style={{
                 background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-                border: '1px solid rgba(212, 175, 55, 0.35)',
+                border: '1px solid rgba(63, 169, 122, 0.35)',
                 boxShadow: '0 15px 35px rgba(0,0,0,0.6)'
               }}
             >
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1.5px', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1.5px', background: 'linear-gradient(to right, transparent, rgba(63, 169, 122,0.4), transparent)' }} />
 
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer" onClick={() => toggleExpand(mailman._id)}>
                 <div>
@@ -113,14 +113,14 @@ export default function MailmenDirectory() {
                   </h3>
                   <div className="flex flex-wrap items-center gap-2 mt-1.5">
                     <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40" style={{ fontFamily: "'Cinzel', serif" }}>
-                      {mailman.rank || 'Royal Courier'}
+                      {mailman.rank || 'Royal Postman'}
                     </span>
                     <span className="text-xs font-mono text-stone-300 bg-stone-900/80 px-2 py-0.5 rounded border border-stone-700">
                       {mailman.xp || 0} XP
                     </span>
                   </div>
                   {mailman.noteStatus && (
-                    <div className="mt-2.5 p-2 rounded-sm text-xs italic font-serif flex items-center gap-2" style={{ background: 'rgba(255,253,249,0.06)', border: '1px solid rgba(212,175,55,0.25)', color: 'var(--parchment-light)' }}>
+                    <div className="mt-2.5 p-2 rounded-sm text-xs italic font-serif flex items-center gap-2" style={{ background: 'rgba(255,253,249,0.06)', border: '1px solid rgba(63, 169, 122,0.25)', color: 'var(--parchment-light)' }}>
                       <span className="text-base">{NOTE_STATUS_MOODS[mailman.noteStatusMood || 'quill']?.icon || '🪶'}</span>
                       <span>“{mailman.noteStatus}”</span>
                     </div>
@@ -129,7 +129,7 @@ export default function MailmenDirectory() {
 
                 <div className="flex items-center gap-4 self-end sm:self-center">
                   <div className="flex flex-col items-end">
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-sm shadow-inner" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)' }}>
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-sm shadow-inner" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)' }}>
                       <Star className="w-3.5 h-3.5 fill-current text-amber-400" />
                       <span className="font-bold text-xs font-mono" style={{ color: 'var(--parchment-light)' }}>{mailman.reputationScore || 0} Rep</span>
                     </div>
@@ -142,7 +142,7 @@ export default function MailmenDirectory() {
 
               {/* Accordion Content */}
               {isExpanded && (
-                <div className="mt-5 pt-5 space-y-5 animate-curtain-reveal" style={{ borderTop: '1px solid rgba(212,175,55,0.2)' }}>
+                <div className="mt-5 pt-5 space-y-5 animate-curtain-reveal" style={{ borderTop: '1px solid rgba(63, 169, 122,0.2)' }}>
                   {/* Badges Earned */}
                   {mailman.badges && mailman.badges.length > 0 && (
                     <div>
@@ -154,7 +154,7 @@ export default function MailmenDirectory() {
                           <span
                             key={i}
                             className="text-xs px-3 py-1 rounded-sm shadow-md font-serif"
-                            style={{ background: 'linear-gradient(135deg, #6B1D2A 0%, #4A1019 100%)', color: 'var(--parchment-light)', border: '1px solid rgba(212,175,55,0.35)', fontFamily: "'Cinzel', serif" }}
+                            style={{ background: 'linear-gradient(135deg, #12513A 0%, #08251A 100%)', color: 'var(--parchment-light)', border: '1px solid rgba(63, 169, 122,0.35)', fontFamily: "'Cinzel', serif" }}
                           >
                             ✦ {badge}
                           </span>
@@ -166,8 +166,8 @@ export default function MailmenDirectory() {
                   {/* Senders & Receivers Grid */}
                   <div className="grid md:grid-cols-2 gap-4">
                     {/* Senders */}
-                    <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(212,175,55,0.2)' }}>
-                      <h4 className="font-bold mb-2.5 text-xs uppercase tracking-widest text-amber-300 flex items-center gap-1.5 pb-2" style={{ fontFamily: "'Cinzel', serif", borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
+                    <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
+                      <h4 className="font-bold mb-2.5 text-xs uppercase tracking-widest text-amber-300 flex items-center gap-1.5 pb-2" style={{ fontFamily: "'Cinzel', serif", borderBottom: '1px solid rgba(63, 169, 122,0.15)' }}>
                         <Users className="w-3.5 h-3.5" /> Noble Senders Serviced
                       </h4>
                       {mailman.servicedSenders && mailman.servicedSenders.length > 0 ? (
@@ -185,8 +185,8 @@ export default function MailmenDirectory() {
                     </div>
 
                     {/* Receivers */}
-                    <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(212,175,55,0.2)' }}>
-                      <h4 className="font-bold mb-2.5 text-xs uppercase tracking-widest text-amber-300 flex items-center gap-1.5 pb-2" style={{ fontFamily: "'Cinzel', serif", borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
+                    <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
+                      <h4 className="font-bold mb-2.5 text-xs uppercase tracking-widest text-amber-300 flex items-center gap-1.5 pb-2" style={{ fontFamily: "'Cinzel', serif", borderBottom: '1px solid rgba(63, 169, 122,0.15)' }}>
                         <Compass className="w-3.5 h-3.5" /> Receivers Reached
                       </h4>
                       {mailman.servicedReceivers && mailman.servicedReceivers.length > 0 ? (
@@ -206,7 +206,7 @@ export default function MailmenDirectory() {
                 </div>
               )}
 
-              <div className="mt-3 flex justify-center pt-2" style={{ borderTop: '1px dashed rgba(212,175,55,0.2)' }}>
+              <div className="mt-3 flex justify-center pt-2" style={{ borderTop: '1px dashed rgba(63, 169, 122,0.2)' }}>
                 <button
                   onClick={() => toggleExpand(mailman._id)}
                   className="transition-colors flex items-center text-xs font-bold uppercase tracking-wider text-amber-300 hover:text-amber-200"
@@ -215,7 +215,7 @@ export default function MailmenDirectory() {
                   {isExpanded ? (
                     <>Conceal Scroll Dossier <ChevronUp className="ml-1 w-3.5 h-3.5" /></>
                   ) : (
-                    <>Inspect Courier Dossier <ChevronDown className="ml-1 w-3.5 h-3.5" /></>
+                    <>Inspect Postman Dossier <ChevronDown className="ml-1 w-3.5 h-3.5" /></>
                   )}
                 </button>
               </div>
@@ -224,8 +224,8 @@ export default function MailmenDirectory() {
         })}
 
         {mailmen.length === 0 && (
-          <div className="theatrical-card p-10 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)' }}>
-            <p className="italic text-base text-stone-300 font-serif">The Mailman's Registry is currently awaiting certified courier registrations.</p>
+          <div className="theatrical-card p-10 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)' }}>
+            <p className="italic text-base text-stone-300 font-serif">The Mailman's Registry is currently awaiting certified postman registrations.</p>
           </div>
         )}
       </div>

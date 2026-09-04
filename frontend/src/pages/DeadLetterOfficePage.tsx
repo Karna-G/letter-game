@@ -109,16 +109,16 @@ export default function DeadLetterOfficePage() {
         className="theatrical-card p-6 sm:p-10 relative overflow-hidden rounded-sm"
         style={{
           background: `linear-gradient(175deg, rgba(16,13,11,0.92) 0%, rgba(8,6,5,0.98) 100%), url(${deadLetterOfficeBg}) center/cover no-repeat`,
-          border: '1px solid rgba(212, 175, 55, 0.45)',
+          border: '1px solid rgba(63, 169, 122, 0.45)',
           boxShadow: '0 25px 60px rgba(0,0,0,0.85)'
         }}
       >
         {/* Top Gold Rule */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4 pb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4 pb-5" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
               <span>🏛️ The Public Realm Repository</span>
             </div>
             <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-wide flex items-center gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)', textShadow: '0 4px 20px rgba(0,0,0,0.9)' }}>
@@ -141,7 +141,7 @@ export default function DeadLetterOfficePage() {
         </div>
 
         {/* Thematic Banner */}
-        <div className="p-4 sm:p-5 mb-6 rounded-sm flex items-start gap-3.5" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)' }}>
+        <div className="p-4 sm:p-5 mb-6 rounded-sm flex items-start gap-3.5" style={{ background: 'rgba(63, 169, 122,0.08)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
           <Sparkles className="w-6 h-6 flex-shrink-0 text-amber-400 mt-0.5" />
           <div className="text-xs sm:text-sm leading-relaxed" style={{ color: 'var(--parchment-light)' }}>
             <strong className="text-amber-300 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>The Law of Abandoned Inscriptions:</strong> When someone releases a letter from their mailbox, or a letter goes unclaimed too long, it is placed here in these pigeonholes. Anyone may open it, read it, and make of it what they will.
@@ -168,7 +168,7 @@ export default function DeadLetterOfficePage() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="flex flex-wrap gap-2 mb-6" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
           {[
             { key: 'all', label: 'All Dead Letters', count: deadLetters.length },
             { key: 'standard', label: 'Classic Epistles', count: deadLetters.filter(l => l.type === 'standard' || !l.type).length },
@@ -182,7 +182,7 @@ export default function DeadLetterOfficePage() {
               className="px-4 py-2.5 font-bold text-xs sm:text-sm rounded-t-sm transition-all flex items-center gap-2"
               style={{
                 fontFamily: "'Cinzel', serif",
-                background: activeTab === t.key ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'transparent',
+                background: activeTab === t.key ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)' : 'transparent',
                 color: activeTab === t.key ? '#FFF' : 'var(--gold-muted)',
                 border: activeTab === t.key ? '1px solid var(--antique-gold)' : '1px solid transparent',
                 borderBottom: 'none'
@@ -199,7 +199,7 @@ export default function DeadLetterOfficePage() {
             <p className="text-lg font-serif">Unlocking the vaults of the Dead Letter Office...</p>
           </div>
         ) : filteredLetters.length === 0 ? (
-          <div className="text-center py-16 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
+          <div className="text-center py-16 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)', color: 'var(--gold-muted)' }}>
             <Archive className="w-12 h-12 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }} />
             <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No dead letters here yet.</p>
             <p className="text-sm mt-1 italic font-serif">When someone abandons a letter from their mailbox, it appears here for everyone to read.</p>
@@ -244,7 +244,7 @@ export default function DeadLetterOfficePage() {
                           : isBottle
                             ? 'linear-gradient(145deg, rgba(6,95,70,0.88) 0%, rgba(2,44,34,0.96) 100%)'
                             : 'linear-gradient(145deg, #24201C 0%, #151311 100%)',
-                      border: '1px solid rgba(212,175,55,0.3)',
+                      border: '1px solid rgba(63, 169, 122,0.3)',
                       boxShadow: '0 12px 30px rgba(0,0,0,0.6)'
                     }}
                   >
@@ -264,7 +264,7 @@ export default function DeadLetterOfficePage() {
                     </div>
 
                     <div>
-                      <div className="mb-3 pb-2" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+                      <div className="mb-3 pb-2" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
                         <p className="font-bold text-base sm:text-lg flex items-center gap-1.5 truncate" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
                           {isDybbuk && <Ghost className="w-4 h-4 text-purple-400" />}
                           {isSchrodinger && <Atom className="w-4 h-4 text-sky-400 animate-spin" />}
@@ -291,7 +291,7 @@ export default function DeadLetterOfficePage() {
                     </div>
 
                     {/* Card Footer */}
-                    <div className="pt-3 mt-auto flex items-center justify-between" style={{ borderTop: '1px solid rgba(212,175,55,0.2)' }}>
+                    <div className="pt-3 mt-auto flex items-center justify-between" style={{ borderTop: '1px solid rgba(63, 169, 122,0.2)' }}>
                       <span className="text-[11px] font-serif italic text-stone-400">
                         {isBottle ? `Bottle: "${l.bottleMoniker || 'Ocean Relic'}"` : `Script: ${l.font || 'Cinzel'}`}
                       </span>
@@ -314,7 +314,7 @@ export default function DeadLetterOfficePage() {
             </div>
 
             {/* ── Pagination / Load More Controls ── */}
-            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(63, 169, 122,0.25)' }}>
               <p className="text-xs sm:text-sm font-mono" style={{ color: 'var(--gold-muted)' }}>
                 Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredLetters.length)}</strong> of <strong className="text-amber-300">{filteredLetters.length}</strong> dead letters (newest first)
               </p>

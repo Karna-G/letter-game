@@ -60,7 +60,7 @@ const userSchema = new mongoose.Schema({
     enabled: { type: Boolean, default: true },
     radiusMeters: { type: Number, default: 250 },
     soundEnabled: { type: Boolean, default: true },
-    notifyAllCouriers: { type: Boolean, default: false } // false: only when has pending letters; true: any courier
+    notifyAllCouriers: { type: Boolean, default: false } // false: only when has pending letters; true: any postman
   }
 }, { timestamps: true });
 

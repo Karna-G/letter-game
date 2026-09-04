@@ -648,7 +648,7 @@ export default function HandwritingCanvas({
           className="p-3 sm:p-4 rounded-sm border shadow-lg space-y-3"
           style={{
             background: 'linear-gradient(145deg, #241D17 0%, #17130F 100%)',
-            borderColor: 'rgba(212,175,55,0.3)',
+            borderColor: 'rgba(63, 169, 122,0.3)',
             boxShadow: '0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)'
           }}
         >

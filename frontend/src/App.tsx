@@ -35,7 +35,7 @@ import LetterEnvelopeWrapper from './components/LetterEnvelopeWrapper';
 import { waxSealAudio, initGlobalUiClickSound } from './utils/waxSealAudio';
 import manuscriptQuillDesk from './assets/manuscript_quill_desk.jpg';
 import antiqueScrollsPile from './assets/antique_scrolls_pile.jpg';
-import royalCrestGold from './assets/royal_crest_gold.jpg';
+import postmeWaxSeal from './assets/postme_wax_seal.png';
 import mailboxChamberBg from './assets/mailbox_chamber_bg.jpg';
 import grandArchiveLibraryBg from './assets/grand_archive_library_bg.jpg';
 import realmMapCartographyBg from './assets/realm_map_cartography_bg.jpg';
@@ -92,7 +92,7 @@ const getFontSizeClass = (fontSize?: string) => {
 const getRankFromXP = (xp: number) => {
   const ranks = [
     { name: 'Novice', req: 0, icon: '📝', desc: 'A beginner carrier learning the routes.' },
-    { name: 'Courier', req: 100, icon: '🏃', desc: 'A reliable runner for standard letters.' },
+    { name: 'Postman', req: 100, icon: '🏃', desc: 'A reliable runner for standard letters.' },
     { name: 'Rider', req: 500, icon: '🐎', desc: 'Fast delivery across greater distances.' },
     { name: 'Navigator', req: 1000, icon: '🧭', desc: 'Expert pathfinder in uncharted lands.' },
     { name: 'Postmaster', req: 2500, icon: '🎩', desc: 'Oversees regional distributions.' },
@@ -116,17 +116,17 @@ const HierarchyBadges = ({ userXP }: { userXP?: number }) => {
   const { ranks } = getRankFromXP(userXP || 0);
   
   return (
-    <div className="bg-[#FAF0E6] p-8 rounded-lg shadow-2xl border border-[#D2B48C] mt-8">
-      <h3 className="text-3xl font-bold mb-6 text-[#5C3A21] italic text-center">Guild Hierarchy & Badges</h3>
+    <div className="bg-[#0B0B0A] p-8 rounded-lg shadow-2xl border border-[#3FA97A]/35 mt-8">
+      <h3 className="text-3xl font-bold mb-6 text-[#E4F2EA] italic text-center">Guild Hierarchy & Badges</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {ranks.map((r, i) => {
           const earned = userXP !== undefined ? userXP >= r.req : true;
           return (
-            <div key={i} className={`p-4 rounded border-2 text-center shadow transition-all ${earned ? 'bg-[#FDF5E6] border-[#D2B48C]' : 'bg-gray-100 border-gray-300 opacity-60 grayscale'}`}>
+            <div key={i} className={`p-4 rounded border-2 text-center shadow transition-all ${earned ? 'bg-[#12513A] border-[#3FA97A]' : 'bg-[#141210] border-[#2A2622] opacity-60 grayscale'}`}>
               <span className="text-4xl mb-2 block">{r.icon}</span>
-              <h4 className={`font-bold text-xl ${earned ? 'text-[#8B5A2B]' : 'text-gray-500'}`}>{r.name}</h4>
-              <p className={`text-sm font-semibold mb-2 ${earned ? 'text-[#5C3A21]' : 'text-gray-400'}`}>{r.req} XP</p>
-              <p className="text-xs italic text-gray-600">{r.desc}</p>
+              <h4 className={`font-bold text-xl ${earned ? 'text-[#A8E6C8]' : 'text-stone-400'}`}>{r.name}</h4>
+              <p className={`text-sm font-semibold mb-2 ${earned ? 'text-[#E4F2EA]' : 'text-stone-500'}`}>{r.req} XP</p>
+              <p className="text-xs italic text-[#9DC4B1]">{r.desc}</p>
             </div>
           );
         })}
@@ -140,7 +140,7 @@ const HierarchyBadges = ({ userXP }: { userXP?: number }) => {
 // ============================================
 export const NOTE_STATUS_MOODS: Record<string, { icon: string; label: string; desc: string }> = {
   quill: { icon: '🪶', label: 'Scribe at Desk', desc: 'Inscribing manuscripts & soliloquies' },
-  horse: { icon: '🏇', label: 'Royal Courier', desc: 'Galloping along frontier highways' },
+  horse: { icon: '🏇', label: 'Royal Postman', desc: 'Galloping along frontier highways' },
   scroll: { icon: '📜', label: 'Ancient Lore', desc: 'Consulting parchment scrolls' },
   candle: { icon: '🕯️', label: 'Midnight Scholar', desc: 'Studying under candle glow' },
   compass: { icon: '🧭', label: 'Wayfarer', desc: 'Charting uncharted territories' },
@@ -268,7 +268,7 @@ function CartographicNoteStatusModal({
         style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
           border: '2px solid var(--antique-gold)',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(212,175,55,0.25)'
+          boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(63, 169, 122,0.25)'
         }}
       >
         {/* Top Gold Rule */}
@@ -284,7 +284,7 @@ function CartographicNoteStatusModal({
 
         {/* Header */}
         <div className="space-y-2 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
             <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
             <span>Your Status Note</span>
           </div>
@@ -299,7 +299,7 @@ function CartographicNoteStatusModal({
         </div>
 
         {/* 1-Day Lifespan Rule Notice Banner */}
-        <div className="p-3.5 rounded-sm flex items-start gap-3 text-xs" style={{ background: 'rgba(212,175,55,0.08)', border: '1px dashed rgba(212,175,55,0.35)' }}>
+        <div className="p-3.5 rounded-sm flex items-start gap-3 text-xs" style={{ background: 'rgba(63, 169, 122,0.08)', border: '1px dashed rgba(63, 169, 122,0.35)' }}>
           <Clock className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
           <div className="space-y-0.5">
             <span className="font-bold text-amber-300 uppercase tracking-wider block font-mono">
@@ -452,7 +452,7 @@ function CartographicNoteStatusModal({
 
         {/* Live Preview Box */}
         {noteText.trim() && (
-          <div className="p-3.5 rounded-sm space-y-1.5" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+          <div className="p-3.5 rounded-sm space-y-1.5" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
             <span className="text-[10px] uppercase font-mono text-amber-300 font-bold block">
               ✦ Cartographic Realm Preview:
             </span>
@@ -467,7 +467,7 @@ function CartographicNoteStatusModal({
 
         {/* Error / Success Messages */}
         {error && (
-          <div className="p-3 rounded-sm font-bold text-xs sm:text-sm italic flex items-center gap-2" style={{ background: 'rgba(107,29,42,0.4)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
+          <div className="p-3 rounded-sm font-bold text-xs sm:text-sm italic flex items-center gap-2" style={{ background: 'rgba(17, 73, 52,0.4)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
             <AlertTriangle className="w-4 h-4 flex-shrink-0" /> {error}
           </div>
         )}
@@ -478,7 +478,7 @@ function CartographicNoteStatusModal({
         )}
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2" style={{ borderTop: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2" style={{ borderTop: '1px solid rgba(63, 169, 122,0.2)' }}>
           {currentStatus ? (
             <button
               type="button"
@@ -549,7 +549,7 @@ function TravellerProfileModal({ userId, viewerId, onClose }: TravellerProfileMo
         style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
           border: '2px solid var(--antique-gold)',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(212,175,55,0.25)'
+          boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(63, 169, 122,0.25)'
         }}
       >
         <button
@@ -580,14 +580,14 @@ function TravellerProfileModal({ userId, viewerId, onClose }: TravellerProfileMo
                   {profile.name}
                 </h3>
                 <p className="text-xs uppercase tracking-widest font-mono font-bold text-amber-300">
-                  {profile.role === 'mailman' ? `Royal Courier • ${profile.rank || 'Novice'}` : 'Noble Scribe'}
+                  {profile.role === 'mailman' ? `Royal Postman • ${profile.rank || 'Novice'}` : 'Noble Scribe'}
                 </p>
               </div>
             </div>
 
             {/* Note Status Banner */}
             {profile.noteStatus ? (
-              <div className="p-4 rounded-sm relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(60,45,15,0.5) 0%, rgba(30,22,10,0.7) 100%)', border: '1px solid rgba(212,175,55,0.4)' }}>
+              <div className="p-4 rounded-sm relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(60,45,15,0.5) 0%, rgba(30,22,10,0.7) 100%)', border: '1px solid rgba(63, 169, 122,0.4)' }}>
                 <div className="flex items-center gap-2 mb-1.5">
                   <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
                   <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-amber-300">
@@ -703,7 +703,7 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
     }}>
       {/* Candlelight Atmospheric Vignette */}
       <div className="absolute inset-0 pointer-events-none animate-candle-flicker" style={{
-        boxShadow: 'inset 0 0 140px rgba(0,0,0,0.92), inset 0 0 50px rgba(107,29,42,0.35)'
+        boxShadow: 'inset 0 0 140px rgba(0,0,0,0.92), inset 0 0 60px rgba(31,122,87,0.28)'
       }} />
 
       <motion.div
@@ -721,38 +721,38 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
             className="inline-block relative mb-3 animate-float-slow"
           >
             <img
-              src={royalCrestGold}
-              alt="PostMe Royal Seal"
-              className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full object-cover shadow-2xl border-2 border-[var(--antique-gold)] animate-glow-pulse"
-              style={{ boxShadow: '0 0 35px rgba(212, 175, 55, 0.35), 0 0 15px rgba(107, 29, 42, 0.5)' }}
+              src={postmeWaxSeal}
+              alt="PostMe! Wax Seal"
+              className="w-28 h-28 md:w-32 md:h-32 mx-auto object-contain animate-glow-pulse-soft"
+              style={{ filter: 'drop-shadow(0 0 26px rgba(63, 169, 122, 0.35)) drop-shadow(0 10px 22px rgba(0,0,0,0.65))' }}
             />
           </motion.div>
 
           <h1 style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--antique-gold)', fontSize: '2.5rem', letterSpacing: '0.08em', fontWeight: 700, textShadow: '0 4px 20px rgba(0,0,0,0.8)' }}>
-            PostMe
+            PostMe!
           </h1>
           
           <p className="text-xs uppercase tracking-[0.25em] font-semibold mt-1" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
-            An 18th-Century Epistle Salon & Courier Guild
+            What is Time, Really? Letters hold the answer!
           </p>
 
           <div className="gold-rule gold-rule-dark max-w-[200px] mx-auto my-3" />
 
           <p className="italic text-base md:text-lg" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--parchment-dark)', fontStyle: 'italic' }}>
-            {mode === 'login' ? '“Welcome back to the salon — sign in to collect your letters.”' : '“Join the salon. Choose a name, and the doors will open.”'}
+            {mode === 'login' ? '“Welcome back — sign in to collect your letters.”' : '“So we brought the postmen back! Write something worth carrying — a stranger, a friend, or the version of you reading this in ten years. Someone will walk it to the door.”'}
           </p>
         </div>
 
         {/* Grand Form Playbill Card with slow breathing glow */}
-        <div className="theatrical-card p-0 animate-glow-pulse" style={{ border: '1px solid rgba(212, 175, 55, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(212, 175, 55, 0.15)' }}>
+        <div className="theatrical-card p-0 animate-glow-pulse" style={{ border: '1px solid rgba(63, 169, 122, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(63, 169, 122, 0.15)' }}>
           {/* Tab Switcher */}
-          <div className="flex" style={{ borderBottom: '1px solid rgba(212, 175, 55, 0.25)' }}>
+          <div className="flex" style={{ borderBottom: '1px solid rgba(63, 169, 122, 0.25)' }}>
             <button
               onClick={() => { setMode('login'); setError(''); }}
               style={{
                 flex: 1, padding: '1.1rem 1rem', fontFamily: "'Cinzel', serif", fontWeight: 700,
                 fontSize: '0.82rem', letterSpacing: '0.12em', textTransform: 'uppercase',
-                background: mode === 'login' ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'rgba(20, 18, 16, 0.8)',
+                background: mode === 'login' ? 'linear-gradient(135deg, #1F7A57 0%, #0C3D2A 100%)' : 'rgba(20, 18, 16, 0.8)',
                 color: mode === 'login' ? '#FFF' : 'var(--warm-gray-light)',
                 border: 'none', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
@@ -764,9 +764,9 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
               style={{
                 flex: 1, padding: '1.1rem 1rem', fontFamily: "'Cinzel', serif", fontWeight: 700,
                 fontSize: '0.82rem', letterSpacing: '0.12em', textTransform: 'uppercase',
-                background: mode === 'register' ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'rgba(20, 18, 16, 0.8)',
+                background: mode === 'register' ? 'linear-gradient(135deg, #1F7A57 0%, #0C3D2A 100%)' : 'rgba(20, 18, 16, 0.8)',
                 color: mode === 'register' ? '#FFF' : 'var(--warm-gray-light)',
-                border: 'none', borderLeft: '1px solid rgba(212, 175, 55, 0.25)', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+                border: 'none', borderLeft: '1px solid rgba(63, 169, 122, 0.25)', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
             >
               Create Account
@@ -800,14 +800,14 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { value: 'sender', label: 'Scribe', icon: '✍️', desc: 'Write and send letters' },
-                      { value: 'mailman', label: 'Courier', icon: '📮', desc: 'Deliver letters to others' },
+                      { value: 'mailman', label: 'Postman', icon: '📮', desc: 'Deliver letters to others' },
                     ].map((r) => (
                       <button key={r.value} type="button" onClick={() => setRole(r.value)} className="p-3.5 text-left transition-all rounded-sm" style={{
-                        background: role === r.value ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'rgba(255, 253, 249, 0.06)',
+                        background: role === r.value ? 'linear-gradient(135deg, #1F7A57 0%, #0C3D2A 100%)' : 'rgba(255, 253, 249, 0.06)',
                         color: role === r.value ? '#FFF' : 'var(--parchment-dark)',
-                        border: role === r.value ? '1px solid var(--antique-gold)' : '1px solid rgba(212, 175, 55, 0.2)',
+                        border: role === r.value ? '1px solid var(--antique-gold)' : '1px solid rgba(63, 169, 122, 0.2)',
                         cursor: 'pointer',
-                        boxShadow: role === r.value ? '0 0 15px rgba(107,29,42,0.5)' : 'none'
+                        boxShadow: role === r.value ? '0 0 15px rgba(31,122,87,0.55)' : 'none'
                       }}>
                         <span className="text-xl block mb-1">{r.icon}</span>
                         <span className="font-bold block text-sm" style={{ fontFamily: "'Cinzel', serif" }}>{r.label}</span>
@@ -819,9 +819,9 @@ function AuthPage({ onAuth }: { onAuth: (user: any) => void }) {
               )}
             </AnimatePresence>
 
-            {error && <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="p-3 rounded-sm text-sm italic" style={{ background: '#430E17', color: '#FFF', border: '1px solid #7A1E2E' }}>⚠ {error}</motion.div>}
+            {error && <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="p-3 rounded-sm text-sm italic" style={{ background: '#7F1D1D', color: '#FFF', border: '1px solid #EF4444' }}>⚠ {error}</motion.div>}
 
-            <button type="submit" disabled={loading} className="w-full py-4 rounded-sm text-sm font-bold transition-all btn-velvet-burgundy justify-center" style={{ width: '100%' }}>
+            <button type="submit" disabled={loading} className="w-full py-4 rounded-sm text-sm font-bold transition-all btn-emerald-seal justify-center" style={{ width: '100%' }}>
               {loading ? 'Checking your details…' : mode === 'login' ? '✦ Sign In' : '⚜ Create My Account'}
             </button>
           </form>
@@ -1161,7 +1161,7 @@ function App() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
           <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="max-w-sm w-full theatrical-card p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden border-2 border-amber-500 text-center" style={{
             background: 'linear-gradient(160deg, #1C1814 0%, #100E0C 100%)',
-            boxShadow: '0 0 50px rgba(212, 175, 55, 0.45)'
+            boxShadow: '0 0 50px rgba(63, 169, 122, 0.45)'
           }}>
             <button onClick={() => setPresentQrModal(null)} className="absolute top-3 right-3 text-amber-300 hover:text-white p-1">
               <X className="w-5 h-5" />
@@ -1196,7 +1196,7 @@ function App() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="max-w-md w-full theatrical-card p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden border-2 border-amber-500 text-center" style={{
             background: 'linear-gradient(160deg, #1C1814 0%, #100E0C 100%)',
-            boxShadow: '0 0 40px rgba(245, 158, 11, 0.45)'
+            boxShadow: '0 0 40px rgba(52, 160, 110, 0.45)'
           }}>
             <div className="w-16 h-16 rounded-full mx-auto mb-3.5 bg-amber-950/80 border-2 border-amber-400 flex items-center justify-center shadow-lg animate-bounce">
               <span className="text-3xl">🏇</span>
@@ -1263,21 +1263,22 @@ function App() {
         {/* ── Theatrical Aristocratic Navbar ── */}
         <nav className="relative z-30 flex flex-col md:flex-row justify-between items-center px-6 py-3.5 md:px-10" style={{
           background: 'linear-gradient(180deg, #161311 0%, #0D0C0B 100%)',
-          borderBottom: '1px solid rgba(212, 175, 55, 0.35)',
+          borderBottom: '1px solid rgba(63, 169, 122, 0.35)',
           boxShadow: '0 4px 25px rgba(0,0,0,0.6)'
         }}>
           <Link to={user.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-3 mb-2 md:mb-0 hover:opacity-95 transition-opacity group">
             <img
-              src={royalCrestGold}
-              alt="PostMe Seal"
-              className="w-9 h-9 rounded-full object-cover border border-[var(--antique-gold)] shadow-md transition-transform group-hover:scale-105 animate-float-gentle"
+              src={postmeWaxSeal}
+              alt="PostMe! Wax Seal"
+              className="w-10 h-10 object-contain transition-transform group-hover:scale-105 animate-float-gentle"
+              style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))' }}
             />
             <div className="flex flex-col">
               <span style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--antique-gold)', fontSize: '1.35rem', fontWeight: 700, letterSpacing: '0.08em', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
-                PostMe
+                PostMe!
               </span>
               <span className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
-                Epistle Salon
+                Turning Back Time
               </span>
             </div>
           </Link>
@@ -1289,8 +1290,8 @@ function App() {
                 <Link to="/admin" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold" style={{ color: '#EF9A9A' }}>
                   <Shield className="w-4 h-4" /> <span>Moderation</span>
                 </Link>
-                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFE600', textShadow: '0 0 14px rgba(255,230,0,0.6)' }} title="Anonymous Letters — write with no name attached">
-                  <Feather className="w-4 h-4" style={{ color: '#FFE600' }} /> <span style={{ color: '#FFE600' }}>Anonymous</span>
+                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFFFFF', textShadow: '0 0 12px rgba(255,255,255,0.35)' }} title="Anonymous Letters — write with no name attached">
+                  <Feather className="w-4 h-4" style={{ color: '#FFFFFF' }} /> <span style={{ color: '#FFFFFF' }}>Anonymous</span>
                 </Link>
                 <Link to="/leaderboard" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Trophy className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Hall of Fame</span>
@@ -1301,9 +1302,9 @@ function App() {
                 <button
                   onClick={() => openCentralHubRegistry()}
                   className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-100 cursor-pointer"
-                  title="Delivery proofs and courier penalties"
+                  title="Delivery proofs and postman penalties"
                 >
-                  <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Delivery Proofs</span>
+                  <Shield className="w-4 h-4 text-[#3FA97A]" /> <span>Delivery Proofs</span>
                 </button>
               </>
             ) : (
@@ -1314,8 +1315,8 @@ function App() {
                 <Link to="/scanner" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Scan className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Scan QR</span>
                 </Link>
-                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFE600', textShadow: '0 0 14px rgba(255,230,0,0.6)' }} title="Anonymous Letters — write with no name attached">
-                  <Feather className="w-4 h-4" style={{ color: '#FFE600' }} /> <span style={{ color: '#FFE600' }}>Anonymous</span>
+                <Link to="/nameless-words" className="nav-link-literary flex items-center gap-1.5 text-sm font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: '#FFFFFF', textShadow: '0 0 12px rgba(255,255,255,0.35)' }} title="Anonymous Letters — write with no name attached">
+                  <Feather className="w-4 h-4" style={{ color: '#FFFFFF' }} /> <span style={{ color: '#FFFFFF' }}>Anonymous</span>
                 </Link>
                 <Link to="/leaderboard" className="nav-link-literary flex items-center gap-1.5 text-sm font-bold">
                   <Trophy className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> <span>Hall of Fame</span>
@@ -1328,23 +1329,23 @@ function App() {
                   className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-100 cursor-pointer"
                   title="Tom Riddle's Diary — a shared page where words vanish after reading"
                 >
-                  <BookOpen className="w-4 h-4 text-[#D4AF37]" /> <span>Diary</span>
+                  <BookOpen className="w-4 h-4 text-[#3FA97A]" /> <span>Diary</span>
                 </button>
                 <button
                   onClick={() => openCentralHubRegistry()}
-                  className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-[#EEDC82] hover:text-amber-100 cursor-pointer"
+                  className="nav-link-literary flex items-center gap-1.5 text-sm font-bold text-[#A8E6C8] hover:text-amber-100 cursor-pointer"
                   title="Proof that your letters were delivered to the right person"
                 >
-                  <Shield className="w-4 h-4 text-[#D4AF37]" /> <span>Delivery Proofs</span>
+                  <Shield className="w-4 h-4 text-[#3FA97A]" /> <span>Delivery Proofs</span>
                 </button>
               </>
             )}
 
-            <div className="flex items-center space-x-3 md:ml-3 md:pl-4" style={{ borderLeft: '1px solid rgba(212,175,55,0.25)' }}>
-              <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-sm" style={{ background: 'linear-gradient(135deg, #221D19 0%, #141210 100%)', border: '1px solid rgba(212,175,55,0.3)' }}>
+            <div className="flex items-center space-x-3 md:ml-3 md:pl-4" style={{ borderLeft: '1px solid rgba(63, 169, 122,0.25)' }}>
+              <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-sm" style={{ background: 'linear-gradient(135deg, #221D19 0%, #141210 100%)', border: '1px solid rgba(63, 169, 122,0.3)' }}>
                 {user.role === 'admin' ? <Shield className="w-4 h-4" style={{ color: '#EF9A9A' }} /> : (user.role === 'mailman' ? <Crown className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} /> : <Feather className="w-4 h-4" style={{ color: 'var(--antique-gold)' }} />)}
                 <span className="text-sm font-bold" style={{ color: 'var(--parchment)', fontFamily: "'Cinzel', serif" }}>{user.name}</span>
-                <span className="text-xs italic" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>({user.role === 'mailman' ? 'Courier' : user.role === 'admin' ? 'Master' : 'Scribe'})</span>
+                <span className="text-xs italic" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>({user.role === 'mailman' ? 'Postman' : user.role === 'admin' ? 'Master' : 'Scribe'})</span>
               </div>
               <button onClick={() => { logout(); setUser(null); }} className="transition-colors p-1" style={{ color: 'var(--gold-muted)' }} title="Sign out">
                 <LogOut className="w-5 h-5 hover:text-red-400" />
@@ -1410,7 +1411,7 @@ function UserProfile({ user }: { user: any }) {
         backgroundImage: `linear-gradient(to right, rgba(14, 13, 12, 0.94) 0%, rgba(14, 13, 12, 0.82) 55%, rgba(14, 13, 12, 0.65) 100%), url(${manuscriptQuillDesk})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        border: '1px solid rgba(212, 175, 55, 0.35)',
+        border: '1px solid rgba(63, 169, 122, 0.35)',
         boxShadow: '0 25px 60px rgba(0,0,0,0.6), inset 0 0 80px rgba(0,0,0,0.8)'
       }}>
         {/* Top Gold Rule */}
@@ -1418,7 +1419,7 @@ function UserProfile({ user }: { user: any }) {
 
         {/* Feature: Ban UI Banner */}
         {isBanned && (
-          <div className="mb-6 p-4 rounded-sm flex flex-col items-center animate-pulse" style={{ background: 'rgba(107,29,42,0.4)', border: '1px solid rgba(212,175,55,0.4)' }}>
+          <div className="mb-6 p-4 rounded-sm flex flex-col items-center animate-pulse" style={{ background: 'rgba(17, 73, 52,0.4)', border: '1px solid rgba(63, 169, 122,0.4)' }}>
             <span className="font-bold text-base tracking-widest uppercase flex items-center gap-2" style={{ color: '#EF9A9A', fontFamily: "'Cinzel', serif" }}>
               <Flame className="w-5 h-5 text-orange-400" />
               Your Account Is Suspended
@@ -1426,7 +1427,7 @@ function UserProfile({ user }: { user: any }) {
             </span>
             <span className="mt-2 text-base italic text-center" style={{ color: 'var(--parchment-light)' }}>
               You cannot send letters until:
-              <strong className="block mt-1 px-3 py-1 rounded-sm text-lg" style={{ background: 'rgba(67,14,23,0.7)', color: '#FFF' }}>
+              <strong className="block mt-1 px-3 py-1 rounded-sm text-lg" style={{ background: 'rgba(8, 37, 26,0.7)', color: '#FFF' }}>
                 {new Date(liveUser.restrictedUntil).toLocaleString()}
               </strong>
             </span>
@@ -1436,8 +1437,8 @@ function UserProfile({ user }: { user: any }) {
         <div className="grid lg:grid-cols-12 gap-8 items-center relative z-10">
           {/* Left Column: Welcome & Editorial Call to Action */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm uppercase tracking-[0.2em] font-bold animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.35)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-              <span>❧ The Sovereign Order of PostMe ❧</span>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm uppercase tracking-[0.2em] font-bold animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.12)', border: '1px solid rgba(63, 169, 122,0.35)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+              <span>❧ The Sovereign Order of PostMe! ❧</span>
             </div>
 
             <h1 className="text-3xl md:text-5xl font-bold leading-tight" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)', textShadow: '0 4px 20px rgba(0,0,0,0.9)' }}>
@@ -1450,19 +1451,11 @@ function UserProfile({ user }: { user: any }) {
 
             {/* Quick Action Button Bar with subtle motion */}
             <div className="pt-3 flex flex-wrap gap-3.5 items-center">
-              {isBanned ? (
+              {isBanned && (
                 <div className="btn-gold-saloon opacity-50 cursor-not-allowed text-sm">
                   <Lock className="w-4 h-4" /> <span>Sanctioned — Quill Locked</span>
                 </div>
-              ) : (
-                <Link to="/compose" className="btn-velvet-burgundy text-sm sm:text-base py-2.5 px-5 animate-glow-pulse">
-                  <PenTool className="w-4 h-4" /> <span>✦ Write a Letter</span>
-                </Link>
               )}
-
-              <Link to="/mailbox" className="btn-gold-saloon text-sm sm:text-base py-2.5 px-5">
-                <Inbox className="w-4 h-4" /> <span>Mailbox</span>
-              </Link>
 
               <Link to="/sent?tab=drafts" className="btn-gold-saloon text-sm sm:text-base py-2.5 px-4 flex items-center gap-1.5" title="Open your saved drafts">
                 <Scroll className="w-4 h-4 text-amber-400" /> <span>📜 Drafts</span>
@@ -1480,7 +1473,7 @@ function UserProfile({ user }: { user: any }) {
             {/* ── Cartographic Note Status Proclamation Banner ── */}
             <div className="mt-4 p-4 rounded-sm relative overflow-hidden" style={{
               background: 'linear-gradient(135deg, rgba(32, 26, 20, 0.95) 0%, rgba(18, 15, 12, 0.98) 100%)',
-              border: '1px solid rgba(212, 175, 55, 0.35)',
+              border: '1px solid rgba(63, 169, 122, 0.35)',
               boxShadow: '0 8px 25px rgba(0,0,0,0.5)'
             }}>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -1546,16 +1539,16 @@ function UserProfile({ user }: { user: any }) {
 
           {/* Right Column: Sovereign Playbill Ledger */}
           <div className="lg:col-span-5">
-            <div className="theatrical-card p-5 sm:p-6 relative animate-float-gentle-alt" style={{ background: 'linear-gradient(145deg, rgba(28,24,20,0.95) 0%, rgba(14,13,12,0.95) 100%)', border: '1px solid rgba(212,175,55,0.35)' }}>
-              <div className="flex items-center justify-between pb-3 mb-3.5" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+            <div className="theatrical-card p-5 sm:p-6 relative animate-float-gentle-alt" style={{ background: 'linear-gradient(145deg, rgba(28,24,20,0.95) 0%, rgba(14,13,12,0.95) 100%)', border: '1px solid rgba(63, 169, 122,0.35)' }}>
+              <div className="flex items-center justify-between pb-3 mb-3.5" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
                 <div className="flex items-center gap-2">
                   <Crown className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} />
                   <span className="small-caps text-sm font-bold" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                    {user.role === 'mailman' ? "Your Courier Record" : "Your Ledger"}
+                    {user.role === 'mailman' ? "Your Postman Record" : "Your Ledger"}
                   </span>
                 </div>
-                <span className="text-xs uppercase tracking-widest px-2.5 py-0.5 rounded-sm font-bold" style={{ background: 'rgba(212,175,55,0.1)', color: 'var(--parchment-dark)', border: '1px solid rgba(212,175,55,0.2)' }}>
-                  {user.role === 'mailman' ? 'Royal Courier' : 'Noble Scribe'}
+                <span className="text-xs uppercase tracking-widest px-2.5 py-0.5 rounded-sm font-bold" style={{ background: 'rgba(63, 169, 122,0.1)', color: 'var(--parchment-dark)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
+                  {user.role === 'mailman' ? 'Royal Postman' : 'Noble Scribe'}
                 </span>
               </div>
 
@@ -1570,7 +1563,7 @@ function UserProfile({ user }: { user: any }) {
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         {/* Mailman Rank & Badge */}
-                        <div className="p-3 rounded-sm" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.3)' }}>
+                        <div className="p-3 rounded-sm" style={{ background: 'rgba(63, 169, 122,0.08)', border: '1px solid rgba(63, 169, 122,0.3)' }}>
                           <span className="text-[10px] uppercase tracking-wider block font-bold" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
                             Mailman Rank & Badge
                           </span>
@@ -1588,7 +1581,7 @@ function UserProfile({ user }: { user: any }) {
                         </div>
 
                         {/* Deliveries Completed */}
-                        <div className="p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.15)' }}>
+                        <div className="p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.15)' }}>
                           <span className="text-[10px] uppercase tracking-wider block font-bold" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
                             Deliveries Fulfilled
                           </span>
@@ -1602,7 +1595,7 @@ function UserProfile({ user }: { user: any }) {
                       </div>
 
                       {/* XP Progress Bar to Next Rank */}
-                      <div className="p-2.5 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.2)' }}>
+                      <div className="p-2.5 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
                         <div className="flex justify-between items-center text-[11px] font-mono mb-1">
                           <span className="text-amber-300 font-bold">⚡ XP: {mailmanXP}</span>
                           <span className="text-amber-400/90 font-semibold">
@@ -1614,7 +1607,7 @@ function UserProfile({ user }: { user: any }) {
                             className="h-2 transition-all duration-500 rounded-full" 
                             style={{ 
                               width: `${xpProgress}%`,
-                              background: 'linear-gradient(90deg, #D4AF37 0%, #F59E0B 50%, #FBBF24 100%)' 
+                              background: 'linear-gradient(90deg, #3FA97A 0%, #34A06E 50%, #4CB98A 100%)' 
                             }} 
                           />
                         </div>
@@ -1624,7 +1617,7 @@ function UserProfile({ user }: { user: any }) {
                 })()
               ) : (
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.15)' }}>
+                  <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.15)' }}>
                     <span className="text-xs uppercase tracking-wider block mb-1 font-bold" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
                       Reputation Score
                     </span>
@@ -1636,7 +1629,7 @@ function UserProfile({ user }: { user: any }) {
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.15)' }}>
+                  <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.15)' }}>
                     <span className="text-xs uppercase tracking-wider block mb-1 font-bold" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
                       Letters Written
                     </span>
@@ -1651,7 +1644,7 @@ function UserProfile({ user }: { user: any }) {
               )}
 
               {/* Mailbox Companion Badge in User Ledger */}
-              <div className="mt-3 p-2.5 rounded-sm flex items-center justify-between" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.25)' }}>
+              <div className="mt-3 p-2.5 rounded-sm flex items-center justify-between" style={{ background: 'rgba(63, 169, 122,0.06)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
                 <div className="flex items-center gap-2.5">
                   <span className="text-xl animate-float-gentle">
                     {MAILBOX_PETS[liveUser?.mailboxPet as keyof typeof MAILBOX_PETS]?.emoji || '🐦'}
@@ -1674,10 +1667,10 @@ function UserProfile({ user }: { user: any }) {
                 </Link>
               </div>
 
-              <div className="mt-3 pt-3 flex justify-between items-center text-sm" style={{ borderTop: '1px dashed rgba(212,175,55,0.2)' }}>
+              <div className="mt-3 pt-3 flex justify-between items-center text-sm" style={{ borderTop: '1px dashed rgba(63, 169, 122,0.2)' }}>
                 <span className="italic" style={{ color: 'var(--parchment-dark)' }}>“Verba volant, scripta manent.”</span>
                 <Link to={user.role === 'mailman' ? "/mailman" : "/directory"} className="underline hover:text-white font-bold text-xs sm:text-sm" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-                  {user.role === 'mailman' ? "My Delivery Record →" : "View Couriers →"}
+                  {user.role === 'mailman' ? "My Delivery Record →" : "View Postmen →"}
                 </Link>
               </div>
             </div>
@@ -1690,9 +1683,9 @@ function UserProfile({ user }: { user: any }) {
 
       {/* ── ASYMMETRICAL SALON CHAMBERS & GUILD BUREAU ── */}
       <div className="space-y-6">
-        <div className="flex items-center justify-between pb-2" style={{ borderBottom: '1px solid rgba(212, 175, 55, 0.3)' }}>
-          <h2 className="text-2xl font-bold flex items-center gap-3" style={{ fontFamily: "'Cinzel', serif", color: 'var(--charcoal)' }}>
-            <span>📜</span> The Guild Chambers & Post Desks
+        <div className="flex items-center justify-between pb-2" style={{ borderBottom: '1px solid rgba(63, 169, 122, 0.3)' }}>
+          <h2 className="text-2xl font-bold flex items-center gap-3" style={{ fontFamily: "'Cinzel', serif", color: 'var(--text-on-page)' }}>
+            <Scroll className="w-6 h-6 flex-shrink-0" style={{ color: 'var(--antique-gold)' }} /> Chamber of Secrets
           </h2>
           <span className="text-xs uppercase tracking-widest hidden sm:inline" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>
             Choose where to go
@@ -1713,7 +1706,7 @@ function UserProfile({ user }: { user: any }) {
               backgroundImage: `linear-gradient(135deg, rgba(24, 21, 18, 0.92) 0%, rgba(14, 13, 12, 0.85) 100%), url(${antiqueScrollsPile})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              border: '1px solid rgba(212, 175, 55, 0.4)'
+              border: '1px solid rgba(63, 169, 122, 0.4)'
             }}>
               <div className="flex items-start justify-between relative z-10">
                 <div className="space-y-2 max-w-md">
@@ -1724,12 +1717,12 @@ function UserProfile({ user }: { user: any }) {
                     Write a Letter
                   </h3>
                   <p className="text-sm italic leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", color: 'var(--parchment-dark)' }}>
-                    Pick a handwriting style, seal it with wax, choose a stamp, and send it across the realm by courier.
+                    Pick a handwriting style, seal it with wax, choose a stamp, and send it across the realm by postman.
                   </p>
                 </div>
                 <PenTool className="w-10 h-10 transition-transform group-hover:scale-110 group-hover:rotate-6 flex-shrink-0 animate-float-slow" style={{ color: 'var(--antique-gold)' }} />
               </div>
-              <div className="mt-4 pt-3 flex items-center justify-between text-xs relative z-10" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
+              <div className="mt-4 pt-3 flex items-center justify-between text-xs relative z-10" style={{ borderTop: '1px solid rgba(63, 169, 122,0.25)' }}>
                 <span className="small-caps" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>19 Ancient Scripts & Wax Seals</span>
                 <span className="font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform" style={{ color: 'var(--antique-gold)' }}>Start Writing →</span>
               </div>
@@ -1741,11 +1734,11 @@ function UserProfile({ user }: { user: any }) {
             backgroundImage: `linear-gradient(135deg, rgba(24, 21, 18, 0.90) 0%, rgba(14, 13, 12, 0.82) 100%), url(${mailboxChamberBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            border: '1px solid rgba(212, 175, 55, 0.4)'
+            border: '1px solid rgba(63, 169, 122, 0.4)'
           }}>
             <div className="flex items-start justify-between relative z-10">
               <div className="space-y-2 max-w-md">
-                <span className="wax-seal-badge text-xs animate-float-gentle" style={{ background: 'rgba(107,29,42,0.6)', border: '1px solid rgba(212,175,55,0.4)' }}>
+                <span className="wax-seal-badge text-xs animate-float-gentle" style={{ background: 'rgba(17, 73, 52,0.6)', border: '1px solid rgba(63, 169, 122,0.4)' }}>
                   <span>📬</span> <span>Royal Letter Registry</span>
                 </span>
                 <h3 className="text-2xl font-bold mt-2 transition-colors group-hover:text-white" style={{ fontFamily: "'Cinzel', serif", color: 'var(--antique-gold)' }}>
@@ -1757,7 +1750,7 @@ function UserProfile({ user }: { user: any }) {
               </div>
               <Inbox className="w-10 h-10 transition-transform group-hover:scale-110 flex-shrink-0 animate-float-slow" style={{ color: 'var(--antique-gold)' }} />
             </div>
-            <div className="mt-4 pt-3 flex items-center justify-between text-xs relative z-10" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="mt-4 pt-3 flex items-center justify-between text-xs relative z-10" style={{ borderTop: '1px solid rgba(63, 169, 122,0.25)' }}>
               <span className="small-caps" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Incoming Scrolls & Letters</span>
               <span className="font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform" style={{ color: 'var(--antique-gold)' }}>Open Mailbox →</span>
             </div>
@@ -1771,7 +1764,7 @@ function UserProfile({ user }: { user: any }) {
             backgroundImage: `linear-gradient(135deg, rgba(22, 19, 16, 0.88) 0%, rgba(12, 11, 10, 0.80) 100%), url(${grandArchiveLibraryBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            border: '1px solid rgba(212, 175, 55, 0.45)'
+            border: '1px solid rgba(63, 169, 122, 0.45)'
           }}>
             <div className="flex items-start justify-between relative z-10">
               <div className="space-y-2 max-w-xl">
@@ -1794,7 +1787,7 @@ function UserProfile({ user }: { user: any }) {
                 <BookOpen className="w-9 h-9 text-amber-300" />
               </div>
             </div>
-            <div className="mt-5 pt-3 flex items-center justify-between text-xs relative z-10" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="mt-5 pt-3 flex items-center justify-between text-xs relative z-10" style={{ borderTop: '1px solid rgba(63, 169, 122,0.25)' }}>
               <span className="small-caps text-amber-200/90 font-serif">Search by sender, recipient, or words</span>
               <span className="font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform text-amber-300">Enter Grand Archive →</span>
             </div>
@@ -1805,11 +1798,11 @@ function UserProfile({ user }: { user: any }) {
             backgroundImage: `linear-gradient(135deg, rgba(24, 21, 18, 0.94) 0%, rgba(14, 13, 12, 0.88) 100%), url(${antiqueScrollsPile})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            border: '1px solid rgba(212, 175, 55, 0.35)'
+            border: '1px solid rgba(63, 169, 122, 0.35)'
           }}>
             <div>
               <div className="flex items-center justify-between mb-3">
-                <div className="p-2.5 rounded-sm animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}>
+                <div className="p-2.5 rounded-sm animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.3)' }}>
                   <Send className="w-6 h-6 text-amber-300" />
                 </div>
                 <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-sm bg-amber-900/40 text-amber-300 border border-amber-500/30 font-mono font-bold">
@@ -1823,7 +1816,7 @@ function UserProfile({ user }: { user: any }) {
                 Follow each letter through its four stages — drafted, sealed, in transit, delivered. Open your drafts, or try to recall one.
               </p>
             </div>
-            <div className="mt-4 pt-3 flex items-center justify-between text-xs" style={{ borderTop: '1px solid rgba(212,175,55,0.2)' }}>
+            <div className="mt-4 pt-3 flex items-center justify-between text-xs" style={{ borderTop: '1px solid rgba(63, 169, 122,0.2)' }}>
               <span className="small-caps" style={{ color: 'var(--gold-muted)' }}>Track every stage</span>
               <span className="font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform" style={{ color: 'var(--antique-gold)' }}>Track Letters →</span>
             </div>
@@ -1837,14 +1830,14 @@ function UserProfile({ user }: { user: any }) {
             backgroundImage: `linear-gradient(135deg, rgba(24, 21, 18, 0.88) 0%, rgba(14, 13, 12, 0.80) 100%), url(${realmMapCartographyBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            border: '1px solid rgba(212, 175, 55, 0.35)'
+            border: '1px solid rgba(63, 169, 122, 0.35)'
           }}>
             <div className="relative z-10">
               <Compass className="w-7 h-7 mb-3 transition-transform group-hover:rotate-45" style={{ color: 'var(--antique-gold)' }} />
               <h3 className="text-base font-bold transition-colors group-hover:text-white small-caps" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
                 Realm Map
               </h3>
-              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>See couriers and scribes moving near you, live.</p>
+              <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>See postmen and scribes moving near you, live.</p>
             </div>
             <div className="mt-3 pt-2 text-[11px] font-bold text-amber-300/80 relative z-10 border-t border-amber-900/30 flex items-center justify-between">
               <span>Open Map</span>
@@ -1857,7 +1850,7 @@ function UserProfile({ user }: { user: any }) {
             backgroundImage: `linear-gradient(135deg, rgba(24, 21, 18, 0.88) 0%, rgba(14, 13, 12, 0.80) 100%), url(${fellowshipScribesBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            border: '1px solid rgba(212, 175, 55, 0.35)'
+            border: '1px solid rgba(63, 169, 122, 0.35)'
           }}>
             <div className="relative z-10">
               <Users className="w-7 h-7 mb-3 transition-transform group-hover:scale-110" style={{ color: 'var(--antique-gold)' }} />
@@ -1877,7 +1870,7 @@ function UserProfile({ user }: { user: any }) {
             backgroundImage: `linear-gradient(135deg, rgba(24, 21, 18, 0.88) 0%, rgba(14, 13, 12, 0.80) 100%), url(${philatelyStampsBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            border: '1px solid rgba(212, 175, 55, 0.35)'
+            border: '1px solid rgba(63, 169, 122, 0.35)'
           }}>
             <div className="relative z-10">
               <Star className="w-7 h-7 mb-3 transition-transform group-hover:scale-110" style={{ color: 'var(--antique-gold)' }} />
@@ -1892,43 +1885,43 @@ function UserProfile({ user }: { user: any }) {
             </div>
           </Link>
 
-          {/* Courier Directory with Custom Dispatch Ledger Background */}
+          {/* Postman Directory with Custom Dispatch Ledger Background */}
           <Link to="/directory" className="theatrical-card p-5 md:p-6 no-underline group flex flex-col justify-between relative overflow-hidden rounded-sm hover:-translate-y-2 transition-all shadow-lg" style={{
             backgroundImage: `linear-gradient(135deg, rgba(24, 21, 18, 0.88) 0%, rgba(14, 13, 12, 0.80) 100%), url(${courierDirectoryRosterBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            border: '1px solid rgba(212, 175, 55, 0.35)'
+            border: '1px solid rgba(63, 169, 122, 0.35)'
           }}>
             <div className="relative z-10">
               <Scroll className="w-7 h-7 mb-3 transition-transform group-hover:scale-110" style={{ color: 'var(--antique-gold)' }} />
               <h3 className="text-base font-bold transition-colors group-hover:text-white small-caps" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
-                Courier Directory
+                Postman Directory
               </h3>
               <p className="text-xs italic mt-1 leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>Who delivers well, and who to trust.</p>
             </div>
             <div className="mt-3 pt-2 text-[11px] font-bold text-amber-300/80 relative z-10 border-t border-amber-900/30 flex items-center justify-between">
-              <span>View Couriers</span>
+              <span>View Postmen</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
           </Link>
         </div>
 
-        {/* Courier Specific Section (If Mailman) with Custom Gate Background */}
+        {/* Postman Specific Section (If Mailman) with Custom Gate Background */}
         {user.role === 'mailman' && (
           <Link to="/mailman" className="theatrical-card p-6 md:p-8 no-underline group block animate-glow-pulse relative overflow-hidden rounded-sm shadow-2xl hover:-translate-y-2 transition-all" style={{
             backgroundImage: `linear-gradient(135deg, rgba(22, 18, 14, 0.88) 0%, rgba(10, 8, 6, 0.82) 100%), url(${courierDispatchTerminalBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            border: '1px solid rgba(212, 175, 55, 0.5)'
+            border: '1px solid rgba(63, 169, 122, 0.5)'
           }}>
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center gap-4">
-                <div className="p-3.5 rounded-full animate-float-slow" style={{ background: 'rgba(212,175,55,0.2)', border: '1px solid var(--antique-gold)' }}>
+                <div className="p-3.5 rounded-full animate-float-slow" style={{ background: 'rgba(63, 169, 122,0.2)', border: '1px solid var(--antique-gold)' }}>
                   <Crown className="w-8 h-8" style={{ color: 'var(--antique-gold)' }} />
                 </div>
                 <div>
                   <h3 className="text-xl sm:text-2xl font-bold transition-colors group-hover:text-white" style={{ fontFamily: "'Cinzel', serif", color: 'var(--antique-gold)' }}>
-                    Courier Dispatch & Delivery Terminal
+                    Postman Dispatch & Delivery Terminal
                   </h3>
                   <p className="text-xs sm:text-sm italic mt-1 max-w-2xl leading-relaxed" style={{ color: 'var(--parchment-dark)' }}>
                     See letters waiting for pickup, claim deliveries near you, and confirm each drop-off by scanning its QR seal.
@@ -1945,12 +1938,12 @@ function UserProfile({ user }: { user: any }) {
           backgroundImage: `linear-gradient(135deg, rgba(24, 20, 15, 0.90) 0%, rgba(12, 10, 8, 0.95) 100%), url(${grandArchiveLibraryBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          border: '1px solid rgba(212, 175, 55, 0.5)'
+          border: '1px solid rgba(63, 169, 122, 0.5)'
         }}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="wax-seal-badge text-xs" style={{ background: 'rgba(180,83,9,0.7)', border: '1px solid rgba(212,175,55,0.4)', color: '#FEF3C7' }}>
+                <span className="wax-seal-badge text-xs" style={{ background: 'rgba(26,106,72,0.7)', border: '1px solid rgba(63, 169, 122,0.4)', color: '#DCF5E8' }}>
                   <span>📢</span> <span>Imperial Gazette & Herald</span>
                 </span>
                 <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -1980,12 +1973,12 @@ function UserProfile({ user }: { user: any }) {
           backgroundImage: `linear-gradient(135deg, rgba(20, 16, 13, 0.90) 0%, rgba(10, 8, 7, 0.95) 100%), url(${deadLetterOfficeBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          border: '1px solid rgba(212, 175, 55, 0.4)'
+          border: '1px solid rgba(63, 169, 122, 0.4)'
         }}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="wax-seal-badge text-xs" style={{ background: 'rgba(120,53,15,0.7)', border: '1px solid rgba(212,175,55,0.4)', color: '#FEF3C7' }}>
+                <span className="wax-seal-badge text-xs" style={{ background: 'rgba(120,53,15,0.7)', border: '1px solid rgba(63, 169, 122,0.4)', color: '#DCF5E8' }}>
                   <span>🏛️</span> <span>Public Realm Archive</span>
                 </span>
                 <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-amber-900/40 text-amber-300 border border-amber-500/30 font-bold uppercase tracking-wider">
@@ -2016,7 +2009,7 @@ function UserProfile({ user }: { user: any }) {
             <Archive className="w-3.5 h-3.5 text-amber-400" /> <span>The Dead Letter Office Archive</span>
           </Link>
 
-          <Link to="/trash" className="inline-flex items-center gap-2 text-xs opacity-75 hover:opacity-100 transition-opacity" style={{ color: 'var(--warm-gray)', fontFamily: "'Cinzel', serif" }}>
+          <Link to="/trash" className="inline-flex items-center gap-2 text-xs opacity-75 hover:opacity-100 transition-opacity" style={{ color: 'var(--text-on-page-muted)', fontFamily: "'Cinzel', serif" }}>
             <Trash2 className="w-3.5 h-3.5" /> <span>Open Wastebin</span>
           </Link>
         </div>
@@ -2137,7 +2130,7 @@ function ProfileActiveTravellers({ currentUser }: { currentUser: any }) {
   return (
     <div className="theatrical-card p-6 rounded-sm shadow-xl" style={{
       background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-      border: '1px solid rgba(212, 175, 55, 0.35)'
+      border: '1px solid rgba(63, 169, 122, 0.35)'
     }}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b border-amber-900/40 pb-3">
         <div>
@@ -2162,7 +2155,7 @@ function ProfileActiveTravellers({ currentUser }: { currentUser: any }) {
       {otherActive.length === 0 ? (
         <div className="p-8 text-center rounded-sm bg-stone-900/40 border border-dashed border-stone-800 text-stone-400 italic font-serif">
           <p className="font-semibold text-sm">No other travellers are currently sharing location on the map.</p>
-          <p className="text-xs mt-1 text-stone-500">When other couriers or scribes open the Realm Map, they appear here straight away.</p>
+          <p className="text-xs mt-1 text-stone-500">When other postmen or scribes open the Realm Map, they appear here straight away.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2172,7 +2165,7 @@ function ProfileActiveTravellers({ currentUser }: { currentUser: any }) {
               <span className="flex items-center gap-1.5"><Crown className="w-4 h-4 text-amber-400" /> Royal Mailmen ({mailmen.length})</span>
             </p>
             {mailmen.length === 0 ? (
-              <p className="text-xs italic text-stone-500 font-serif">No couriers currently active on radar.</p>
+              <p className="text-xs italic text-stone-500 font-serif">No postmen currently active on radar.</p>
             ) : (
               <div className="space-y-2">
                 {mailmen.map(m => (
@@ -2262,15 +2255,15 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
   return (
     <div className="theatrical-card p-6 sm:p-8 relative overflow-hidden rounded-sm" style={{
       background: `linear-gradient(180deg, rgba(20,16,12,0.85) 0%, rgba(10,8,6,0.96) 100%), url(${courierDispatchTerminalBg}) center/cover no-repeat`,
-      border: '1px solid rgba(212, 175, 55, 0.4)',
+      border: '1px solid rgba(63, 169, 122, 0.4)',
       boxShadow: '0 20px 50px rgba(0,0,0,0.7)'
     }}>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
-            <span>📜 Active Courier Scriptorium</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.12)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+            <span>📜 Active Postman Scriptorium</span>
           </div>
           <h3 className="text-xl sm:text-3xl font-bold flex items-center gap-2.5" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
             <Scroll className="w-7 h-7 flex-shrink-0" style={{ color: 'var(--antique-gold)' }} />
@@ -2291,7 +2284,7 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
       </div>
 
       {quests.length === 0 ? (
-        <div className="p-8 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)' }}>
+        <div className="p-8 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)' }}>
           <Star className="w-8 h-8 mx-auto text-amber-400/60 mb-2 animate-float-gentle" />
           <p className="font-bold text-base" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>You are not carrying any letters right now.</p>
           <p className="text-xs text-stone-400 mt-1 font-serif italic">Scan a sender's wax seal or claim a letter from the Realm Map to begin transport.</p>
@@ -2304,7 +2297,7 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
               className="theatrical-card p-4 sm:p-5 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition-all"
               style={{
                 background: 'linear-gradient(135deg, rgba(35,28,18,0.85) 0%, rgba(18,14,10,0.95) 100%)',
-                border: '1px solid rgba(212,175,55,0.35)',
+                border: '1px solid rgba(63, 169, 122,0.35)',
                 boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
               }}
             >
@@ -2350,7 +2343,7 @@ function MailmanProfileDeliveries({ user }: { user: any }) {
               style={{
                 background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
                 border: '2px solid var(--antique-gold)',
-                boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 30px rgba(212,175,55,0.2)'
+                boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 30px rgba(63, 169, 122,0.2)'
               }}
             >
               <button
@@ -2670,7 +2663,7 @@ function ComposeLetter() {
         fontSize: selectedFontSize,
         inkColor,
         parchmentPaper,
-        sealColor: '#7A1E2E'
+        sealColor: '#12513A'
       });
       waxSealAudio.playParchmentUnroll();
       setShowNamelessModal(false);
@@ -2695,7 +2688,7 @@ function ComposeLetter() {
     >
       {/* Ban Notification */}
       {isBanned && (
-        <div className="p-4 rounded-sm flex flex-col items-center animate-pulse" style={{ background: 'rgba(107,29,42,0.4)', border: '1px solid rgba(212,175,55,0.4)' }}>
+        <div className="p-4 rounded-sm flex flex-col items-center animate-pulse" style={{ background: 'rgba(17, 73, 52,0.4)', border: '1px solid rgba(63, 169, 122,0.4)' }}>
           <span className="font-bold text-base uppercase flex items-center justify-center gap-2" style={{ color: '#EF9A9A', fontFamily: "'Cinzel', serif" }}>
             <Flame className="w-5 h-5 text-orange-400" /> Guild Sanction Imposed <Flame className="w-5 h-5 text-orange-400" />
           </span>
@@ -2711,16 +2704,16 @@ function ComposeLetter() {
 
         <div className="theatrical-card p-5 sm:p-8 md:p-10 relative overflow-hidden rounded-none" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-          borderLeft: '3px solid rgba(212, 175, 55, 0.45)',
-          borderRight: '3px solid rgba(212, 175, 55, 0.45)',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(212,175,55,0.15)'
+          borderLeft: '3px solid rgba(63, 169, 122, 0.45)',
+          borderRight: '3px solid rgba(63, 169, 122, 0.45)',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(63, 169, 122,0.15)'
         }}>
           {/* Top Gold Rule */}
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
           {/* Header Ribbon */}
-          <div className="text-center pb-6 mb-6 relative" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+          <div className="text-center pb-6 mb-6 relative" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.12)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
               <span>✍️ The Sovereign Scriptorium</span>
             </div>
 
@@ -2755,7 +2748,7 @@ function ComposeLetter() {
             </div>
 
             {/* ── LETTER STYLE: TYPE LETTER VS HANDWRITE LETTER (Feature 27) ── */}
-            <div className="p-4 sm:p-5 rounded-sm space-y-4" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="p-4 sm:p-5 rounded-sm space-y-4" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Feather className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} />
@@ -2800,7 +2793,7 @@ function ComposeLetter() {
                     <span className="text-xs uppercase font-mono tracking-wider text-amber-300 font-bold">
                       Select Calligraphic Script:
                     </span>
-                    <div className="flex items-center gap-1.5 p-1 rounded-sm flex-wrap" style={{ background: 'rgba(14,13,12,0.8)', border: '1px solid rgba(212,175,55,0.2)' }}>
+                    <div className="flex items-center gap-1.5 p-1 rounded-sm flex-wrap" style={{ background: 'rgba(14,13,12,0.8)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
                       <span className="text-xs uppercase tracking-wider font-semibold mr-1 pl-1" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Scale:</span>
                       {[
                         { id: 'small', label: 'Modest' },
@@ -2815,7 +2808,7 @@ function ComposeLetter() {
                           className="px-2.5 py-1 rounded-sm text-xs font-bold transition-all"
                           style={{
                             fontFamily: "'Cinzel', serif",
-                            background: selectedFontSize === s.id ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'transparent',
+                            background: selectedFontSize === s.id ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)' : 'transparent',
                             color: selectedFontSize === s.id ? '#FFF' : 'var(--parchment-dark)',
                             border: selectedFontSize === s.id ? '1px solid var(--antique-gold)' : '1px solid transparent',
                             cursor: 'pointer'
@@ -2849,7 +2842,7 @@ function ComposeLetter() {
                       </select>
                     </div>
 
-                    <div className="md:col-span-6 p-3 rounded-sm text-center overflow-hidden" style={{ background: 'rgba(14,13,12,0.6)', border: '1px solid rgba(212,175,55,0.2)' }}>
+                    <div className="md:col-span-6 p-3 rounded-sm text-center overflow-hidden" style={{ background: 'rgba(14,13,12,0.6)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
                       <span className="text-[11px] uppercase tracking-widest block mb-0.5" style={{ color: 'var(--gold-muted)', fontFamily: "'Cinzel', serif" }}>Active Script Preview:</span>
                       <span 
                         className="text-lg sm:text-xl font-medium tracking-wide block truncate"
@@ -2903,7 +2896,7 @@ function ComposeLetter() {
             </div>
             
             {/* Options Bar: Burn Timer & Time Capsule */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
               {/* Burn Timer */}
               <div className="space-y-2">
                 <label className="flex items-center space-x-2.5 cursor-pointer">
@@ -2967,7 +2960,7 @@ function ComposeLetter() {
                     disabled={isBanned}
                     className="w-4 h-4 rounded text-amber-500 focus:ring-0 accent-amber-600" 
                   />
-                  <span className="small-caps text-sm font-bold flex items-center gap-1.5" style={{ color: isTimeCapsule ? '#FFE082' : 'var(--parchment-dark)', fontFamily: "'Cinzel', serif" }}>
+                  <span className="small-caps text-sm font-bold flex items-center gap-1.5" style={{ color: isTimeCapsule ? '#A8E6C8' : 'var(--parchment-dark)', fontFamily: "'Cinzel', serif" }}>
                     <Clock className="w-4 h-4 text-amber-400" />
                     <span>Time capsule — opens on a future date</span>
                   </span>
@@ -3033,7 +3026,7 @@ function ComposeLetter() {
             {error && <p className={`font-bold italic text-sm p-3 rounded-sm ${error.includes('successfully') ? 'bg-green-950 text-green-200 border border-green-800' : 'bg-red-950 text-red-200 border border-red-800'}`}>⚠ {error}</p>}
 
             {/* Action Bar (Fluid Stacking on Mobile) */}
-            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-4 gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-4 gap-4" style={{ borderTop: '1px solid rgba(63, 169, 122,0.25)' }}>
               <div className="flex items-center space-x-2 justify-center sm:justify-start" style={{ color: 'var(--antique-gold)' }}>
                 <Shield className="w-5 h-5 flex-shrink-0" />
                 <span className="text-xs uppercase tracking-wider font-semibold" style={{ fontFamily: "'Cinzel', serif" }}>Choose Your Wax Seal</span>
@@ -3146,7 +3139,7 @@ function ComposeLetter() {
                   onClick={handleConfirmSendNameless}
                   disabled={loading}
                   className="btn-gold-saloon text-xs sm:text-sm w-full justify-center py-3 font-bold flex items-center gap-2 shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, #7A1E2E 0%, #B38F26 100%)', color: '#FFF', border: '1px solid #D4AF37' }}
+                  style={{ background: 'linear-gradient(135deg, #12513A 0%, #1D6B4C 100%)', color: '#FFF', border: '1px solid #3FA97A' }}
                 >
                   <Feather className="w-4 h-4 text-amber-300" />
                   <span>{loading ? 'Releasing to Sanctuary...' : 'Release to Nameless Words'}</span>
@@ -3173,7 +3166,7 @@ function ComposeLetter() {
               <button onClick={handleQRClose} className="absolute top-3 right-3 text-gray-400 hover:text-white p-1"><X className="w-6 h-6" /></button>
               <Crown className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--antique-gold)' }} />
               <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Letter Sealed!</h3>
-              <p className="text-xs sm:text-sm italic mb-5" style={{ color: 'var(--gold-muted)' }}>Show this QR wax seal to a courier so they can collect it.</p>
+              <p className="text-xs sm:text-sm italic mb-5" style={{ color: 'var(--gold-muted)' }}>Show this QR wax seal to a postman so they can collect it.</p>
               
               <div className="flex justify-center p-4 bg-white rounded-sm mb-4 inline-block shadow-inner" style={{ border: '2px solid var(--antique-gold)' }}>
                 <QRCodeCanvas value={createdQR} size={220} fgColor="#1A1A1A" />
@@ -3211,7 +3204,7 @@ function ComposeLetter() {
                     });
                   }}
                   className="btn-gold-saloon text-xs w-full justify-center py-2.5 font-bold flex items-center gap-2 shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, #831843 0%, #581C87 50%, #92400E 100%)', color: '#FFF', border: '1px solid #D4AF37' }}
+                  style={{ background: 'linear-gradient(135deg, #831843 0%, #581C87 50%, #92400E 100%)', color: '#FFF', border: '1px solid #3FA97A' }}
                 >
                   <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
                   <span>📜 Share Story Card</span>
@@ -3431,15 +3424,15 @@ function LetterArchive() {
     <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} className="max-w-6xl mx-auto space-y-6">
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
         background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-        border: '1px solid rgba(212, 175, 55, 0.35)',
+        border: '1px solid rgba(63, 169, 122, 0.35)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
       }}>
         {/* Top Gold Rule */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4 pb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4 pb-5" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.12)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
               <span>📖 The Scribe's Tome</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-bold tracking-wide flex items-center gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
@@ -3461,7 +3454,7 @@ function LetterArchive() {
         </div>
 
         {actionMsg && (
-          <div className="p-3.5 mb-6 rounded-sm text-sm font-bold flex items-center gap-2 shadow-md animate-curtain-reveal" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--parchment-light)', border: '1px solid var(--antique-gold)' }}>
+          <div className="p-3.5 mb-6 rounded-sm text-sm font-bold flex items-center gap-2 shadow-md animate-curtain-reveal" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--parchment-light)', border: '1px solid var(--antique-gold)' }}>
             <CheckCircle className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} /> {actionMsg}
           </div>
         )}
@@ -3483,7 +3476,7 @@ function LetterArchive() {
         </div>
 
         {/* Archive Filter Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="flex flex-wrap gap-2 mb-6" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
           {[
             { key: 'all', label: 'All Letters', count: letters.length },
             { key: 'incoming', label: 'Incoming Letters', count: letters.filter(l => l.direction === 'incoming').length },
@@ -3496,7 +3489,7 @@ function LetterArchive() {
               className="px-4 py-2.5 font-bold text-xs sm:text-sm rounded-t-sm transition-all flex items-center gap-2"
               style={{
                 fontFamily: "'Cinzel', serif",
-                background: activeTab === t.key ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'transparent',
+                background: activeTab === t.key ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)' : 'transparent',
                 color: activeTab === t.key ? '#FFF' : 'var(--gold-muted)',
                 border: activeTab === t.key ? '1px solid var(--antique-gold)' : '1px solid transparent',
                 borderBottom: 'none'
@@ -3508,7 +3501,7 @@ function LetterArchive() {
         </div>
 
         {/* ── Selection & Multi-Batch Action Bar ── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
           <div className="flex items-center gap-3">
             <button
               onClick={toggleSelectAll}
@@ -3544,7 +3537,7 @@ function LetterArchive() {
               <button
                 onClick={handleBatchAbandon}
                 className="btn-gold-saloon text-[11px] py-1.5 px-3 flex items-center gap-1"
-                style={{ background: '#78350F', color: '#FEF3C7', border: '1px solid #D97706' }}
+                style={{ background: '#78350F', color: '#DCF5E8', border: '1px solid #21855A' }}
                 title="Abandon selected letters to The Dead Letter Office public archive"
               >
                 <Archive className="w-3 h-3 text-amber-300" /> Abandon ({selectedIds.length})
@@ -3565,7 +3558,7 @@ function LetterArchive() {
             <p className="text-lg font-serif">Dusting off the ancient archive tomes...</p>
           </div>
         ) : filteredLetters.length === 0 ? (
-          <div className="text-center py-16 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
+          <div className="text-center py-16 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)', color: 'var(--gold-muted)' }}>
             <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }} />
             <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No letters match your search.</p>
             <p className="text-sm mt-1 italic font-serif">Write a letter or wait for one to arrive — they will appear here.</p>
@@ -3583,7 +3576,7 @@ function LetterArchive() {
                 const isSelected = selectedIds.includes(l._id);
                 
                 let badgeText = isDraft ? 'DRAFT' : (isIncoming ? 'INCOMING' : 'OUTGOING');
-                let badgeColor = isDraft ? '#92400E' : (isIncoming ? '#430E17' : '#7A1E2E');
+                let badgeColor = isDraft ? '#92400E' : (isIncoming ? '#08251A' : '#12513A');
                 if (isDybbuk) {
                   badgeText = '🔮 DYBBUK';
                   badgeColor = '#6B21A8';
@@ -3631,8 +3624,8 @@ function LetterArchive() {
                             ? '1px solid rgba(56,189,248,0.5)'
                             : isBottle
                               ? '1px solid rgba(52,211,153,0.5)'
-                              : '1px solid rgba(212,175,55,0.25)',
-                      boxShadow: isSelected ? '0 0 20px rgba(212,175,55,0.3)' : '0 10px 25px rgba(0,0,0,0.5)'
+                              : '1px solid rgba(63, 169, 122,0.25)',
+                      boxShadow: isSelected ? '0 0 20px rgba(63, 169, 122,0.3)' : '0 10px 25px rgba(0,0,0,0.5)'
                     }}
                   >
                     {/* Top Select Box & Badges */}
@@ -3665,7 +3658,7 @@ function LetterArchive() {
                     </div>
 
                     <div>
-                      <div className="mb-3 pb-2" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+                      <div className="mb-3 pb-2" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
                         <p className="font-bold text-base sm:text-lg flex items-center gap-1.5" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
                           {isDybbuk && <Ghost className="w-4 h-4 text-purple-400" />}
                           {isSchrodinger && <Atom className="w-4 h-4 text-sky-400 animate-spin" />}
@@ -3709,7 +3702,7 @@ function LetterArchive() {
                       )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 pt-3 mt-auto" style={{ borderTop: '1px solid rgba(212,175,55,0.2)' }}>
+                    <div className="flex flex-wrap items-center gap-2 pt-3 mt-auto" style={{ borderTop: '1px solid rgba(63, 169, 122,0.2)' }}>
                       <button
                         onClick={() => handleOpenLetter(l)}
                         className="flex-1 py-1.5 px-3 text-xs font-bold rounded-sm flex items-center justify-center gap-1.5 transition-all shadow"
@@ -3734,7 +3727,7 @@ function LetterArchive() {
                         style={{
                           background: 'rgba(255,253,249,0.06)',
                           color: isRead ? 'var(--gold-muted)' : 'var(--antique-gold)',
-                          border: '1px solid rgba(212,175,55,0.3)',
+                          border: '1px solid rgba(63, 169, 122,0.3)',
                           fontFamily: "'Cinzel', serif"
                         }}
                         title={isRead ? "Mark as Unread" : "Mark as Read"}
@@ -3747,8 +3740,8 @@ function LetterArchive() {
                         className="py-1.5 px-2.5 text-xs font-bold rounded-sm flex items-center justify-center gap-1 transition-all"
                         style={{
                           background: 'rgba(255,253,249,0.06)',
-                          color: '#FCD34D',
-                          border: '1px solid rgba(212,175,55,0.3)',
+                          color: '#5CBF8F',
+                          border: '1px solid rgba(63, 169, 122,0.3)',
                           fontFamily: "'Cinzel', serif"
                         }}
                         title="Abandon to The Dead Letter Office (Public Realm Archive)"
@@ -3760,9 +3753,9 @@ function LetterArchive() {
                         onClick={() => openStoryHeraldStudio(l)}
                         className="py-1.5 px-2.5 text-xs font-bold rounded-sm flex items-center justify-center gap-1 transition-all"
                         style={{
-                          background: 'rgba(212,175,55,0.15)',
+                          background: 'rgba(63, 169, 122,0.15)',
                           color: 'var(--antique-gold)',
-                          border: '1px solid rgba(212,175,55,0.4)',
+                          border: '1px solid rgba(63, 169, 122,0.4)',
                           fontFamily: "'Cinzel', serif"
                         }}
                         title="Share a 9:16 story card for social media"
@@ -3777,7 +3770,7 @@ function LetterArchive() {
                         style={{
                           background: 'rgba(255,253,249,0.06)',
                           color: 'var(--parchment-dark)',
-                          border: '1px solid rgba(212,175,55,0.3)',
+                          border: '1px solid rgba(63, 169, 122,0.3)',
                           fontFamily: "'Cinzel', serif"
                         }}
                         title="Move to Wastebin"
@@ -3791,7 +3784,7 @@ function LetterArchive() {
             </div>
 
             {/* ── Pagination / Load More Controls ── */}
-            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(63, 169, 122,0.25)' }}>
               <p className="text-xs sm:text-sm font-mono" style={{ color: 'var(--gold-muted)' }}>
                 Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredLetters.length)}</strong> of <strong className="text-amber-300">{filteredLetters.length}</strong> letters (Latest to Oldest)
               </p>
@@ -4243,13 +4236,13 @@ function MyMailbox() {
     <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} className="max-w-4xl mx-auto space-y-6">
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
         background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-        border: '1px solid rgba(212, 175, 55, 0.35)',
+        border: '1px solid rgba(63, 169, 122, 0.35)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
       }}>
         {/* Top Gold Rule */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-5 pb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-5 pb-5" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
           <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 flex-1 w-full lg:w-auto">
             {/* 🐾 Mailbox Pet Companion Alcove */}
             <div className="flex-shrink-0 self-center sm:self-auto p-2.5 rounded-sm bg-stone-950/50 border border-amber-900/40 shadow-inner flex items-center justify-center">
@@ -4262,7 +4255,7 @@ function MyMailbox() {
             </div>
 
             <div className="space-y-1 text-center sm:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-1 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-1 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.12)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
                 <span>📬 The Realm Mailbox</span>
               </div>
               <h2 className="text-2xl sm:text-4xl font-bold tracking-wide flex items-center justify-center sm:justify-start gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
@@ -4270,14 +4263,14 @@ function MyMailbox() {
                 Your Mailbox
               </h2>
               <p className="text-sm sm:text-base italic" style={{ color: 'var(--gold-muted)' }}>
-                Letters brought to you by couriers — newest first.
+                Letters brought to you by postmen — newest first.
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 self-center lg:self-auto justify-center lg:justify-end">
             {/* Language Tone Mode Selector */}
-            <div className="inline-flex items-center p-1 rounded-sm shadow-inner" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.3)' }}>
+            <div className="inline-flex items-center p-1 rounded-sm shadow-inner" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(63, 169, 122,0.3)' }}>
               <span className="text-[10px] uppercase tracking-wider font-bold px-2 text-amber-300" style={{ fontFamily: "'Cinzel', serif" }}>Tone:</span>
               <button
                 onClick={() => setTone('classical')}
@@ -4356,7 +4349,7 @@ function MyMailbox() {
                 style={{
                   background: dybbukMode ? '#047857' : 'rgba(255,253,249,0.06)',
                   color: dybbukMode ? '#FFF' : 'var(--parchment-dark)',
-                  border: dybbukMode ? '1px solid #10B981' : '1px solid rgba(212,175,55,0.3)',
+                  border: dybbukMode ? '1px solid #10B981' : '1px solid rgba(63, 169, 122,0.3)',
                   fontFamily: "'Cinzel', serif"
                 }}
               >
@@ -4443,7 +4436,7 @@ function MyMailbox() {
         </div>
 
         {actionMsg && (
-          <div className="p-3.5 mb-5 rounded-sm text-sm font-bold flex items-center gap-2 shadow-md animate-curtain-reveal" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--parchment-light)', border: '1px solid var(--antique-gold)' }}>
+          <div className="p-3.5 mb-5 rounded-sm text-sm font-bold flex items-center gap-2 shadow-md animate-curtain-reveal" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--parchment-light)', border: '1px solid var(--antique-gold)' }}>
             <CheckCircle className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} /> {actionMsg}
           </div>
         )}
@@ -4464,7 +4457,7 @@ function MyMailbox() {
         </div>
 
         {/* ── Selection & Multi-Batch Action Bar ── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
           <div className="flex items-center gap-3">
             <button
               onClick={toggleSelectAll}
@@ -4500,7 +4493,7 @@ function MyMailbox() {
               <button
                 onClick={handleBatchAbandon}
                 className="btn-gold-saloon text-[11px] py-1.5 px-3 flex items-center gap-1"
-                style={{ background: '#78350F', color: '#FEF3C7', border: '1px solid #D97706' }}
+                style={{ background: '#78350F', color: '#DCF5E8', border: '1px solid #21855A' }}
                 title="Abandon selected letters to The Dead Letter Office public archive"
               >
                 <Archive className="w-3 h-3 text-amber-300" /> Abandon ({selectedIds.length})
@@ -4516,10 +4509,10 @@ function MyMailbox() {
         </div>
 
         {myMailbox.length === 0 ? (
-          <div className="p-12 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
+          <div className="p-12 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)', color: 'var(--gold-muted)' }}>
             <Inbox className="w-12 h-12 mx-auto mb-2 opacity-60" style={{ color: 'var(--antique-gold)' }} />
             <p className="font-bold text-lg" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Your mailbox is currently empty.</p>
-            <p className="text-sm mt-1 italic font-serif">Letters brought by couriers, summoned from the spirit world, or washed ashore in bottles will appear here.</p>
+            <p className="text-sm mt-1 italic font-serif">Letters brought by postmen, summoned from the spirit world, or washed ashore in bottles will appear here.</p>
           </div>
         ) : (
           <>
@@ -4559,8 +4552,8 @@ function MyMailbox() {
                           ? '1px solid rgba(56,189,248,0.6)' 
                           : isBottle
                             ? '1px solid rgba(52,211,153,0.6)'
-                            : '1px solid rgba(212,175,55,0.25)',
-                    boxShadow: isSelected ? '0 0 20px rgba(212,175,55,0.3)' : isSuperposition ? '0 0 20px rgba(56,189,248,0.2)' : isBottle ? '0 0 20px rgba(52,211,153,0.2)' : 'none'
+                            : '1px solid rgba(63, 169, 122,0.25)',
+                    boxShadow: isSelected ? '0 0 20px rgba(63, 169, 122,0.3)' : isSuperposition ? '0 0 20px rgba(56,189,248,0.2)' : isBottle ? '0 0 20px rgba(52,211,153,0.2)' : 'none'
                   }}
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -4618,7 +4611,7 @@ function MyMailbox() {
                           )}
 
                           {l.burnAfterReading && (
-                            <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider" style={{ background: 'rgba(107,29,42,0.6)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
+                            <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider" style={{ background: 'rgba(17, 73, 52,0.6)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
                               <Flame className="w-3.5 h-3.5 text-orange-400" /> 
                               Burns in {l.burnTimerSeconds ? (l.burnTimerSeconds >= 60 ? Math.round(l.burnTimerSeconds / 60) + ' min' : l.burnTimerSeconds + 's') : '60s'}
                             </span>
@@ -4707,7 +4700,7 @@ function MyMailbox() {
                       <button 
                         onClick={() => handleAbandonLetter(l._id)} 
                         className="btn-gold-saloon text-xs py-1.5 px-2.5 flex items-center gap-1" 
-                        style={{ color: '#FCD34D' }}
+                        style={{ color: '#5CBF8F' }}
                         title="Abandon to The Dead Letter Office (Public Realm Archive)"
                       >
                         <Archive className="w-3.5 h-3.5 text-amber-400" />
@@ -4717,9 +4710,9 @@ function MyMailbox() {
                         onClick={() => openStoryHeraldStudio(l)} 
                         className="btn-gold-saloon text-xs py-1.5 px-2.5 flex items-center gap-1"
                         style={{
-                          background: 'rgba(212,175,55,0.15)',
+                          background: 'rgba(63, 169, 122,0.15)',
                           color: 'var(--antique-gold)',
-                          border: '1px solid rgba(212,175,55,0.4)'
+                          border: '1px solid rgba(63, 169, 122,0.4)'
                         }}
                         title="Share a 9:16 story card for social media"
                       >
@@ -4733,7 +4726,7 @@ function MyMailbox() {
                     </div>
                   </div>
                   {l.status === 'burned' && (
-                    <div className="mt-3 p-4 rounded-sm text-center italic flex items-center justify-center gap-2" style={{ background: 'rgba(0,0,0,0.5)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
+                    <div className="mt-3 p-4 rounded-sm text-center italic flex items-center justify-center gap-2" style={{ background: 'rgba(0,0,0,0.5)', border: '1px dashed rgba(63, 169, 122,0.3)', color: 'var(--gold-muted)' }}>
                       <Flame className="w-5 h-5 text-orange-400" /> {l.content}
                     </div>
                   )}
@@ -4742,7 +4735,7 @@ function MyMailbox() {
             </div>
 
             {/* ── Pagination / Load More Controls ── */}
-            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(63, 169, 122,0.25)' }}>
               <p className="text-xs sm:text-sm font-mono" style={{ color: 'var(--gold-muted)' }}>
                 Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredMailbox.length)}</strong> of <strong className="text-amber-300">{filteredMailbox.length}</strong> letters (Latest to Oldest)
               </p>
@@ -5128,14 +5121,14 @@ function DispatchTimeline({ letter, onClose }: { letter: any; onClose: () => voi
       label: 'WAX SEALED & STAGED', 
       time: sealedTime,
       active: !isDraft,
-      desc: 'Sealed with wax and a QR token. Waiting for a courier to collect it.' 
+      desc: 'Sealed with wax and a QR token. Waiting for a postman to collect it.' 
     },
     { 
       key: 'transit', 
       label: 'CARRIED IN ROYAL SADDLEBAG', 
       time: transitTime,
       active: isInTransit || isDelivered || isTorn || !!letter.pickedUpAt,
-      desc: 'A courier scanned the seal and is carrying your letter. You can still try to recall it at this stage.' 
+      desc: 'A postman scanned the seal and is carrying your letter. You can still try to recall it at this stage.' 
     },
     { 
       key: 'delivered', 
@@ -5159,15 +5152,15 @@ function DispatchTimeline({ letter, onClose }: { letter: any; onClose: () => voi
               {i < stages.length - 1 && (
                 <div 
                   className="absolute left-[8px] top-6 w-0.5 h-10 transition-colors" 
-                  style={{ background: s.active ? 'var(--antique-gold)' : 'rgba(212,175,55,0.2)' }}
+                  style={{ background: s.active ? 'var(--antique-gold)' : 'rgba(63, 169, 122,0.2)' }}
                 />
               )}
               <div 
                 className="w-4 h-4 rounded-full mt-1 flex-shrink-0 transition-all" 
                 style={{
                   background: s.active ? 'var(--antique-gold)' : 'transparent',
-                  border: s.active ? '2px solid #FFF' : '2px solid rgba(212,175,55,0.35)',
-                  boxShadow: s.active ? '0 0 10px rgba(212,175,55,0.6)' : 'none'
+                  border: s.active ? '2px solid #FFF' : '2px solid rgba(63, 169, 122,0.35)',
+                  boxShadow: s.active ? '0 0 10px rgba(63, 169, 122,0.6)' : 'none'
                 }} 
               />
               <div>
@@ -5463,15 +5456,15 @@ function SentLetters() {
     <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} className="max-w-5xl mx-auto space-y-6">
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden rounded-sm" style={{
         background: `linear-gradient(180deg, rgba(20,17,14,0.85) 0%, rgba(12,10,9,0.96) 100%), url(${manuscriptQuillDesk}) center/cover no-repeat`,
-        border: '1px solid rgba(212, 175, 55, 0.4)',
+        border: '1px solid rgba(63, 169, 122, 0.4)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.7)'
       }}>
         {/* Top Gold Rule */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3 pb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3 pb-5" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
               <span>📜 Outbox & Scriptorium Drafts</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-bold tracking-wide flex items-center gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)', textShadow: '0 4px 15px rgba(0,0,0,0.8)' }}>
@@ -5479,7 +5472,7 @@ function SentLetters() {
               Your Dispatched Letters
             </h2>
             <p className="text-sm sm:text-base italic mt-1" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-              Your drafts, sealed letters, letters with couriers, and letters already delivered — newest first.
+              Your drafts, sealed letters, letters with postmen, and letters already delivered — newest first.
             </p>
           </div>
           <div className="flex gap-2.5">
@@ -5493,7 +5486,7 @@ function SentLetters() {
         </div>
 
         {actionMsg && (
-          <div className="p-3.5 mb-5 rounded-sm text-sm font-bold flex items-center gap-2 shadow-md animate-curtain-reveal" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--parchment-light)', border: '1px solid var(--antique-gold)' }}>
+          <div className="p-3.5 mb-5 rounded-sm text-sm font-bold flex items-center gap-2 shadow-md animate-curtain-reveal" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--parchment-light)', border: '1px solid var(--antique-gold)' }}>
             <CheckCircle className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} /> {actionMsg}
           </div>
         )}
@@ -5502,7 +5495,7 @@ function SentLetters() {
         <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none">
           <button
             onClick={() => { setActiveTab('all'); setVisibleCount(5); setSelectedIds([]); }}
-            className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'all' ? 'bg-[#D4AF37] text-stone-950 shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
+            className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'all' ? 'bg-[#3FA97A] text-stone-950 shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
           >
             <span>All Letters</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-950/40 text-inherit">{myLetters.length}</span>
@@ -5510,7 +5503,7 @@ function SentLetters() {
 
           <button
             onClick={() => { setActiveTab('drafts'); setVisibleCount(5); setSelectedIds([]); }}
-            className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'drafts' ? 'bg-[#D4AF37] text-stone-950 shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
+            className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'drafts' ? 'bg-[#3FA97A] text-stone-950 shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
           >
             <Scroll className="w-3.5 h-3.5" />
             <span>Drafts</span>
@@ -5522,13 +5515,13 @@ function SentLetters() {
             className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'transit' ? 'bg-amber-600 text-white shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
           >
             <Clock className="w-3.5 h-3.5" />
-            <span>With a Courier</span>
+            <span>With a Postman</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-950/40 text-inherit">{transitCount}</span>
           </button>
 
           <button
             onClick={() => { setActiveTab('staged'); setVisibleCount(5); setSelectedIds([]); }}
-            className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'staged' ? 'bg-[#D4AF37] text-stone-950 shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
+            className={`px-3.5 py-1.5 rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'staged' ? 'bg-[#3FA97A] text-stone-950 shadow-md font-mono' : 'bg-stone-900/80 text-amber-200/70 border border-stone-700 hover:text-white'}`}
           >
             <Crown className="w-3.5 h-3.5" />
             <span>Sealed & Waiting</span>
@@ -5561,7 +5554,7 @@ function SentLetters() {
         </div>
 
         {/* ── Selection & Multi-Batch Action Bar ── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
           <div className="flex items-center gap-3">
             <button
               onClick={toggleSelectAll}
@@ -5597,7 +5590,7 @@ function SentLetters() {
               <button
                 onClick={handleBatchAbandon}
                 className="btn-gold-saloon text-[11px] py-1.5 px-3 flex items-center gap-1"
-                style={{ background: '#78350F', color: '#FEF3C7', border: '1px solid #D97706' }}
+                style={{ background: '#78350F', color: '#DCF5E8', border: '1px solid #21855A' }}
                 title="Abandon selected dispatched letters to The Dead Letter Office public archive"
               >
                 <Archive className="w-3 h-3 text-amber-300" /> Abandon ({selectedIds.length})
@@ -5613,10 +5606,10 @@ function SentLetters() {
         </div>
 
         {filteredLetters.length === 0 ? (
-          <div className="p-12 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
+          <div className="p-12 text-center rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)', color: 'var(--gold-muted)' }}>
             <Send className="w-12 h-12 mx-auto mb-2 opacity-60" style={{ color: 'var(--antique-gold)' }} />
             <p className="font-bold text-lg" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
-              {activeTab === 'drafts' ? 'You have not saved any drafts yet.' : (activeTab === 'transit' ? 'No letters are with a courier right now.' : 'You have no letters matching this filter.')}
+              {activeTab === 'drafts' ? 'You have not saved any drafts yet.' : (activeTab === 'transit' ? 'No letters are with a postman right now.' : 'You have no letters matching this filter.')}
             </p>
             <p className="text-sm mt-1 italic font-serif">
               {activeTab === 'drafts' ? 'Save drafts while composing to resume editing here anytime.' : 'Drafted and dispatched letters will appear here.'}
@@ -5656,15 +5649,15 @@ function SentLetters() {
                         : isTorn 
                           ? '1px solid rgba(239,68,68,0.6)'
                           : isDraft
-                            ? '1px solid rgba(212,175,55,0.45)'
+                            ? '1px solid rgba(63, 169, 122,0.45)'
                             : isDybbuk 
                               ? '1px solid rgba(168,85,247,0.4)'
                               : isSchrodinger 
                                 ? '1px solid rgba(56,189,248,0.4)'
                                 : isBottle
                                   ? '1px solid rgba(52,211,153,0.4)'
-                                  : '1px solid rgba(212,175,55,0.25)',
-                      boxShadow: isSelected ? '0 0 20px rgba(212,175,55,0.3)' : 'none'
+                                  : '1px solid rgba(63, 169, 122,0.25)',
+                      boxShadow: isSelected ? '0 0 20px rgba(63, 169, 122,0.3)' : 'none'
                     }}
                   >
                     <div className="w-full sm:w-auto flex items-start gap-3">
@@ -5697,7 +5690,7 @@ function SentLetters() {
                           )}
                           {isInTransit && (
                             <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-yellow-950 text-yellow-300 border border-yellow-700 animate-pulse">
-                              <Clock className="w-3.5 h-3.5 text-yellow-400" /> With a Courier (Stage 3)
+                              <Clock className="w-3.5 h-3.5 text-yellow-400" /> With a Postman (Stage 3)
                             </span>
                           )}
                           {isDybbuk ? (
@@ -5741,7 +5734,7 @@ function SentLetters() {
                           ) : isDraft ? (
                             <span className="text-amber-300 font-serif">Draft created on {new Date(l.createdAt).toLocaleString()} • Ready for Scriptorium editing</span>
                           ) : isInTransit ? (
-                            <span className="text-yellow-300 font-serif">Carried in courier saddlebag • Unsendable via Postmaster's Riddle</span>
+                            <span className="text-yellow-300 font-serif">Carried in postman saddlebag • Unsendable via Postmaster's Riddle</span>
                           ) : (
                             <span>Status: <span className="font-bold uppercase tracking-wider text-amber-300">{l.status}</span> {l.qrCodeToken ? `| Token: ${l.qrCodeToken.substring(0, 8)}...` : ''}</span>
                           )}
@@ -5800,7 +5793,7 @@ function SentLetters() {
                       <button 
                         onClick={() => handleAbandonSentLetter(l._id)} 
                         className="btn-gold-saloon text-xs py-1.5 px-2.5 flex items-center gap-1" 
-                        style={{ color: '#FCD34D' }}
+                        style={{ color: '#5CBF8F' }}
                         title="Abandon to The Dead Letter Office (Public Realm Archive)"
                       >
                         <Archive className="w-3.5 h-3.5 text-amber-400" />
@@ -5810,9 +5803,9 @@ function SentLetters() {
                         onClick={() => openStoryHeraldStudio(l)} 
                         className="btn-gold-saloon text-xs py-1.5 px-2.5 flex items-center gap-1"
                         style={{
-                          background: 'rgba(212,175,55,0.15)',
+                          background: 'rgba(63, 169, 122,0.15)',
                           color: 'var(--antique-gold)',
-                          border: '1px solid rgba(212,175,55,0.4)'
+                          border: '1px solid rgba(63, 169, 122,0.4)'
                         }}
                         title="Share a 9:16 story card for social media"
                       >
@@ -5830,7 +5823,7 @@ function SentLetters() {
             </div>
 
             {/* ── Pagination / Load More Controls ── */}
-            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(63, 169, 122,0.25)' }}>
               <p className="text-xs sm:text-sm font-mono" style={{ color: 'var(--gold-muted)' }}>
                 Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredLetters.length)}</strong> of <strong className="text-amber-300">{filteredLetters.length}</strong> letters (Latest to Oldest)
               </p>
@@ -6048,7 +6041,7 @@ function SentLetters() {
             <div className="theatrical-card p-6 sm:p-8 max-w-lg w-full relative text-center space-y-5 rounded-sm shadow-2xl overflow-hidden" style={{
               background: 'radial-gradient(ellipse at 50% 100%, #201306 0%, #120A03 50%, #080401 100%)',
               border: '2px solid var(--antique-gold)',
-              boxShadow: '0 0 60px rgba(212,175,55,0.4), inset 0 0 30px rgba(0,0,0,0.8)'
+              boxShadow: '0 0 60px rgba(63, 169, 122,0.4), inset 0 0 30px rgba(0,0,0,0.8)'
             }}>
               <button 
                 onClick={() => {
@@ -6176,14 +6169,14 @@ function SentLetters() {
                         className="h-full transition-all duration-1000"
                         style={{
                           width: `${(riddleTimeLeft / (riddleData.timeLimitSeconds || 90)) * 100}%`,
-                          background: riddleTimeLeft <= 15 ? '#EF4444' : 'linear-gradient(90deg, #D4AF37 0%, #F59E0B 100%)'
+                          background: riddleTimeLeft <= 15 ? '#EF4444' : 'linear-gradient(90deg, #3FA97A 0%, #34A06E 100%)'
                         }}
                       />
                     </div>
                   </div>
 
                   {/* Riddle Prompt Box */}
-                  <div className="p-4 rounded-sm" style={{ background: '#FFFDF9', color: '#1A1A1A', border: '2px solid rgba(212,175,55,0.4)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}>
+                  <div className="p-4 rounded-sm" style={{ background: '#FFFDF9', color: '#1A1A1A', border: '2px solid rgba(63, 169, 122,0.4)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}>
                     <p className="text-xs font-mono uppercase tracking-widest text-amber-900 font-bold mb-1">
                       Postmaster's Cipher:
                     </p>
@@ -6201,13 +6194,13 @@ function SentLetters() {
                         onClick={() => setSelectedOption(idx)}
                         className="p-3 rounded-sm text-xs sm:text-sm text-left transition-all font-serif font-bold flex items-center gap-2.5"
                         style={{
-                          background: selectedOption === idx ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'rgba(255,253,249,0.06)',
+                          background: selectedOption === idx ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)' : 'rgba(255,253,249,0.06)',
                           color: selectedOption === idx ? '#FFF' : 'var(--parchment-light)',
-                          border: selectedOption === idx ? '1px solid var(--antique-gold)' : '1px solid rgba(212,175,55,0.25)',
-                          boxShadow: selectedOption === idx ? '0 0 15px rgba(212,175,55,0.3)' : 'none'
+                          border: selectedOption === idx ? '1px solid var(--antique-gold)' : '1px solid rgba(63, 169, 122,0.25)',
+                          boxShadow: selectedOption === idx ? '0 0 15px rgba(63, 169, 122,0.3)' : 'none'
                         }}
                       >
-                        <span className="w-5 h-5 rounded-full flex items-center justify-center font-mono text-[11px] font-bold border border-amber-400/40 flex-shrink-0" style={{ background: selectedOption === idx ? '#D4AF37' : 'transparent', color: selectedOption === idx ? '#000' : '#D4AF37' }}>
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center font-mono text-[11px] font-bold border border-amber-400/40 flex-shrink-0" style={{ background: selectedOption === idx ? '#3FA97A' : 'transparent', color: selectedOption === idx ? '#000' : '#3FA97A' }}>
                           {String.fromCharCode(65 + idx)}
                         </span>
                         <span>{opt}</span>
@@ -6248,13 +6241,13 @@ function SentLetters() {
               <button onClick={() => setCreatedQR('')} className="absolute top-3 right-3 text-gray-400 hover:text-white p-1"><X className="w-6 h-6" /></button>
               <Crown className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--antique-gold)' }} />
               <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Delivery Wax Seal</h3>
-              <p className="text-xs sm:text-sm italic mb-5" style={{ color: 'var(--gold-muted)' }}>Present this Royal Wax Seal (QR Code) to a Courier or Receiver for pickup.</p>
+              <p className="text-xs sm:text-sm italic mb-5" style={{ color: 'var(--gold-muted)' }}>Present this Royal Wax Seal (QR Code) to a Postman or Receiver for pickup.</p>
               
               <div className="flex justify-center p-4 bg-white rounded-sm mb-4 inline-block shadow-inner" style={{ border: '2px solid var(--antique-gold)' }}>
                 <QRCodeCanvas value={createdQR} size={220} fgColor="#1A1A1A" />
               </div>
               
-              <p className="font-mono text-xs p-2 rounded-sm break-all" style={{ background: 'rgba(0,0,0,0.6)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)' }}>
+              <p className="font-mono text-xs p-2 rounded-sm break-all" style={{ background: 'rgba(0,0,0,0.6)', color: 'var(--antique-gold)', border: '1px solid rgba(63, 169, 122,0.3)' }}>
                 {createdQR}
               </p>
 
@@ -6632,13 +6625,13 @@ function GuildWastebin() {
     <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} className="max-w-5xl mx-auto space-y-6">
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
         background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-        border: '1px solid rgba(212, 175, 55, 0.35)',
+        border: '1px solid rgba(63, 169, 122, 0.35)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
       }}>
         {/* Top Gold Rule */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 pb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 pb-5" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#FCA5A5', fontFamily: "'Cinzel', serif" }}>
               <span>🔥 The Alchemical Ash Pit</span>
@@ -6657,7 +6650,7 @@ function GuildWastebin() {
                 onClick={triggerEmptyTrash}
                 disabled={actionLoading || burningEntireTrash}
                 className="px-4 py-2.5 rounded-sm font-bold text-xs shadow flex items-center gap-1.5 transition-all text-white animate-pulse"
-                style={{ background: 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)', border: '1px solid rgba(239,68,68,0.5)', fontFamily: "'Cinzel', serif" }}
+                style={{ background: 'linear-gradient(135deg, #991B1B 0%, #450A0A 100%)', border: '1px solid rgba(239,68,68,0.5)', fontFamily: "'Cinzel', serif" }}
               >
                 <Flame className="w-4 h-4 text-orange-400" /> Burn Entire Wastebin
               </button>
@@ -6669,13 +6662,13 @@ function GuildWastebin() {
         </div>
 
         {actionMsg && (
-          <div className="p-3.5 mb-6 rounded-sm text-sm font-bold flex items-center gap-2 shadow-md animate-curtain-reveal" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--parchment-light)', border: '1px solid var(--antique-gold)' }}>
+          <div className="p-3.5 mb-6 rounded-sm text-sm font-bold flex items-center gap-2 shadow-md animate-curtain-reveal" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--parchment-light)', border: '1px solid var(--antique-gold)' }}>
             <CheckCircle className="w-5 h-5" style={{ color: 'var(--antique-gold)' }} /> {actionMsg}
           </div>
         )}
 
         {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-2 mb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="flex flex-wrap gap-2 mb-5" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
           {[
             { key: 'all', label: 'All Discarded', count: trashedLetters.length },
             { key: 'drafts', label: 'Drafts', count: trashedLetters.filter(l => l.removedFrom === 'draft').length },
@@ -6688,7 +6681,7 @@ function GuildWastebin() {
               className="px-4 py-2.5 font-bold text-xs sm:text-sm rounded-t-sm transition-all flex items-center gap-2"
               style={{
                 fontFamily: "'Cinzel', serif",
-                background: activeTab === t.key ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'transparent',
+                background: activeTab === t.key ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)' : 'transparent',
                 color: activeTab === t.key ? '#FFF' : 'var(--gold-muted)',
                 border: activeTab === t.key ? '1px solid var(--antique-gold)' : '1px solid transparent',
                 borderBottom: 'none'
@@ -6700,7 +6693,7 @@ function GuildWastebin() {
         </div>
 
         {/* ── Selection & Multi-Batch Action Bar ── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 p-3 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
           <div className="flex items-center gap-3">
             <button
               onClick={toggleSelectAll}
@@ -6746,7 +6739,7 @@ function GuildWastebin() {
             <p className="text-lg font-serif">Inspecting the ash pit...</p>
           </div>
         ) : filteredTrash.length === 0 ? (
-          <div className="text-center py-16 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
+          <div className="text-center py-16 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)', color: 'var(--gold-muted)' }}>
             <Trash2 className="w-12 h-12 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }} />
             <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Your wastebin is empty.</p>
             <p className="text-sm mt-1 italic font-serif">Letters and drafts you delete wait here until you burn them for good.</p>
@@ -6765,8 +6758,8 @@ function GuildWastebin() {
                     key={l._id || i} 
                     className="theatrical-card p-5 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all" 
                     style={{ 
-                      border: isSelected ? '2px solid var(--antique-gold)' : '1px solid rgba(212,175,55,0.25)',
-                      boxShadow: isSelected ? '0 0 20px rgba(212,175,55,0.3)' : 'none'
+                      border: isSelected ? '2px solid var(--antique-gold)' : '1px solid rgba(63, 169, 122,0.25)',
+                      boxShadow: isSelected ? '0 0 20px rgba(63, 169, 122,0.3)' : 'none'
                     }}
                   >
                     <div className="flex-1 flex items-start gap-3">
@@ -6780,7 +6773,7 @@ function GuildWastebin() {
 
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <span className="text-[11px] uppercase px-2.5 py-0.5 rounded-sm font-bold tracking-wider" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
+                          <span className="text-[11px] uppercase px-2.5 py-0.5 rounded-sm font-bold tracking-wider" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(63, 169, 122,0.3)', fontFamily: "'Cinzel', serif" }}>
                             {originLabel}
                           </span>
                           <h4 className="text-base sm:text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
@@ -6830,7 +6823,7 @@ function GuildWastebin() {
             </div>
 
             {/* ── Pagination / Load More Controls ── */}
-            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(63, 169, 122,0.25)' }}>
               <p className="text-xs sm:text-sm font-mono" style={{ color: 'var(--gold-muted)' }}>
                 Showing <strong className="text-amber-300">{Math.min(visibleCount, filteredTrash.length)}</strong> of <strong className="text-amber-300">{filteredTrash.length}</strong> discarded items (Latest to Oldest)
               </p>
@@ -7111,23 +7104,23 @@ function MailmanDashboard({ user }: { user: any }) {
         <div className="p-4 rounded-sm bg-red-950 text-red-200 border-2 border-red-700 shadow-xl flex items-center gap-3 animate-curtain-reveal">
           <Scissors className="w-6 h-6 text-red-400 animate-pulse flex-shrink-0" />
           <div className="font-serif">
-            <span className="font-bold text-red-300 font-mono text-xs uppercase tracking-wider block">Courier Dispatch Notice</span>
+            <span className="font-bold text-red-300 font-mono text-xs uppercase tracking-wider block">Postman Dispatch Notice</span>
             <p className="text-sm italic">{courierAlert}</p>
           </div>
         </div>
       )}
 
-      {/* ── Hero Banner with Atmospheric Courier Dispatch Background ── */}
+      {/* ── Hero Banner with Atmospheric Postman Dispatch Background ── */}
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden rounded-sm text-center" style={{
         background: `linear-gradient(180deg, rgba(20,16,12,0.82) 0%, rgba(10,8,6,0.95) 100%), url(${courierDispatchTerminalBg}) center/cover no-repeat`,
-        border: '1px solid rgba(212, 175, 55, 0.4)',
+        border: '1px solid rgba(63, 169, 122, 0.4)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.7)'
       }}>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
           <Crown className="w-3.5 h-3.5" />
-          <span>✦ Imperial Courier Dispatch & Active Saddlebag ✦</span>
+          <span>✦ Imperial Postman Dispatch & Active Saddlebag ✦</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-bold tracking-wide" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)', textShadow: '0 4px 15px rgba(0,0,0,0.8)' }}>
@@ -7135,7 +7128,7 @@ function MailmanDashboard({ user }: { user: any }) {
         </h1>
 
         <p className="max-w-2xl mx-auto text-sm sm:text-base italic leading-relaxed mt-2" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-          Active frontier assignments, saddlebag deliveries, and courier service accolades for <strong>{user.name}</strong>.
+          Active frontier assignments, saddlebag deliveries, and postman service accolades for <strong>{user.name}</strong>.
         </p>
 
         <div className="flex flex-wrap justify-center items-center gap-3 mt-4 text-xs font-mono">
@@ -7151,32 +7144,32 @@ function MailmanDashboard({ user }: { user: any }) {
         </div>
       </div>
 
-      {/* ── Courier Stats & Active Saddlebag Grid ── */}
+      {/* ── Postman Stats & Active Saddlebag Grid ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Your Courier Credentials */}
+        {/* Your Postman Credentials */}
         <div className="theatrical-card p-6 sm:p-8 relative overflow-hidden rounded-sm" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-          border: '1px solid rgba(212, 175, 55, 0.35)',
+          border: '1px solid rgba(63, 169, 122, 0.35)',
           boxShadow: '0 15px 40px rgba(0,0,0,0.6)'
         }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
           <h3 className="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2.5 tracking-wide" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
             <Crown className="w-6 h-6 text-amber-400" />
-            <span>Your Courier Ledger</span>
+            <span>Your Postman Ledger</span>
           </h3>
 
           <div className="space-y-3.5">
-            <div className="flex justify-between items-center p-3.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.2)' }}>
+            <div className="flex justify-between items-center p-3.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
               <span className="font-semibold text-stone-200" style={{ fontFamily: "'Cinzel', serif" }}>Deliveries Completed</span>
               <span className="text-amber-300 font-bold text-xl font-mono">{deliveries}</span>
             </div>
 
-            <div className="flex justify-between items-center p-3.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.2)' }}>
+            <div className="flex justify-between items-center p-3.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
               <span className="font-semibold text-stone-200" style={{ fontFamily: "'Cinzel', serif" }}>Guild Experience (XP)</span>
               <span className="text-amber-300 font-bold text-xl font-mono">{xp} XP</span>
             </div>
 
-            <div className="flex justify-between items-center p-3.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.2)' }}>
+            <div className="flex justify-between items-center p-3.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
               <span className="font-semibold text-stone-200" style={{ fontFamily: "'Cinzel', serif" }}>Accolades Bestowed</span>
               <div className="flex items-center gap-3">
                 <span className="text-amber-300 font-bold text-xl font-mono">{earnedCount}</span>
@@ -7194,7 +7187,7 @@ function MailmanDashboard({ user }: { user: any }) {
         {/* Your Active Deliveries (Saddlebag) */}
         <div className="theatrical-card p-6 sm:p-8 relative overflow-hidden rounded-sm" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-          border: '1px solid rgba(212, 175, 55, 0.35)',
+          border: '1px solid rgba(63, 169, 122, 0.35)',
           boxShadow: '0 15px 40px rgba(0,0,0,0.6)'
         }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
@@ -7203,7 +7196,7 @@ function MailmanDashboard({ user }: { user: any }) {
             <span>Active Saddlebag Deliveries</span>
           </h3>
 
-          <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(212,175,55,0.2)' }}>
+          <div className="p-4 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
             {quests.length === 0 ? (
               <div className="text-center py-6">
                 <Star className="w-8 h-8 mx-auto text-amber-400/60 mb-2 animate-float-gentle" />
@@ -7216,7 +7209,7 @@ function MailmanDashboard({ user }: { user: any }) {
                   <div
                     key={i}
                     className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3.5 rounded-sm gap-3 transition-all"
-                    style={{ background: 'linear-gradient(135deg, rgba(35,28,18,0.7) 0%, rgba(18,14,10,0.85) 100%)', border: '1px solid rgba(212,175,55,0.3)' }}
+                    style={{ background: 'linear-gradient(135deg, rgba(35,28,18,0.7) 0%, rgba(18,14,10,0.85) 100%)', border: '1px solid rgba(63, 169, 122,0.3)' }}
                   >
                     <div className="w-full sm:w-auto">
                       <p className="font-bold text-base" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
@@ -7266,7 +7259,7 @@ function MailmanDashboard({ user }: { user: any }) {
               style={{
                 background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
                 border: '2px solid var(--antique-gold)',
-                boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 30px rgba(212,175,55,0.2)'
+                boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 30px rgba(63, 169, 122,0.2)'
               }}
             >
               <button
@@ -7443,12 +7436,12 @@ function CommunityNoticeBoard({ user }: { user: any }) {
       {/* ── Hero Banner with Atmospheric Grand Library Background ── */}
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden text-center rounded-sm" style={{
         background: `linear-gradient(180deg, rgba(18,16,14,0.85) 0%, rgba(10,9,8,0.95) 100%), url(${grandArchiveLibraryBg}) center/cover no-repeat`,
-        border: '1px solid rgba(212, 175, 55, 0.45)',
+        border: '1px solid rgba(63, 169, 122, 0.45)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.75)'
       }}>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
         
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
           <Megaphone className="w-3.5 h-3.5" />
           <span>✦ Sovereign Dispatch & Imperial Gazettes ✦</span>
         </div>
@@ -7458,7 +7451,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
         </h1>
 
         <p className="max-w-2xl mx-auto text-sm sm:text-base italic leading-relaxed mt-2" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-          “Announcements, updates, and event news from the Postmasters — for every scribe and courier in the realm.”
+          “Announcements, updates, and event news from the Postmasters — for every scribe and postman in the realm.”
         </p>
 
         {/* Real-time sync indicator & Admin Inscribe Button */}
@@ -7488,7 +7481,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
       {/* ── Filters & Category Navigation Bar ── */}
       <div className="theatrical-card p-4 rounded-sm space-y-4" style={{
         background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-        border: '1px solid rgba(212, 175, 55, 0.35)'
+        border: '1px solid rgba(63, 169, 122, 0.35)'
       }}>
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Category Tabs */}
@@ -7564,17 +7557,17 @@ function CommunityNoticeBoard({ user }: { user: any }) {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 className={`theatrical-card p-5 sm:p-7 rounded-sm relative overflow-hidden transition-all ${
-                  isPinned ? 'shadow-[0_0_25px_rgba(212,175,55,0.15)]' : ''
+                  isPinned ? 'shadow-[0_0_25px_rgba(63, 169, 122,0.15)]' : ''
                 }`}
                 style={{
                   background: isPinned
                     ? 'linear-gradient(150deg, rgba(38, 28, 14, 0.95) 0%, rgba(18, 15, 12, 0.98) 100%)'
                     : 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-                  border: isPinned ? '1.5px solid rgba(212, 175, 55, 0.7)' : '1px solid rgba(212, 175, 55, 0.25)'
+                  border: isPinned ? '1.5px solid rgba(63, 169, 122, 0.7)' : '1px solid rgba(63, 169, 122, 0.25)'
                 }}
               >
                 {/* Gold Top Accent Line */}
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: isPinned ? '3px' : '1.5px', background: isPinned ? 'linear-gradient(to right, #D4AF37, #F5D061, #D4AF37)' : 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: isPinned ? '3px' : '1.5px', background: isPinned ? 'linear-gradient(to right, #3FA97A, #7FD9B4, #3FA97A)' : 'linear-gradient(to right, transparent, rgba(63, 169, 122,0.4), transparent)' }} />
 
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
                   <div className="space-y-1.5">
@@ -7627,7 +7620,7 @@ function CommunityNoticeBoard({ user }: { user: any }) {
                 {/* Main Content Body */}
                 <div className="text-sm leading-relaxed whitespace-pre-wrap font-serif p-3.5 rounded-sm my-3" style={{
                   background: 'rgba(255, 253, 249, 0.04)',
-                  border: '1px solid rgba(212, 175, 55, 0.15)',
+                  border: '1px solid rgba(63, 169, 122, 0.15)',
                   color: 'var(--parchment)',
                   fontFamily: "'Cormorant Garamond', Georgia, serif",
                   fontSize: '1.05rem',
@@ -7815,12 +7808,12 @@ function Leaderboard() {
       {/* ── Hero Banner with Atmospheric Background ── */}
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden text-center rounded-sm" style={{
         background: `linear-gradient(180deg, rgba(18,16,14,0.75) 0%, rgba(10,9,8,0.92) 100%), url(${courierDirectoryRosterBg}) center/cover no-repeat`,
-        border: '1px solid rgba(212, 175, 55, 0.4)',
+        border: '1px solid rgba(63, 169, 122, 0.4)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.7)'
       }}>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
         
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.25em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
           <Trophy className="w-3.5 h-3.5" />
           <span>✦ The Sovereign Hall of Fame & Imperial Roster ✦</span>
         </div>
@@ -7830,7 +7823,7 @@ function Leaderboard() {
         </h1>
 
         <p className="max-w-2xl mx-auto text-sm sm:text-base italic leading-relaxed mt-2" style={{ color: 'var(--gold-muted)', fontFamily: "'Cormorant Garamond', serif" }}>
-          “Honouring the fastest couriers on the frontier, and the scribes whose letters have earned them a name across the kingdom.”
+          “Honouring the fastest postmen on the frontier, and the scribes whose letters have earned them a name across the kingdom.”
         </p>
 
         {/* ── Mailman of the Month Crown Jewel Showcase ── */}
@@ -7841,23 +7834,23 @@ function Leaderboard() {
             style={{
               background: 'linear-gradient(145deg, rgba(45,35,18,0.9) 0%, rgba(20,16,10,0.95) 100%)',
               border: '2px solid var(--antique-gold)',
-              boxShadow: '0 15px 40px rgba(0,0,0,0.8), 0 0 25px rgba(212,175,55,0.2)'
+              boxShadow: '0 15px 40px rgba(0,0,0,0.8), 0 0 25px rgba(63, 169, 122,0.2)'
             }}
           >
-            <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center bg-amber-500/20 border-2 border-amber-400 shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+            <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center bg-amber-500/20 border-2 border-amber-400 shadow-[0_0_20px_rgba(63, 169, 122,0.4)]">
               <Crown className="w-9 h-9 text-amber-300 animate-bounce" />
             </div>
             <span className="text-[11px] uppercase tracking-[0.25em] font-mono font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
-              ✦ Imperial Courier of the Realm ✦
+              ✦ Imperial Postman of the Realm ✦
             </span>
             <h3 className="text-2xl sm:text-4xl font-bold mt-2 tracking-wide" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
               {data.mailmanOfTheMonth.name}
             </h3>
             <p className="italic text-sm sm:text-base mt-1 text-amber-200/80 font-serif">
-              {data.mailmanOfTheMonth.rank || 'Grand Royal Courier'} • <strong className="text-amber-300 font-mono">{data.mailmanOfTheMonth.xp || 0} XP</strong> • <strong className="text-emerald-300 font-mono">{data.mailmanOfTheMonth.deliveriesCompleted || 0} Deliveries Completed</strong>
+              {data.mailmanOfTheMonth.rank || 'Grand Royal Postman'} • <strong className="text-amber-300 font-mono">{data.mailmanOfTheMonth.xp || 0} XP</strong> • <strong className="text-emerald-300 font-mono">{data.mailmanOfTheMonth.deliveriesCompleted || 0} Deliveries Completed</strong>
             </p>
             {data.mailmanOfTheMonth.noteStatus && (
-              <div className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs italic font-serif max-w-md mx-auto" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: 'var(--parchment-light)' }}>
+              <div className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs italic font-serif max-w-md mx-auto" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.4)', color: 'var(--parchment-light)' }}>
                 <span className="text-base">{NOTE_STATUS_MOODS[data.mailmanOfTheMonth.noteStatusMood || 'quill']?.icon || '🪶'}</span>
                 <span>“{data.mailmanOfTheMonth.noteStatus}”</span>
               </div>
@@ -7866,23 +7859,23 @@ function Leaderboard() {
         )}
       </div>
 
-      {/* ── Top Couriers & Top Senders Dual Podiums ── */}
+      {/* ── Top Postmen & Top Senders Dual Podiums ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Top Couriers by XP */}
+        {/* Top Postmen by XP */}
         <div className="theatrical-card p-6 sm:p-8 relative overflow-hidden rounded-sm" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-          border: '1px solid rgba(212, 175, 55, 0.35)',
+          border: '1px solid rgba(63, 169, 122, 0.35)',
           boxShadow: '0 15px 40px rgba(0,0,0,0.6)'
         }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, #D4AF37, transparent)' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, #3FA97A, transparent)' }} />
           <h3 className="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2.5 tracking-wide" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
             <Feather className="w-6 h-6 text-amber-400" />
-            <span>Top Couriers (by XP)</span>
+            <span>Top Postmen (by XP)</span>
           </h3>
 
           <div className="space-y-3">
             {(data?.topMailmen ?? []).length === 0 ? (
-              <p className="italic text-sm text-stone-400 font-serif p-4 text-center">No couriers have logged journeys yet.</p>
+              <p className="italic text-sm text-stone-400 font-serif p-4 text-center">No postmen have logged journeys yet.</p>
             ) : (
               (data?.topMailmen ?? []).map((m: any, i: number) => {
                 const isFirst = i === 0;
@@ -7903,18 +7896,18 @@ function Leaderboard() {
                             ? 'linear-gradient(135deg, rgba(50,30,20,0.6) 0%, rgba(25,15,10,0.8) 100%)'
                             : 'rgba(255,253,249,0.03)',
                       border: isFirst 
-                        ? '1px solid rgba(212,175,55,0.6)' 
+                        ? '1px solid rgba(63, 169, 122,0.6)' 
                         : isSecond 
                           ? '1px solid rgba(200,200,200,0.4)' 
                           : isThird 
                             ? '1px solid rgba(205,127,50,0.4)' 
-                            : '1px solid rgba(212,175,55,0.15)'
+                            : '1px solid rgba(63, 169, 122,0.15)'
                     }}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs font-mono" style={{
-                          background: isFirst ? '#D4AF37' : (isSecond ? '#C0C0C0' : (isThird ? '#CD7F32' : 'rgba(255,255,255,0.1)')),
+                          background: isFirst ? '#3FA97A' : (isSecond ? '#C0C0C0' : (isThird ? '#CD7F32' : 'rgba(255,255,255,0.1)')),
                           color: isFirst || isSecond || isThird ? '#1A1A1A' : 'var(--parchment-light)'
                         }}>
                           {i + 1}
@@ -7924,14 +7917,14 @@ function Leaderboard() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs uppercase tracking-wider font-bold px-2.5 py-1 rounded font-mono" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)' }}>
+                        <span className="text-xs uppercase tracking-wider font-bold px-2.5 py-1 rounded font-mono" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(63, 169, 122,0.3)' }}>
                           {m.xp || 0} XP
                         </span>
                       </div>
                     </div>
 
                     {m.noteStatus && (
-                      <div className="flex items-center gap-1.5 text-xs italic font-serif p-1.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.06)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--parchment-light)' }}>
+                      <div className="flex items-center gap-1.5 text-xs italic font-serif p-1.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.06)', border: '1px solid rgba(63, 169, 122,0.2)', color: 'var(--parchment-light)' }}>
                         <span className="text-sm">{NOTE_STATUS_MOODS[m.noteStatusMood || 'quill']?.icon || '🪶'}</span>
                         <span className="truncate">"{m.noteStatus}"</span>
                       </div>
@@ -7946,10 +7939,10 @@ function Leaderboard() {
         {/* Top Senders by Reputation */}
         <div className="theatrical-card p-6 sm:p-8 relative overflow-hidden rounded-sm" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-          border: '1px solid rgba(212, 175, 55, 0.35)',
+          border: '1px solid rgba(63, 169, 122, 0.35)',
           boxShadow: '0 15px 40px rgba(0,0,0,0.6)'
         }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, #D4AF37, transparent)' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, #3FA97A, transparent)' }} />
           <h3 className="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2.5 tracking-wide" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
             <Award className="w-6 h-6 text-amber-400" />
             <span>Top Senders (by Reputation)</span>
@@ -7978,18 +7971,18 @@ function Leaderboard() {
                             ? 'linear-gradient(135deg, rgba(50,30,20,0.6) 0%, rgba(25,15,10,0.8) 100%)'
                             : 'rgba(255,253,249,0.03)',
                       border: isFirst 
-                        ? '1px solid rgba(212,175,55,0.6)' 
+                        ? '1px solid rgba(63, 169, 122,0.6)' 
                         : isSecond 
                           ? '1px solid rgba(200,200,200,0.4)' 
                           : isThird 
                             ? '1px solid rgba(205,127,50,0.4)' 
-                            : '1px solid rgba(212,175,55,0.15)'
+                            : '1px solid rgba(63, 169, 122,0.15)'
                     }}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs font-mono" style={{
-                          background: isFirst ? '#D4AF37' : (isSecond ? '#C0C0C0' : (isThird ? '#CD7F32' : 'rgba(255,255,255,0.1)')),
+                          background: isFirst ? '#3FA97A' : (isSecond ? '#C0C0C0' : (isThird ? '#CD7F32' : 'rgba(255,255,255,0.1)')),
                           color: isFirst || isSecond || isThird ? '#1A1A1A' : 'var(--parchment-light)'
                         }}>
                           {i + 1}
@@ -8006,7 +7999,7 @@ function Leaderboard() {
                     </div>
 
                     {s.noteStatus && (
-                      <div className="flex items-center gap-1.5 text-xs italic font-serif p-1.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.06)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--parchment-light)' }}>
+                      <div className="flex items-center gap-1.5 text-xs italic font-serif p-1.5 rounded-sm" style={{ background: 'rgba(255,253,249,0.06)', border: '1px solid rgba(63, 169, 122,0.2)', color: 'var(--parchment-light)' }}>
                         <span className="text-sm">{NOTE_STATUS_MOODS[s.noteStatusMood || 'quill']?.icon || '🪶'}</span>
                         <span className="truncate">"{s.noteStatus}"</span>
                       </div>
@@ -8130,13 +8123,13 @@ function QRScanner() {
     <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} className="max-w-2xl mx-auto text-center space-y-8">
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
         background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-        border: '1px solid rgba(212, 175, 55, 0.35)',
+        border: '1px solid rgba(63, 169, 122, 0.35)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
       }}>
         {/* Top Gold Rule */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, var(--antique-gold), transparent)' }} />
 
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.12)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
           <span>🔍 The Royal Ocular Loupe</span>
         </div>
 
@@ -8148,7 +8141,7 @@ function QRScanner() {
         </p>
 
         {message ? (
-          <div className="p-8 rounded-sm flex flex-col items-center justify-center space-y-4 animate-curtain-reveal" style={{ background: isMisdelivery ? 'rgba(107,29,42,0.35)' : 'rgba(212,175,55,0.12)', border: `2px solid ${isMisdelivery ? '#EF4444' : 'var(--antique-gold)'}` }}>
+          <div className="p-8 rounded-sm flex flex-col items-center justify-center space-y-4 animate-curtain-reveal" style={{ background: isMisdelivery ? 'rgba(17, 73, 52,0.35)' : 'rgba(63, 169, 122,0.12)', border: `2px solid ${isMisdelivery ? '#EF4444' : 'var(--antique-gold)'}` }}>
             {isMisdelivery ? (
               /* Wrong Person / Misdelivery Penalty Panel */
               <div className="space-y-4 flex flex-col items-center">
@@ -8162,18 +8155,18 @@ function QRScanner() {
                   {message}
                 </h3>
                 <p className="text-xs italic text-red-300/80 max-w-md font-serif">
-                  The Central Postal Authority has flagged this scan. The assigned courier has been issued an official infraction.
+                  The Central Postal Authority has flagged this scan. The assigned postman has been issued an official infraction.
                 </p>
                 {penaltyApplied && (
                   <div className="px-4 py-2 rounded-xl bg-red-950/60 border border-red-500/50 text-red-300 text-sm font-bold flex items-center gap-2">
-                    <span>⚔️</span> Courier Penalty Applied: <span className="text-red-400">-15 XP</span>
+                    <span>⚔️</span> Postman Penalty Applied: <span className="text-red-400">-15 XP</span>
                   </div>
                 )}
               </div>
             ) : scanActionType === 'dispatch' ? (
-              /* Courier Saddlebag Packing & Dispatch Animation */
+              /* Postman Saddlebag Packing & Dispatch Animation */
               <div className="space-y-4 animate-glow-pulse flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center bg-amber-900/40 border-2 border-amber-400 shadow-[0_0_25px_rgba(212,175,55,0.5)] animate-float-gentle">
+                <div className="w-20 h-20 rounded-full flex items-center justify-center bg-amber-900/40 border-2 border-amber-400 shadow-[0_0_25px_rgba(63, 169, 122,0.5)] animate-float-gentle">
                   <Package className="w-10 h-10 text-amber-300 animate-bounce" />
                 </div>
                 <span className="text-[11px] uppercase tracking-widest font-mono font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
@@ -8183,7 +8176,7 @@ function QRScanner() {
                   {message}
                 </h3>
                 <p className="text-xs italic text-amber-200/80 max-w-md font-serif">
-                  The wax seal has been authenticated by royal courier. Letter is now secure within the royal saddlebag and en-route across the realm.
+                  The wax seal has been authenticated by royal postman. Letter is now secure within the royal saddlebag and en-route across the realm.
                 </p>
               </div>
             ) : (
@@ -8211,9 +8204,9 @@ function QRScanner() {
             <p className="text-xs italic font-mono pt-2" style={{ color: 'var(--gold-muted)' }}>Taking you back to your desk…</p>
           </div>
         ) : (
-          <div className="p-5 rounded-sm relative overflow-hidden flex flex-col justify-center items-center" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(212,175,55,0.25)' }}>
+          <div className="p-5 rounded-sm relative overflow-hidden flex flex-col justify-center items-center" style={{ background: 'rgba(255,253,249,0.03)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
             {scannerError ? (
-              <div className="p-6 text-center rounded-sm" style={{ background: 'rgba(107,29,42,0.4)', border: '1px solid rgba(239,68,68,0.4)' }}>
+              <div className="p-6 text-center rounded-sm" style={{ background: 'rgba(17, 73, 52,0.4)', border: '1px solid rgba(239,68,68,0.4)' }}>
                 <h3 className="font-bold text-lg mb-2" style={{ color: '#FCA5A5', fontFamily: "'Cinzel', serif" }}>Camera Access Denied</h3>
                 <p className="text-sm mb-4" style={{ color: 'var(--parchment-light)' }}>{scannerError}</p>
                 <button onClick={startCamera} className="btn-velvet-burgundy text-xs py-2 px-4">Try Again</button>
@@ -8240,7 +8233,7 @@ function QRScanner() {
         )}
 
         {/* Manual Fallback */}
-        <div className="mt-8 p-5 rounded-sm text-left" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="mt-8 p-5 rounded-sm text-left" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.2)' }}>
           <h4 className="font-bold text-sm mb-2 uppercase tracking-wider" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
             Manual Token Entry (For Scribes without optical lenses)
           </h4>
@@ -8304,7 +8297,7 @@ const createRealmDivIcon = (type: 'self' | 'mailman' | 'sender' | 'letter', inVi
   if (type === 'self') {
     html = `<div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle,#1D4ED8 0%,#0F172A 100%);border:2.5px solid #93C5FD;box-shadow:0 0 16px rgba(59,130,246,0.9);color:#FFF;font-size:18px;cursor:pointer;">📍</div>`;
   } else if (type === 'mailman') {
-    html = `<div class="${inVicinity ? 'courier-beacon-active' : ''}" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,#B45309 0%,#1C1917 100%);border:2.5px solid #F59E0B;box-shadow:0 0 20px rgba(245,158,11,0.95);color:#FEF08A;font-size:20px;cursor:pointer;">🏇</div>`;
+    html = `<div class="${inVicinity ? 'courier-beacon-active' : ''}" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,#A9603A 0%,#1C1917 100%);border:2.5px solid #D89272;box-shadow:0 0 20px rgba(201,123,90,0.9);color:#F6E3D8;font-size:20px;cursor:pointer;">🏇</div>`;
   } else if (type === 'sender') {
     html = `<div style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#047857 0%,#064E3B 100%);border:2px solid #34D399;box-shadow:0 0 14px rgba(52,211,153,0.8);color:#A7F3D0;font-size:16px;cursor:pointer;">🪶</div>`;
   } else {
@@ -8720,7 +8713,7 @@ function MapTracker() {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="max-w-6xl mx-auto theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
       background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-      border: '1px solid rgba(212, 175, 55, 0.35)',
+      border: '1px solid rgba(63, 169, 122, 0.35)',
       boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
     }}>
       {/* Top Gold Rule */}
@@ -8732,7 +8725,7 @@ function MapTracker() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="max-w-sm w-full theatrical-card p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden border-2 border-amber-500 text-center" style={{
               background: 'linear-gradient(160deg, #1C1814 0%, #100E0C 100%)',
-              boxShadow: '0 0 50px rgba(212, 175, 55, 0.45)'
+              boxShadow: '0 0 50px rgba(63, 169, 122, 0.45)'
             }}>
               <button onClick={() => setPresentQrModal(null)} className="absolute top-3 right-3 text-amber-300 hover:text-white p-1">
                 <X className="w-5 h-5" />
@@ -8761,10 +8754,10 @@ function MapTracker() {
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-5" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-5" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
         <div>
           <div className="flex items-center gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.12)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
               <span>🧭 Cartographer's Scriptorium</span>
             </div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ background: 'rgba(16,185,129,0.15)', color: '#34D399', border: '1px solid rgba(16,185,129,0.4)', fontFamily: "'Cinzel', serif" }}>
@@ -8864,7 +8857,7 @@ function MapTracker() {
             style={{
               background: 'linear-gradient(135deg, rgba(28,24,20,0.97) 0%, rgba(18,16,14,0.98) 100%)',
               border: '2px solid var(--antique-gold)',
-              boxShadow: '0 10px 35px rgba(0,0,0,0.7), 0 0 20px rgba(212,175,55,0.2)'
+              boxShadow: '0 10px 35px rgba(0,0,0,0.7), 0 0 20px rgba(63, 169, 122,0.2)'
             }}
           >
             {/* Top Gold Trim */}
@@ -8997,7 +8990,7 @@ function MapTracker() {
               <div>
                 {user?.role === 'mailman' ? (
                   <div className="p-3 bg-amber-900/20 rounded border border-amber-500/30 text-xs text-amber-200/90 flex items-center justify-between">
-                    <span>🏇 Courier mode is on: you are sharing your location. Scribes nearby can now ask you to collect a letter.</span>
+                    <span>🏇 Postman mode is on: you are sharing your location. Scribes nearby can now ask you to collect a letter.</span>
                   </div>
                 ) : (
                   <div>
@@ -9057,7 +9050,7 @@ function MapTracker() {
       )}
 
       {error && (
-        <div className="p-3.5 mb-4 rounded-sm text-xs text-center italic flex items-center justify-between gap-3" style={{ background: 'rgba(107,29,42,0.4)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
+        <div className="p-3.5 mb-4 rounded-sm text-xs text-center italic flex items-center justify-between gap-3" style={{ background: 'rgba(17, 73, 52,0.4)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
           <span>{error}</span>
           <button 
             onClick={() => setClickToMoveEnabled(true)}
@@ -9069,7 +9062,7 @@ function MapTracker() {
       )}
 
       {/* Vicinity Filter Bar */}
-      <div className="p-4 rounded-sm mb-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shadow-inner" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+      <div className="p-4 rounded-sm mb-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shadow-inner" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-bold flex items-center gap-1.5 text-sm uppercase tracking-wider" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
             <Radio className="w-4 h-4" /> Radar Vicinity:
@@ -9083,7 +9076,7 @@ function MapTracker() {
                 fontFamily: "'Cinzel', serif",
                 background: vicinityRadius === r ? 'var(--burgundy)' : 'rgba(255,253,249,0.06)',
                 color: vicinityRadius === r ? '#FFF' : 'var(--gold-muted)',
-                border: vicinityRadius === r ? '1px solid var(--antique-gold)' : '1px solid rgba(212,175,55,0.25)',
+                border: vicinityRadius === r ? '1px solid var(--antique-gold)' : '1px solid rgba(63, 169, 122,0.25)',
                 transform: vicinityRadius === r ? 'scale(1.05)' : 'none'
               }}
             >
@@ -9096,7 +9089,7 @@ function MapTracker() {
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block shadow-sm"></span> 
             You ({user?.name || (user?.role === 'mailman' ? 'Mailman' : 'Scribe')})
           </span>
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-sm" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(212,175,55,0.5)', color: 'var(--antique-gold)' }}>
+          <span className="flex items-center gap-1.5 px-3 py-1 rounded-sm" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(63, 169, 122,0.5)', color: 'var(--antique-gold)' }}>
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shadow-sm"></span> 
             Letters ({lettersInVicinity.length})
           </span>
@@ -9154,8 +9147,8 @@ function MapTracker() {
             center={position}
             radius={vicinityRadius}
             pathOptions={{ 
-              color: '#D4AF37', 
-              fillColor: '#D4AF37', 
+              color: '#3FA97A', 
+              fillColor: '#3FA97A', 
               fillOpacity: 0.16, 
               weight: 2.5, 
               dashArray: '8, 8' 
@@ -9181,12 +9174,12 @@ function MapTracker() {
                   {user?.role === 'mailman' ? (
                     <button
                       onClick={() => claimLetter(letter)}
-                      className="mt-2.5 w-full py-1.5 px-3 bg-[#7A1E2E] hover:bg-[#5C1623] text-white text-xs font-bold rounded shadow transition-colors"
+                      className="mt-2.5 w-full py-1.5 px-3 bg-[#12513A] hover:bg-[#0C3A2A] text-white text-xs font-bold rounded shadow transition-colors"
                     >
                       Claim this Letter
                     </button>
                   ) : (
-                    <p className="text-[11px] italic mt-2 bg-[#FAF0E6] p-1 rounded border border-[#D8CCA8] text-center">
+                    <p className="text-[11px] italic mt-2 bg-[#101413] text-[#C7EFDA] p-1 rounded border border-[#3FA97A]/35 text-center">
                       Awaiting mailman pickup
                     </p>
                   )}
@@ -9210,7 +9203,7 @@ function MapTracker() {
                       {u.calculatedDist}m away {u.inVicinity ? '🏇' : ''}
                     </span>
                   </div>
-                  <p className="text-xs font-bold capitalize mt-1" style={{ color: u.role === 'mailman' ? '#B45309' : '#047857' }}>
+                  <p className="text-xs font-bold capitalize mt-1" style={{ color: u.role === 'mailman' ? '#2A9268' : '#047857' }}>
                     {u.role === 'mailman' ? '🏇 Royal Mailman' : '📜 Noble Scribe'}
                   </p>
                   {u.role === 'mailman' && <p className="text-xs font-semibold text-gray-700">Rank: {u.rank || 'Mailman'} • {u.xp || 0} XP</p>}
@@ -9248,7 +9241,7 @@ function MapTracker() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <div className="p-4 rounded-sm shadow" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+        <div className="p-4 rounded-sm shadow" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
           <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
             <Scroll className="w-5 h-5 text-[var(--antique-gold)]" /> 
             {lettersInVicinity.length} Letter{lettersInVicinity.length !== 1 ? 's' : ''} in {vicinityRadius}m Radar
@@ -9257,7 +9250,7 @@ function MapTracker() {
             {lettersInVicinity.length > 0 ? 'Click pins upon the map to inspect waiting letters.' : 'No uncollected letters found within this radius.'}
           </p>
         </div>
-        <div className="p-4 rounded-sm shadow flex flex-col justify-between" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+        <div className="p-4 rounded-sm shadow flex flex-col justify-between" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
           <div>
             <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
               <Crown className="w-5 h-5 text-[var(--antique-gold)]" />
@@ -9284,7 +9277,7 @@ function MapTracker() {
             </div>
           )}
         </div>
-        <div className="p-4 rounded-sm shadow flex flex-col justify-between" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(212,175,55,0.25)' }}>
+        <div className="p-4 rounded-sm shadow flex flex-col justify-between" style={{ background: 'rgba(255,253,249,0.04)', border: '1px solid rgba(63, 169, 122,0.25)' }}>
           <div>
             <p className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>
               <Users className="w-5 h-5 text-[var(--antique-gold)]" />
@@ -9315,19 +9308,19 @@ function Gallery({ user }: { user: any }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
-      <div className="bg-[#FAF0E6] p-10 rounded-lg shadow-2xl border border-[#D2B48C]">
-        <h2 className="text-4xl font-bold text-center mb-2 text-[#5C3A21] italic">The Royal Stamp Gallery</h2>
-        <p className="text-center text-[#8B5A2B] italic mb-2">Collect stamps from your travels across the realm.</p>
+      <div className="bg-[#0B0B0A] p-10 rounded-lg shadow-2xl border border-[#3FA97A]/35">
+        <h2 className="text-4xl font-bold text-center mb-2 text-[#E4F2EA] italic">The Royal Stamp Gallery</h2>
+        <p className="text-center text-[#86D3AC] italic mb-2">Collect stamps from your travels across the realm.</p>
         {user?.role !== 'mailman' && (
-          <p className="text-center text-sm mb-8 text-[#5C3A21] font-semibold flex items-center justify-center gap-2">
-            <Award className="w-4 h-4 text-[#8B5A2B]" /> Reputation: {liveUser?.reputationScore ?? 0} • {unlockedCount}/30 stamps unlocked
+          <p className="text-center text-sm mb-8 text-[#E4F2EA] font-semibold flex items-center justify-center gap-2">
+            <Award className="w-4 h-4 text-[#3FA97A]" /> Reputation: {liveUser?.reputationScore ?? 0} • {unlockedCount}/30 stamps unlocked
           </p>
         )}
         {user?.role === 'mailman' && <div className="mb-8" />}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { name: 'Novice Seal', desc: 'First letter sent', emoji: '📜', earned: false },
-            { name: 'Swift Courier', desc: '10 deliveries made', emoji: '🏇', earned: false },
+            { name: 'Swift Postman', desc: '10 deliveries made', emoji: '🏇', earned: false },
             { name: 'Royal Decree', desc: 'Endorsed by the Crown', emoji: '👑', earned: false },
             { name: 'Night Owl', desc: 'Delivery after midnight', emoji: '🦉', earned: false },
             { name: 'Storm Rider', desc: 'Delivered in the rain', emoji: '⚡', earned: false },
@@ -9359,11 +9352,11 @@ function Gallery({ user }: { user: any }) {
           ].map((stamp, i) => {
             const earned = i < unlockedCount;
             return (
-              <motion.div key={i} whileHover={{ scale: 1.05, rotate: 2 }} className={`p-4 rounded-lg border-2 text-center transition-all ${earned ? 'border-[#8B5A2B] bg-[#FDF5E6] shadow-lg' : 'border-[#D2B48C] bg-[#FAF0E6] opacity-50'}`}>
+              <motion.div key={i} whileHover={{ scale: 1.05, rotate: 2 }} className={`p-4 rounded-lg border-2 text-center transition-all ${earned ? 'border-[#3FA97A] bg-[#12513A] shadow-lg' : 'border-[#2A3B33] bg-[#101413] opacity-70'}`}>
                 <span className="text-3xl block mb-2">{stamp.emoji}</span>
-                <p className="font-bold text-[#5C3A21] text-sm leading-tight">{stamp.name}</p>
-                <p className="text-[10px] italic text-[#8B5A2B] mt-1 leading-tight">{stamp.desc}</p>
-                {!earned && <p className="text-[10px] font-bold text-[#D2B48C] mt-2">🔒 LOCKED</p>}
+                <p className={`font-bold text-sm leading-tight ${earned ? 'text-[#E4F2EA]' : 'text-[#9DC4B1]'}`}>{stamp.name}</p>
+                <p className="text-[10px] italic text-[#86D3AC] mt-1 leading-tight">{stamp.desc}</p>
+                {!earned && <p className="text-[10px] font-bold text-[#6E9484] mt-2">🔒 LOCKED</p>}
               </motion.div>
             );
           })}
@@ -9398,20 +9391,20 @@ function ReportModal({ reportedUser, onClose }: { reportedUser: any, onClose: ()
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[9999] p-4">
-      <div className="bg-[#FAF0E6] p-8 rounded-lg max-w-md w-full relative border-4 border-red-800 shadow-2xl">
-        <button onClick={onClose} className="absolute top-2 right-2 text-[#8B5A2B] hover:text-red-700"><X className="w-8 h-8" /></button>
-        <h3 className="text-2xl font-bold text-red-800 mb-2 font-serif flex items-center gap-2"><AlertTriangle className="w-6 h-6"/> Report Transgression</h3>
-        <p className="text-[#5C3A21] font-bold mb-1">
+      <div className="bg-[#0B0B0A] p-8 rounded-lg max-w-md w-full relative border-4 border-red-800 shadow-2xl">
+        <button onClick={onClose} className="absolute top-2 right-2 text-[#86D3AC] hover:text-red-400"><X className="w-8 h-8" /></button>
+        <h3 className="text-2xl font-bold text-red-400 mb-2 font-serif flex items-center gap-2"><AlertTriangle className="w-6 h-6"/> Report Transgression</h3>
+        <p className="text-[#E4F2EA] font-bold mb-1">
           Target: {reportedUser.name || 'Anonymous Author'}
         </p>
         {reportedUser.letterId && (
-          <p className="text-xs italic text-stone-600 mb-4 bg-amber-100/70 p-2 rounded border border-amber-300">
+          <p className="text-xs italic text-[#9DC4B1] mb-4 bg-[#12513A]/50 p-2 rounded border border-[#3FA97A]/40">
             ⚖️ <strong>Tribunal Notice:</strong> Even though this letter is anonymous to other players, the Guild Masters can still identify the author and act on abuse.
           </p>
         )}
         
         {status === 'success' ? (
-          <div className="p-4 bg-green-100 border border-green-400 text-green-800 rounded text-center">
+          <div className="p-4 bg-[#12513A] border border-[#3FA97A] text-[#C7EFDA] rounded text-center">
             <CheckCircle className="w-8 h-8 mx-auto mb-2"/>
             <p className="font-bold">Report Filed Successfully</p>
             <p className="text-sm italic">The Guild Tribunal has received the letter and will unmask & sanction transgressors.</p>
@@ -9422,7 +9415,7 @@ function ReportModal({ reportedUser, onClose }: { reportedUser: any, onClose: ()
               value={reason} 
               onChange={(e) => setReason(e.target.value)} 
               rows={4} 
-              className="w-full bg-[#FDF5E6] border-2 border-[#D2B48C] p-3 rounded focus:outline-none focus:border-red-700 text-sm font-serif resize-none shadow-inner mb-4" 
+              className="w-full bg-[#141210] text-[#E4F2EA] placeholder:text-[#6E9484] border-2 border-[#3FA97A]/40 p-3 rounded focus:outline-none focus:border-red-500 text-sm font-serif resize-none shadow-inner mb-4" 
               placeholder="Detail the offensive content or transgression here..."
             ></textarea>
             {status === 'error' && <p className="text-red-600 font-bold text-sm mb-2">{errorMsg}</p>}
@@ -9608,7 +9601,7 @@ function Fellowship({ user }: { user: any }) {
       {/* Search & Send Friend Request Header Block */}
       <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
         background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-        border: '1px solid rgba(212, 175, 55, 0.35)',
+        border: '1px solid rgba(63, 169, 122, 0.35)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
       }}>
         {/* Top Gold Rule */}
@@ -9616,7 +9609,7 @@ function Fellowship({ user }: { user: any }) {
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-semibold mb-2 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.12)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
               <span>🤝 Holy Alliances</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-bold tracking-wide flex items-center gap-3" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
@@ -9663,7 +9656,7 @@ function Fellowship({ user }: { user: any }) {
         </div>
         
         {error && (
-          <div className="mt-4 p-3 rounded-sm font-bold text-xs sm:text-sm italic flex items-center gap-2 animate-curtain-reveal" style={{ background: 'rgba(107,29,42,0.4)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
+          <div className="mt-4 p-3 rounded-sm font-bold text-xs sm:text-sm italic flex items-center gap-2 animate-curtain-reveal" style={{ background: 'rgba(17, 73, 52,0.4)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.4)' }}>
             <AlertTriangle className="w-4 h-4 flex-shrink-0"/> {error}
           </div>
         )}
@@ -9674,7 +9667,7 @@ function Fellowship({ user }: { user: any }) {
         )}
         
         {/* User's Own ID & QR Code Badge */}
-        <div className="mt-6 pt-6" style={{ borderTop: '1px dashed rgba(212,175,55,0.3)' }}>
+        <div className="mt-6 pt-6" style={{ borderTop: '1px dashed rgba(63, 169, 122,0.3)' }}>
           <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>Your Secret Identification Code:</p>
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="p-3 rounded-sm flex-1 flex justify-between items-center select-all cursor-pointer shadow-inner" style={{ background: '#FFFDF9', border: '1px solid var(--border-subtle)' }}>
@@ -9692,13 +9685,13 @@ function Fellowship({ user }: { user: any }) {
       </div>
 
       {/* Fellowship Navigation Tabs */}
-      <div className="flex gap-2" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+      <div className="flex gap-2" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
         <button
           onClick={() => setActiveTab('friends')}
           className="px-5 py-3 font-bold text-xs sm:text-sm rounded-t-sm transition-all flex items-center gap-2"
           style={{
             fontFamily: "'Cinzel', serif",
-            background: activeTab === 'friends' ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'transparent',
+            background: activeTab === 'friends' ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)' : 'transparent',
             color: activeTab === 'friends' ? '#FFF' : 'var(--gold-muted)',
             border: activeTab === 'friends' ? '1px solid var(--antique-gold)' : '1px solid transparent',
             borderBottom: 'none'
@@ -9713,7 +9706,7 @@ function Fellowship({ user }: { user: any }) {
           className="px-5 py-3 font-bold text-xs sm:text-sm rounded-t-sm transition-all flex items-center gap-2 relative"
           style={{
             fontFamily: "'Cinzel', serif",
-            background: activeTab === 'incoming' ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'transparent',
+            background: activeTab === 'incoming' ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)' : 'transparent',
             color: activeTab === 'incoming' ? '#FFF' : 'var(--gold-muted)',
             border: activeTab === 'incoming' ? '1px solid var(--antique-gold)' : '1px solid transparent',
             borderBottom: 'none'
@@ -9733,7 +9726,7 @@ function Fellowship({ user }: { user: any }) {
           className="px-5 py-3 font-bold text-xs sm:text-sm rounded-t-sm transition-all flex items-center gap-2"
           style={{
             fontFamily: "'Cinzel', serif",
-            background: activeTab === 'outgoing' ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'transparent',
+            background: activeTab === 'outgoing' ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)' : 'transparent',
             color: activeTab === 'outgoing' ? '#FFF' : 'var(--gold-muted)',
             border: activeTab === 'outgoing' ? '1px solid var(--antique-gold)' : '1px solid transparent',
             borderBottom: 'none'
@@ -9748,21 +9741,21 @@ function Fellowship({ user }: { user: any }) {
       {activeTab === 'friends' && (
         <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-          border: '1px solid rgba(212, 175, 55, 0.35)',
+          border: '1px solid rgba(63, 169, 122, 0.35)',
           boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
         }}>
-          <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+          <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
             <div>
               <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Companions in Your Fellowship</h3>
               <p className="text-xs sm:text-sm italic" style={{ color: 'var(--gold-muted)' }}>Mutually bonded travellers of the realm.</p>
             </div>
-            <span className="text-xs font-bold px-3 py-1 rounded-sm" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
+            <span className="text-xs font-bold px-3 py-1 rounded-sm" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(63, 169, 122,0.3)', fontFamily: "'Cinzel', serif" }}>
               {friends.length} {friends.length === 1 ? 'Companion' : 'Companions'}
             </span>
           </div>
           
           {friends.length === 0 ? (
-            <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
+            <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)', color: 'var(--gold-muted)' }}>
               <Users className="w-14 h-14 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }}/>
               <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Your fellowship is currently empty.</p>
               <p className="text-sm mt-1 italic font-serif">
@@ -9772,7 +9765,7 @@ function Fellowship({ user }: { user: any }) {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {friends.map((f: any) => (
-                <div key={f._id} className="theatrical-card p-5 rounded-sm flex flex-col justify-between transition-all" style={{ border: '1px solid rgba(212,175,55,0.25)' }}>
+                <div key={f._id} className="theatrical-card p-5 rounded-sm flex flex-col justify-between transition-all" style={{ border: '1px solid rgba(63, 169, 122,0.25)' }}>
                   <div>
                     <div className="flex items-start justify-between">
                       <h4 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>{f.name}</h4>
@@ -9780,15 +9773,15 @@ function Fellowship({ user }: { user: any }) {
                     </div>
                     <p className="text-xs sm:text-sm italic mb-2" style={{ color: 'var(--gold-muted)' }}>{f.email}</p>
                     <div className="flex flex-wrap gap-2 mb-3">
-                      <span className="text-[11px] px-2.5 py-0.5 rounded-sm font-bold uppercase tracking-wider" style={{ background: 'rgba(212,175,55,0.12)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
+                      <span className="text-[11px] px-2.5 py-0.5 rounded-sm font-bold uppercase tracking-wider" style={{ background: 'rgba(63, 169, 122,0.12)', color: 'var(--antique-gold)', border: '1px solid rgba(63, 169, 122,0.3)', fontFamily: "'Cinzel', serif" }}>
                         {f.role === 'mailman' ? '🏇 Royal Mailman' : '📜 Scribe'}
                       </span>
                       {f.role === 'mailman' ? (
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-sm font-bold" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--parchment-light)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-sm font-bold" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--parchment-light)', border: '1px solid rgba(63, 169, 122,0.3)', fontFamily: "'Cinzel', serif" }}>
                           Rank: {f.rank || 'Novice'} • {f.xp || 0} XP
                         </span>
                       ) : (
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-sm font-bold flex items-center gap-1" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--parchment-light)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-sm font-bold flex items-center gap-1" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--parchment-light)', border: '1px solid rgba(63, 169, 122,0.3)', fontFamily: "'Cinzel', serif" }}>
                           <Award className="w-3 h-3 text-[var(--antique-gold)]"/> Rep: {f.reputationScore || 0}
                         </span>
                       )}
@@ -9801,7 +9794,7 @@ function Fellowship({ user }: { user: any }) {
                     )}
                   </div>
                   
-                  <div className="flex gap-2 mt-auto pt-3" style={{ borderTop: '1px solid rgba(212,175,55,0.2)' }}>
+                  <div className="flex gap-2 mt-auto pt-3" style={{ borderTop: '1px solid rgba(63, 169, 122,0.2)' }}>
                     <Link 
                       to="/compose" 
                       state={{ draft: { receiverRef: f.name } }} 
@@ -9840,10 +9833,10 @@ function Fellowship({ user }: { user: any }) {
       {activeTab === 'incoming' && (
         <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-          border: '1px solid rgba(212, 175, 55, 0.35)',
+          border: '1px solid rgba(63, 169, 122, 0.35)',
           boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
         }}>
-          <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+          <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
             <div>
               <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Friend Requests Received</h3>
               <p className="text-xs sm:text-sm italic" style={{ color: 'var(--gold-muted)' }}>Travellers seeking to forge a bond with you.</p>
@@ -9854,7 +9847,7 @@ function Fellowship({ user }: { user: any }) {
           </div>
 
           {incomingRequests.length === 0 ? (
-            <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
+            <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)', color: 'var(--gold-muted)' }}>
               <UserCheck className="w-14 h-14 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }}/>
               <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No incoming friend requests at this time.</p>
               <p className="text-sm mt-1 italic font-serif">
@@ -9867,11 +9860,11 @@ function Fellowship({ user }: { user: any }) {
                 const sender = req.from;
                 if (!sender) return null;
                 return (
-                  <div key={sender._id} className="theatrical-card p-5 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" style={{ border: '1px solid rgba(212,175,55,0.25)' }}>
+                  <div key={sender._id} className="theatrical-card p-5 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" style={{ border: '1px solid rgba(63, 169, 122,0.25)' }}>
                     <div>
                       <div className="flex items-center gap-2">
                         <h4 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>{sender.name}</h4>
-                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
+                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(63, 169, 122,0.3)', fontFamily: "'Cinzel', serif" }}>
                           {sender.role}
                         </span>
                       </div>
@@ -9912,21 +9905,21 @@ function Fellowship({ user }: { user: any }) {
       {activeTab === 'outgoing' && (
         <div className="theatrical-card p-6 sm:p-10 relative overflow-hidden" style={{
           background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
-          border: '1px solid rgba(212, 175, 55, 0.35)',
+          border: '1px solid rgba(63, 169, 122, 0.35)',
           boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
         }}>
-          <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+          <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
             <div>
               <h3 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>Friend Requests You Sent</h3>
               <p className="text-xs sm:text-sm italic" style={{ color: 'var(--gold-muted)' }}>Requests you have dispatched awaiting a response.</p>
             </div>
-            <span className="text-xs font-bold px-3 py-1 rounded-sm" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
+            <span className="text-xs font-bold px-3 py-1 rounded-sm" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(63, 169, 122,0.3)', fontFamily: "'Cinzel', serif" }}>
               {outgoingRequests.length} Pending
             </span>
           </div>
 
           {outgoingRequests.length === 0 ? (
-            <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(212,175,55,0.3)', color: 'var(--gold-muted)' }}>
+            <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(255,253,249,0.03)', border: '1px dashed rgba(63, 169, 122,0.3)', color: 'var(--gold-muted)' }}>
               <Clock className="w-14 h-14 mx-auto mb-3 opacity-60" style={{ color: 'var(--antique-gold)' }}/>
               <p className="text-lg font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>No outgoing requests pending.</p>
               <p className="text-sm mt-1 italic font-serif">
@@ -9939,11 +9932,11 @@ function Fellowship({ user }: { user: any }) {
                 const target = req.to;
                 if (!target) return null;
                 return (
-                  <div key={target._id} className="theatrical-card p-5 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" style={{ border: '1px solid rgba(212,175,55,0.25)' }}>
+                  <div key={target._id} className="theatrical-card p-5 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" style={{ border: '1px solid rgba(63, 169, 122,0.25)' }}>
                     <div>
                       <div className="flex items-center gap-2">
                         <h4 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>{target.name}</h4>
-                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)', fontFamily: "'Cinzel', serif" }}>
+                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm" style={{ background: 'rgba(63, 169, 122,0.15)', color: 'var(--antique-gold)', border: '1px solid rgba(63, 169, 122,0.3)', fontFamily: "'Cinzel', serif" }}>
                           {target.role}
                         </span>
                       </div>
@@ -9980,7 +9973,7 @@ function Fellowship({ user }: { user: any }) {
               <div className="flex justify-center p-4 bg-white rounded-sm mb-4 inline-block shadow-inner" style={{ border: '2px solid var(--antique-gold)' }}>
                 <QRCodeCanvas value={user.id || user._id} size={200} fgColor="#1A1A1A" />
               </div>
-              <p className="font-mono text-xs p-2 rounded-sm break-all" style={{ background: 'rgba(0,0,0,0.6)', color: 'var(--antique-gold)', border: '1px solid rgba(212,175,55,0.3)' }}>
+              <p className="font-mono text-xs p-2 rounded-sm break-all" style={{ background: 'rgba(0,0,0,0.6)', color: 'var(--antique-gold)', border: '1px solid rgba(63, 169, 122,0.3)' }}>
                 {user.id || user._id}
               </p>
             </div>

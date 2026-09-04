@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { apiRequest, getAllReports, updateReportStatus } from './api';
 import { Shield, Megaphone, Users, Mail, Clock, Search, Eye, Flame, X, Feather, Crown, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import royalCrestGold from './assets/royal_crest_gold.jpg';
+import postmeWaxSeal from './assets/postme_wax_seal.png';
 import manuscriptQuillDesk from './assets/manuscript_quill_desk.jpg';
 import CentralHubRegistryModal from './components/CentralHubRegistryModal';
 import LetterEnvelopeWrapper from './components/LetterEnvelopeWrapper';
@@ -189,7 +189,7 @@ export default function AdminDashboard() {
           backgroundImage: `linear-gradient(to right, rgba(14, 13, 12, 0.95) 0%, rgba(20, 15, 12, 0.88) 55%, rgba(14, 13, 12, 0.75) 100%), url(${manuscriptQuillDesk})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          border: '1px solid rgba(212, 175, 55, 0.35)',
+          border: '1px solid rgba(63, 169, 122, 0.35)',
           boxShadow: '0 25px 60px rgba(0,0,0,0.8), inset 0 0 80px rgba(0,0,0,0.7)'
         }}
       >
@@ -199,13 +199,13 @@ export default function AdminDashboard() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-5">
             <img
-              src={royalCrestGold}
-              alt="Postmaster Crest"
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover shadow-2xl border-2 border-[var(--antique-gold)] animate-glow-pulse flex-shrink-0"
-              style={{ boxShadow: '0 0 35px rgba(212, 175, 55, 0.4), 0 0 15px rgba(107, 29, 42, 0.6)' }}
+              src={postmeWaxSeal}
+              alt="PostMe! Wax Seal"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain animate-glow-pulse-soft flex-shrink-0"
+              style={{ filter: 'drop-shadow(0 0 24px rgba(63, 169, 122, 0.4)) drop-shadow(0 8px 18px rgba(0,0,0,0.6))' }}
             />
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-bold" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] font-bold" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.3)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
                 <Shield className="w-3.5 h-3.5 text-amber-300" />
                 <span>Sovereign Realm Tribunal</span>
               </div>
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowHubProofsModal(true)}
-              className="py-2 px-3.5 rounded-sm font-bold text-xs bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#C5A028] text-[#2B1B17] hover:brightness-110 shadow flex items-center gap-1.5 transition-all border border-[#FFE87C]"
+              className="py-2 px-3.5 rounded-sm font-bold text-xs bg-gradient-to-r from-[#3FA97A] via-[#A8E6C8] to-[#1D6B4C] text-[#2B1B17] hover:brightness-110 shadow flex items-center gap-1.5 transition-all border border-[#A8E6C8]"
               title="Central Postal Hub Delivery Proofs Registry"
             >
               <Shield className="w-3.5 h-3.5" />
@@ -247,15 +247,15 @@ export default function AdminDashboard() {
       />
 
       {/* ── HIGH COMMAND TABS ── */}
-      <div className="flex justify-center flex-wrap gap-3 pb-2" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+      <div className="flex justify-center flex-wrap gap-3 pb-2" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.25)' }}>
         <button 
           onClick={() => setActiveTab('overview')} 
           className="px-6 py-3 rounded-t-sm font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
           style={{
             fontFamily: "'Cinzel', serif",
-            background: activeTab === 'overview' ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)' : 'rgba(20, 18, 16, 0.6)',
+            background: activeTab === 'overview' ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)' : 'rgba(20, 18, 16, 0.6)',
             color: activeTab === 'overview' ? '#FFF' : 'var(--gold-muted)',
-            border: activeTab === 'overview' ? '1px solid var(--antique-gold)' : '1px solid rgba(212,175,55,0.2)',
+            border: activeTab === 'overview' ? '1px solid var(--antique-gold)' : '1px solid rgba(63, 169, 122,0.2)',
             borderBottom: 'none'
           }}
         >
@@ -270,7 +270,7 @@ export default function AdminDashboard() {
             fontFamily: "'Cinzel', serif",
             background: activeTab === 'tribunal' ? 'linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%)' : 'rgba(20, 18, 16, 0.6)',
             color: activeTab === 'tribunal' ? '#FFF' : 'var(--gold-muted)',
-            border: activeTab === 'tribunal' ? '1px solid #DC2626' : '1px solid rgba(212,175,55,0.2)',
+            border: activeTab === 'tribunal' ? '1px solid #DC2626' : '1px solid rgba(63, 169, 122,0.2)',
             borderBottom: 'none'
           }}
         >
@@ -290,7 +290,7 @@ export default function AdminDashboard() {
             fontFamily: "'Cinzel', serif",
             background: 'rgba(20, 18, 16, 0.6)',
             color: 'var(--gold-muted)',
-            border: '1px solid rgba(212,175,55,0.2)',
+            border: '1px solid rgba(63, 169, 122,0.2)',
             borderBottom: 'none'
           }}
         >
@@ -306,25 +306,25 @@ export default function AdminDashboard() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
           {/* STATS GRID */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            <div className="theatrical-card p-5 sm:p-6 rounded-sm text-center relative overflow-hidden" style={{ border: '1px solid rgba(212,175,55,0.3)' }}>
+            <div className="theatrical-card p-5 sm:p-6 rounded-sm text-center relative overflow-hidden" style={{ border: '1px solid rgba(63, 169, 122,0.3)' }}>
               <Users className="w-6 h-6 mx-auto mb-2 text-amber-400 opacity-70" />
               <h2 className="text-3xl sm:text-4xl font-bold font-mono text-amber-300 mb-1">{stats?.totalStudents || 0}</h2>
               <p className="text-xs uppercase tracking-wider font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Total Scribes & Citizens</p>
             </div>
             
-            <div className="theatrical-card p-5 sm:p-6 rounded-sm text-center relative overflow-hidden" style={{ border: '1px solid rgba(212,175,55,0.3)' }}>
+            <div className="theatrical-card p-5 sm:p-6 rounded-sm text-center relative overflow-hidden" style={{ border: '1px solid rgba(63, 169, 122,0.3)' }}>
               <Crown className="w-6 h-6 mx-auto mb-2 text-amber-300 opacity-70" />
               <h2 className="text-3xl sm:text-4xl font-bold font-mono text-amber-300 mb-1">{stats?.totalMailmen || 0}</h2>
-              <p className="text-xs uppercase tracking-wider font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Commissioned Couriers</p>
+              <p className="text-xs uppercase tracking-wider font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Commissioned Postmen</p>
             </div>
 
-            <div className="theatrical-card p-5 sm:p-6 rounded-sm text-center relative overflow-hidden" style={{ border: '1px solid rgba(212,175,55,0.3)' }}>
+            <div className="theatrical-card p-5 sm:p-6 rounded-sm text-center relative overflow-hidden" style={{ border: '1px solid rgba(63, 169, 122,0.3)' }}>
               <Mail className="w-6 h-6 mx-auto mb-2 text-emerald-400 opacity-70" />
               <h2 className="text-3xl sm:text-4xl font-bold font-mono text-emerald-300 mb-1">{stats?.totalLetters || 0}</h2>
               <p className="text-xs uppercase tracking-wider font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>Sovereign Epistles</p>
             </div>
 
-            <div className="theatrical-card p-5 sm:p-6 rounded-sm text-center relative overflow-hidden" style={{ border: '1px solid rgba(212,175,55,0.3)' }}>
+            <div className="theatrical-card p-5 sm:p-6 rounded-sm text-center relative overflow-hidden" style={{ border: '1px solid rgba(63, 169, 122,0.3)' }}>
               <Clock className="w-6 h-6 mx-auto mb-2 text-yellow-400 opacity-70 animate-spin" />
               <h2 className="text-3xl sm:text-4xl font-bold font-mono text-yellow-300 mb-1">{stats?.lettersInTransit || 0}</h2>
               <p className="text-xs uppercase tracking-wider font-bold" style={{ color: 'var(--parchment-light)', fontFamily: "'Cinzel', serif" }}>In Saddlebag Transit</p>
@@ -332,8 +332,8 @@ export default function AdminDashboard() {
           </div>
 
           {/* THE OVERSEER'S LOG (LIVE MISSIVE INTERCEPT FEED) */}
-          <div className="theatrical-card p-6 sm:p-8 rounded-sm space-y-6" style={{ border: '1px solid rgba(212,175,55,0.35)' }}>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+          <div className="theatrical-card p-6 sm:p-8 rounded-sm space-y-6" style={{ border: '1px solid rgba(63, 169, 122,0.35)' }}>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
                   The Overseer's Intercept Feed
@@ -362,7 +362,7 @@ export default function AdminDashboard() {
             
             <div className="overflow-x-auto max-h-96 overflow-y-auto rounded-sm border border-stone-800">
               <table className="w-full text-left border-collapse relative">
-                <thead className="sticky top-0 z-10" style={{ background: '#1A1412', borderBottom: '1px solid rgba(212,175,55,0.3)' }}>
+                <thead className="sticky top-0 z-10" style={{ background: '#1A1412', borderBottom: '1px solid rgba(63, 169, 122,0.3)' }}>
                   <tr>
                     <th className="p-3 text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>Timestamp</th>
                     <th className="p-3 text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>Type & Author</th>
@@ -437,14 +437,14 @@ export default function AdminDashboard() {
           </div>
 
           {/* STAFF DIRECTORY & SCRIBE ROLE MANAGER */}
-          <div className="theatrical-card p-6 sm:p-8 rounded-sm space-y-6" style={{ border: '1px solid rgba(212,175,55,0.35)' }}>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+          <div className="theatrical-card p-6 sm:p-8 rounded-sm space-y-6" style={{ border: '1px solid rgba(63, 169, 122,0.35)' }}>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4" style={{ borderBottom: '1px solid rgba(63, 169, 122,0.2)' }}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Cinzel', serif", color: 'var(--parchment-light)' }}>
                   Staff Directory & Role Commission
                 </h2>
                 <p className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-                  Promote citizens to Royal Couriers, reassign to Scribes, or enact decrees of restriction.
+                  Promote citizens to Royal Postmen, reassign to Scribes, or enact decrees of restriction.
                 </p>
               </div>
 
@@ -466,7 +466,7 @@ export default function AdminDashboard() {
                   style={{
                     background: '#1C1915',
                     color: 'var(--antique-gold)',
-                    border: '1px solid rgba(212,175,55,0.4)',
+                    border: '1px solid rgba(63, 169, 122,0.4)',
                     fontFamily: "'Cinzel', serif"
                   }}
                   value={roleFilter}
@@ -474,7 +474,7 @@ export default function AdminDashboard() {
                 >
                   <option value="all">All Realm Citizens</option>
                   <option value="admin">Admins Only</option>
-                  <option value="mailman">Couriers Only</option>
+                  <option value="mailman">Postmen Only</option>
                   <option value="scribe">Scribes Only</option>
                 </select>
               </div>
@@ -482,7 +482,7 @@ export default function AdminDashboard() {
 
             <div className="overflow-x-auto max-h-96 overflow-y-auto rounded-sm border border-stone-800">
               <table className="w-full text-left border-collapse relative">
-                <thead className="sticky top-0 z-10" style={{ background: '#1A1412', borderBottom: '1px solid rgba(212,175,55,0.3)' }}>
+                <thead className="sticky top-0 z-10" style={{ background: '#1A1412', borderBottom: '1px solid rgba(63, 169, 122,0.3)' }}>
                   <tr>
                     <th className="p-3 text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>Citizen Details</th>
                     <th className="p-3 text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>Current Office</th>
@@ -512,7 +512,7 @@ export default function AdminDashboard() {
                             user.role === 'mailman' ? 'bg-yellow-950 text-yellow-300 border border-yellow-600' :
                             'bg-stone-900 text-stone-300 border border-stone-700'
                           }`}>
-                            {user.role === 'admin' ? '👑 Master / Admin' : user.role === 'mailman' ? '🏇 Royal Courier' : '📜 Scribe'}
+                            {user.role === 'admin' ? '👑 Master / Admin' : user.role === 'mailman' ? '🏇 Royal Postman' : '📜 Scribe'}
                           </span>
                         </td>
                         <td className="p-3 flex gap-2 flex-wrap items-center">
@@ -527,7 +527,7 @@ export default function AdminDashboard() {
                                 disabled={user.role === 'mailman' || actionLoading} 
                                 className={`btn-gold-saloon text-xs py-1 px-3 ${user.role === 'mailman' ? 'opacity-40 cursor-not-allowed' : ''}`}
                               >
-                                🏇 Hire Courier
+                                🏇 Hire Postman
                               </button>
                               
                               <button 
@@ -748,7 +748,7 @@ export default function AdminDashboard() {
               style={{
                 background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
                 border: '2px solid var(--antique-gold)',
-                boxShadow: '0 0 50px rgba(212,175,55,0.35)'
+                boxShadow: '0 0 50px rgba(63, 169, 122,0.35)'
               }}
             >
               <div className="flex justify-between items-center pb-2 border-b border-amber-900/30">

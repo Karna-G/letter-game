@@ -86,7 +86,7 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
             Letter Pickup Radius Alerts
           </h3>
           <p className="text-xs md:text-sm italic mt-1" style={{ color: 'var(--gold-muted)' }}>
-            Get a chime and a notification the moment a courier comes within range of you.
+            Get a chime and a notification the moment a postman comes within range of you.
           </p>
         </div>
 
@@ -116,10 +116,10 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
         <div className="flex items-center justify-between p-4 rounded-sm bg-white/[0.03] border border-amber-500/20">
           <div>
             <span className="text-sm font-bold block" style={{ color: 'var(--parchment)', fontFamily: "'Cinzel', serif" }}>
-              Alert me when a courier is nearby
+              Alert me when a postman is nearby
             </span>
             <span className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-              Alert me whenever a courier passes near my location.
+              Alert me whenever a postman passes near my location.
             </span>
           </div>
           <button
@@ -146,7 +146,7 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
                 Alert me within: <span className="text-amber-300 ml-1">{settings.radiusMeters} meters</span>
               </span>
               <span className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-                You will be alerted when a courier comes this close to you.
+                You will be alerted when a postman comes this close to you.
               </span>
             </div>
           </div>
@@ -162,7 +162,7 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
                   fontFamily: "'Cinzel', serif",
                   background: settings.radiusMeters === r ? 'var(--burgundy)' : 'rgba(255,255,255,0.05)',
                   color: settings.radiusMeters === r ? '#FFF' : 'var(--gold-muted)',
-                  border: settings.radiusMeters === r ? '1px solid var(--antique-gold)' : '1px solid rgba(212,175,55,0.25)',
+                  border: settings.radiusMeters === r ? '1px solid var(--antique-gold)' : '1px solid rgba(63, 169, 122,0.25)',
                   transform: settings.radiusMeters === r ? 'scale(1.04)' : 'none',
                   opacity: settings.enabled ? 1 : 0.5
                 }}
@@ -183,7 +183,7 @@ export const PickupAlertSettingsCard: React.FC<PickupAlertSettingsCardProps> = (
                 Postal Bell Fanfare
               </span>
               <span className="text-xs italic" style={{ color: 'var(--gold-muted)' }}>
-                Play a three-note brass chime when a courier arrives.
+                Play a three-note brass chime when a postman arrives.
               </span>
             </div>
             <button

@@ -34,11 +34,11 @@ export interface Particle {
 export function createStoryParticles(count: number = 45): Particle[] {
   const particles: Particle[] = [];
   const colors = [
-    'rgba(212, 175, 55, ', // Gold
-    'rgba(255, 223, 128, ', // Light gold
+    'rgba(63, 169, 122, ', // Emerald
+    'rgba(168, 230, 200, ', // Pale mint
     'rgba(255, 255, 255, ', // Starlight
-    'rgba(245, 158, 11, ', // Amber
-    'rgba(234, 179, 8, '   // Yellow gold
+    'rgba(52, 160, 110, ', // Deep emerald
+    'rgba(92, 191, 143, '   // Mid emerald
   ];
 
   for (let i = 0; i < count; i++) {
@@ -197,7 +197,7 @@ function drawStoryBackground(
     const flicker = Math.sin(timeSec * 4) * 0.03 + Math.cos(timeSec * 7) * 0.02;
     const lightGlow = ctx.createRadialGradient(W / 2, H * 0.42, 20, W / 2, H * 0.42, 550);
     lightGlow.addColorStop(0, `rgba(255, 170, 50, ${0.18 + flicker})`);
-    lightGlow.addColorStop(0.5, `rgba(217, 119, 6, ${0.08 + flicker})`);
+    lightGlow.addColorStop(0.5, `rgba(33, 133, 90, ${0.08 + flicker})`);
     lightGlow.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = lightGlow;
     ctx.fillRect(0, 0, W, H);
@@ -257,7 +257,7 @@ function drawTwinklingStars(ctx: CanvasRenderingContext2D, timeSec: number) {
     const twinkle = Math.sin(timeSec * 3 + s.phase) * 0.4 + 0.6;
     ctx.save();
     ctx.fillStyle = `rgba(255, 230, 160, ${twinkle * 0.8})`;
-    ctx.shadowColor = '#D4AF37';
+    ctx.shadowColor = '#3FA97A';
     ctx.shadowBlur = 8;
     ctx.beginPath();
     ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2);
@@ -301,7 +301,7 @@ function drawStoryParticles(ctx: CanvasRenderingContext2D, particles: Particle[]
   ctx.save();
   for (const p of particles) {
     ctx.fillStyle = `${p.color}${p.opacity})`;
-    ctx.shadowColor = '#FFD700';
+    ctx.shadowColor = '#4FD1A0';
     ctx.shadowBlur = 6;
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -319,12 +319,12 @@ function drawRoyalBorder(ctx: CanvasRenderingContext2D, W: number, H: number, _f
 
   ctx.save();
   // Outer fine gold border
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+  ctx.strokeStyle = 'rgba(63, 169, 122, 0.4)';
   ctx.lineWidth = 1.5;
   ctx.strokeRect(margin, margin, W - margin * 2, H - margin * 2);
 
   // Inner decorative border
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.85)';
+  ctx.strokeStyle = 'rgba(63, 169, 122, 0.85)';
   ctx.lineWidth = 2.5;
   ctx.strokeRect(innerMargin, innerMargin, W - innerMargin * 2, H - innerMargin * 2);
 
@@ -342,7 +342,7 @@ function drawRoyalBorder(ctx: CanvasRenderingContext2D, W: number, H: number, _f
     ctx.rotate((c.rot * Math.PI) / 180);
 
     // Gilded corner bracket
-    ctx.strokeStyle = '#D4AF37';
+    ctx.strokeStyle = '#3FA97A';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(0, 35);
@@ -351,7 +351,7 @@ function drawRoyalBorder(ctx: CanvasRenderingContext2D, W: number, H: number, _f
     ctx.stroke();
 
     // Corner dot
-    ctx.fillStyle = '#FFE082';
+    ctx.fillStyle = '#A8E6C8';
     ctx.beginPath();
     ctx.arc(14, 14, 3.5, 0, Math.PI * 2);
     ctx.fill();
@@ -375,13 +375,13 @@ function drawHeaderBanner(ctx: CanvasRenderingContext2D, W: number, _H: number, 
 
   // Glowing crown icon
   ctx.font = '40px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
-  ctx.shadowColor = '#D4AF37';
+  ctx.shadowColor = '#3FA97A';
   ctx.shadowBlur = 15;
   ctx.fillText('👑', W / 2, crestY - 20);
 
   // Main Header Text
   ctx.shadowBlur = 0;
-  ctx.fillStyle = '#D4AF37';
+  ctx.fillStyle = '#3FA97A';
   ctx.font = '600 24px "Cinzel", Georgia, serif';
   ctx.letterSpacing = '8px';
   ctx.fillText('THE ROYAL POSTAL GUILD', W / 2, crestY + 32);
@@ -396,9 +396,9 @@ function drawHeaderBanner(ctx: CanvasRenderingContext2D, W: number, _H: number, 
   const lineY = crestY + 95;
   const lineW = 320;
   const gradLine = ctx.createLinearGradient(W / 2 - lineW / 2, lineY, W / 2 + lineW / 2, lineY);
-  gradLine.addColorStop(0, 'rgba(212, 175, 55, 0)');
-  gradLine.addColorStop(0.5, 'rgba(212, 175, 55, 0.9)');
-  gradLine.addColorStop(1, 'rgba(212, 175, 55, 0)');
+  gradLine.addColorStop(0, 'rgba(63, 169, 122, 0)');
+  gradLine.addColorStop(0.5, 'rgba(63, 169, 122, 0.9)');
+  gradLine.addColorStop(1, 'rgba(63, 169, 122, 0)');
   ctx.strokeStyle = gradLine;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -407,7 +407,7 @@ function drawHeaderBanner(ctx: CanvasRenderingContext2D, W: number, _H: number, 
   ctx.stroke();
 
   // Diamond
-  ctx.fillStyle = '#FFE082';
+  ctx.fillStyle = '#A8E6C8';
   ctx.beginPath();
   ctx.moveTo(W / 2, lineY - 4);
   ctx.lineTo(W / 2 + 4, lineY);
@@ -440,14 +440,14 @@ function drawMissiveHeaderInfo(ctx: CanvasRenderingContext2D, config: StoryTease
 
   ctx.fillStyle = '#FFF8E7';
   ctx.font = 'bold 36px "Cinzel Decorative", "Cinzel", Georgia, serif';
-  ctx.shadowColor = '#D4AF37';
+  ctx.shadowColor = '#3FA97A';
   ctx.shadowBlur = 12;
   ctx.letterSpacing = '2px';
   ctx.fillText(recipient, W / 2, startY + 48);
 
-  // Sender / Courier Attribution (Delivered By)
+  // Sender / Postman Attribution (Delivered By)
   ctx.shadowBlur = 0;
-  ctx.fillStyle = '#FFE082';
+  ctx.fillStyle = '#A8E6C8';
   ctx.font = 'italic 26px "Great Vibes", "Alex Brush", "Dancing Script", cursive, serif';
   ctx.letterSpacing = '1px';
 
@@ -562,7 +562,7 @@ function drawSealedEnvelope(
   ctx.restore();
 
   // Flap Gold Filigree Border
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.55)';
+  ctx.strokeStyle = 'rgba(63, 169, 122, 0.55)';
   ctx.lineWidth = 1.8;
   ctx.beginPath();
   ctx.moveTo(envX + 25, envY + 6);
@@ -575,9 +575,9 @@ function drawSealedEnvelope(
   ctx.save();
   const ribbonY = envY + flapH - 20;
   const ribbonGrad = ctx.createLinearGradient(envX, ribbonY, envX + envW, ribbonY);
-  ribbonGrad.addColorStop(0, 'rgba(212, 175, 55, 0.2)');
-  ribbonGrad.addColorStop(0.5, 'rgba(212, 175, 55, 0.85)');
-  ribbonGrad.addColorStop(1, 'rgba(212, 175, 55, 0.2)');
+  ribbonGrad.addColorStop(0, 'rgba(63, 169, 122, 0.2)');
+  ribbonGrad.addColorStop(0.5, 'rgba(63, 169, 122, 0.85)');
+  ribbonGrad.addColorStop(1, 'rgba(63, 169, 122, 0.2)');
   ctx.strokeStyle = ribbonGrad;
   ctx.lineWidth = 4;
   ctx.beginPath();
@@ -729,7 +729,7 @@ function drawCountdownTimer(
 
   // Title: "CONFIDENTIAL MISSIVE UNLOCKS IN"
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#D4AF37';
+  ctx.fillStyle = '#3FA97A';
   ctx.font = '600 20px "Cinzel", serif';
   ctx.letterSpacing = '6px';
   ctx.fillText(countdown.isUnlocked ? 'MISSIVE UNLOCKED & READY' : 'MISSIVE UNLOCKS / ARRIVES IN', W / 2, startY);
@@ -784,12 +784,12 @@ function drawCountdownTimer(
     ctx.shadowOffsetY = 0;
 
     // Gold Beveled Border
-    ctx.strokeStyle = 'rgba(212, 175, 55, 0.65)';
+    ctx.strokeStyle = 'rgba(63, 169, 122, 0.65)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
     // Center horizontal flip divider line
-    ctx.strokeStyle = 'rgba(212, 175, 55, 0.2)';
+    ctx.strokeStyle = 'rgba(63, 169, 122, 0.2)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(curX + 6, boxY + boxH / 2 - 10);
@@ -799,20 +799,20 @@ function drawCountdownTimer(
     // Numerical Digit
     ctx.fillStyle = '#FFF8E7';
     ctx.font = 'bold 56px "Cinzel Decorative", "Cinzel", "Special Elite", monospace';
-    ctx.shadowColor = '#D4AF37';
+    ctx.shadowColor = '#3FA97A';
     ctx.shadowBlur = 8;
     ctx.fillText(u.value, curX + boxW / 2, boxY + 68);
 
     // Unit Sublabel
     ctx.shadowBlur = 0;
-    ctx.fillStyle = 'rgba(212, 175, 55, 0.85)';
+    ctx.fillStyle = 'rgba(63, 169, 122, 0.85)';
     ctx.font = '600 13px "Cinzel", sans-serif';
     ctx.letterSpacing = '2px';
     ctx.fillText(u.label, curX + boxW / 2, boxY + 124);
 
     // Colon Separator between boxes (except last)
     if (i < units.length - 1) {
-      ctx.fillStyle = 'rgba(212, 175, 55, 0.7)';
+      ctx.fillStyle = 'rgba(63, 169, 122, 0.7)';
       ctx.font = 'bold 36px "Cinzel", serif';
       ctx.fillText(':', curX + boxW + gap / 2, boxY + 64);
     }
@@ -832,7 +832,7 @@ function drawMysteryClue(ctx: CanvasRenderingContext2D, clue: string, W: number,
 
   // Clue Scroll Box
   ctx.fillStyle = 'rgba(26, 17, 9, 0.75)';
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+  ctx.strokeStyle = 'rgba(63, 169, 122, 0.4)';
   ctx.lineWidth = 1.5;
 
   const cr = 12;
@@ -852,7 +852,7 @@ function drawMysteryClue(ctx: CanvasRenderingContext2D, clue: string, W: number,
 
   // Scroll Icon & Label
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#D4AF37';
+  ctx.fillStyle = '#3FA97A';
   ctx.font = '600 14px "Cinzel", serif';
   ctx.letterSpacing = '4px';
   ctx.fillText('📜 SEALED CLUE / HINT', W / 2, clueY + 28);
@@ -890,7 +890,7 @@ function drawQrSticker(
   ctx.shadowOffsetY = 8;
 
   ctx.fillStyle = '#FAF0E6';
-  ctx.strokeStyle = '#D4AF37';
+  ctx.strokeStyle = '#3FA97A';
   ctx.lineWidth = 3;
 
   const r = 16;
@@ -920,7 +920,7 @@ function drawQrSticker(
 
   // Tracking Pill Below QR
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#FFE082';
+  ctx.fillStyle = '#A8E6C8';
   ctx.font = '600 15px "Cinzel", serif';
   ctx.letterSpacing = '3px';
   ctx.fillText('📷 SCAN TO UNLOCK & TRACK COURIER', W / 2, stickerY + size + 52);
@@ -940,10 +940,10 @@ function drawFooterWatermark(ctx: CanvasRenderingContext2D, watermark: string, W
   ctx.fillStyle = 'rgba(255, 240, 200, 0.7)';
   ctx.font = 'italic 16px "Fondamento", serif';
   ctx.letterSpacing = '2px';
-  ctx.fillText('✨ Repost to Story • Tag thy Courier • Keep the Mystery ✨', W / 2, footerY - 24);
+  ctx.fillText('✨ Repost to Story • Tag thy Postman • Keep the Mystery ✨', W / 2, footerY - 24);
 
   // App Link / Brand
-  ctx.fillStyle = '#D4AF37';
+  ctx.fillStyle = '#3FA97A';
   ctx.font = '600 18px "Cinzel", serif';
   ctx.letterSpacing = '5px';
   ctx.fillText(watermark.toUpperCase(), W / 2, footerY + 12);

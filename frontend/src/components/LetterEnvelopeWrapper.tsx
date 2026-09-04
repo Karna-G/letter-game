@@ -21,13 +21,13 @@ export function FountainPenLogo({ size = 32, className = "" }: { size?: number; 
         <rect x="28" y="8" width="8" height="27" rx="1.5" fill="#583119" stroke="#361B0B" strokeWidth="0.8" />
         <rect x="29.5" y="10" width="1.8" height="23" fill="#874D28" opacity="0.65" rx="0.5" />
         {/* Engraved Brass Band */}
-        <rect x="27.5" y="35" width="9" height="3" rx="0.5" fill="#D4AF37" stroke="#9E7E1D" strokeWidth="0.7" />
+        <rect x="27.5" y="35" width="9" height="3" rx="0.5" fill="#3FA97A" stroke="#9E7E1D" strokeWidth="0.7" />
         {/* Black Ebonite Section */}
         <path d="M28.5 38 L35.5 38 L34.5 46.5 L29.5 46.5 Z" fill="#1C1815" stroke="#0D0B0A" strokeWidth="0.8" />
         {/* Gold Collar */}
-        <rect x="29.5" y="46.5" width="5" height="1.5" fill="#D4AF37" />
+        <rect x="29.5" y="46.5" width="5" height="1.5" fill="#3FA97A" />
         {/* 14k Gold Nib with scrollwork */}
-        <path d="M29.5 48 L32 61.5 L34.5 48 Z" fill="#F3D472" stroke="#B88A1A" strokeWidth="0.8" />
+        <path d="M29.5 48 L32 61.5 L34.5 48 Z" fill="#A8E6C8" stroke="#B88A1A" strokeWidth="0.8" />
         <circle cx="32" cy="54" r="0.75" fill="#3D2010" />
         <line x1="32" y1="48" x2="32" y2="60.5" stroke="#4A2609" strokeWidth="0.6" />
       </g>
@@ -78,7 +78,7 @@ export function TypewriterLogo({ size = 32, className = "" }: { size?: number; c
       <circle cx="40.5" cy="41" r="1.4" fill="#F5EEDB" stroke="#8C7355" strokeWidth="0.5" />
       
       {/* Spacebar */}
-      <rect x="23" y="45" width="18" height="1.8" rx="0.6" fill="#D4AF37" />
+      <rect x="23" y="45" width="18" height="1.8" rx="0.6" fill="#3FA97A" />
     </svg>
   );
 }

@@ -74,7 +74,7 @@ export default function WaxSealRevealModal({
   const sealColor = letter.sealColor || letter.bottleWaxColor || '#DC2626';
   const sealName = letter.sealName || 'Imperial Wax Seal';
   const isAnonymous = letter.isAnonymous;
-  const senderName = isAnonymous ? 'An Anonymous Scribe' : (letter.senderRef?.name || letter.senderName || 'A Royal Courier');
+  const senderName = isAnonymous ? 'An Anonymous Scribe' : (letter.senderRef?.name || letter.senderName || 'A Royal Postman');
   const letterFont = letter.font || 'Cinzel';
 
   // Action to Break Seal and Reveal Letter
@@ -177,7 +177,7 @@ export default function WaxSealRevealModal({
                         ? 'radial-gradient(circle at 35% 30%, #3D2D1E 0%, #22180F 60%, #100B06 100%)'
                         : `radial-gradient(circle at 35% 30%, ${sealColor}ee 0%, ${sealColor} 60%, #1a0505 100%)`,
                       boxShadow: isTimeLocked
-                        ? '0 12px 28px rgba(0,0,0,0.7), inset 0 3px 8px rgba(212,175,55,0.4), 0 0 20px rgba(212,175,55,0.3)'
+                        ? '0 12px 28px rgba(0,0,0,0.7), inset 0 3px 8px rgba(63, 169, 122,0.4), 0 0 20px rgba(63, 169, 122,0.3)'
                         : `0 12px 28px rgba(0,0,0,0.7), inset 0 3px 8px rgba(255,255,255,0.6), 0 0 20px ${sealColor}66`
                     }}
                   >
@@ -264,14 +264,14 @@ export default function WaxSealRevealModal({
           >
             {/* Parchment Scroll Container */}
             <div 
-              className="w-full rounded-lg relative overflow-hidden border-2 border-[#D4AF37] shadow-2xl flex flex-col"
+              className="w-full rounded-lg relative overflow-hidden border-2 border-[#3FA97A] shadow-2xl flex flex-col"
               style={{
                 background: 'linear-gradient(135deg, #FBF4E6 0%, #F5E8C9 50%, #EDE0BE 100%)',
                 boxShadow: '0 25px 60px rgba(0,0,0,0.9), inset 0 0 100px rgba(180, 130, 70, 0.25)'
               }}
             >
               {/* Ornate Header Filigree */}
-              <div className="border-b border-[#D4AF37]/40 px-6 py-4 flex items-center justify-between bg-black/5">
+              <div className="border-b border-[#3FA97A]/40 px-6 py-4 flex items-center justify-between bg-black/5">
                 <div className="flex items-center gap-2.5">
                   <div
                     className="w-4 h-4 rounded-full border border-white/60 shadow-sm"
@@ -360,16 +360,16 @@ export default function WaxSealRevealModal({
               </div>
 
               {/* Scroll Bottom Bar */}
-              <div className="border-t border-[#D4AF37]/30 px-6 py-3.5 bg-black/5 flex items-center justify-between">
+              <div className="border-t border-[#3FA97A]/30 px-6 py-3.5 bg-black/5 flex items-center justify-between">
                 <span className="text-[11px] font-serif text-amber-900/70 italic">
                   Sealed with Royal Honor
                 </span>
                 <button
                   type="button"
                   onClick={handleResealAndClose}
-                  className="px-4 py-1.5 rounded bg-[#3D2817] hover:bg-[#2B1B0E] text-[#FAF0E6] text-xs font-serif font-bold tracking-wider shadow border border-[#D4AF37]/50 flex items-center gap-1.5 transition-all"
+                  className="px-4 py-1.5 rounded bg-[#3D2817] hover:bg-[#2B1B0E] text-[#FAF0E6] text-xs font-serif font-bold tracking-wider shadow border border-[#3FA97A]/50 flex items-center gap-1.5 transition-all"
                 >
-                  <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  <Shield className="w-3.5 h-3.5 text-[#3FA97A]" />
                   <span>Reseal & Close</span>
                 </button>
               </div>

@@ -32,12 +32,12 @@ import { notify, confirmAction } from '../components/RealmDialog';
 const BOTTLE_STYLES = [
   { id: 'emerald', name: 'Emerald Sea Glass', class: 'glass-bottle-emerald', color: '#10B981', desc: 'Forged from coastal seaweed and jade sands' },
   { id: 'sapphire', name: 'Sapphire Deep Glass', class: 'glass-bottle-sapphire', color: '#0284C7', desc: 'Resonant with deep oceanic currents' },
-  { id: 'amber', name: 'Amber Solitude', class: 'glass-bottle-amber', color: '#F59E0B', desc: 'Aged resin bottle carrying nostalgic warmth' },
+  { id: 'amber', name: 'Amber Solitude', class: 'glass-bottle-amber', color: '#A9603A', desc: 'Aged resin bottle carrying nostalgic warmth' },
   { id: 'crystal', name: 'Frosted Moon Crystal', class: 'glass-bottle-crystal', color: '#E2E8F0', desc: 'Translucent crystal that gleams beneath starlight' },
 ];
 
 const WAX_SEALS = [
-  { id: 'gold', name: 'Royal Gold', hex: '#D4AF37' },
+  { id: 'gold', name: 'Royal Gold', hex: '#3FA97A' },
   { id: 'crimson', name: 'Imperial Crimson', hex: '#DC2626' },
   { id: 'emerald', name: 'Abyssal Emerald', hex: '#059669' },
   { id: 'azure', name: 'Celestial Azure', hex: '#2563EB' },
@@ -1121,7 +1121,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
 
                 <div className="realistic-bottle-wrap mx-auto">
                   <div className="realistic-cork">
-                    <div className="realistic-wax-seal" style={{ background: WAX_SEALS.find(w => w.id === uncorkingBottle.bottleWaxColor)?.hex || '#D4AF37' }}>
+                    <div className="realistic-wax-seal" style={{ background: WAX_SEALS.find(w => w.id === uncorkingBottle.bottleWaxColor)?.hex || '#3FA97A' }}>
                       <span className="text-[8px] font-bold text-white">✦</span>
                     </div>
                   </div>
@@ -1273,7 +1273,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
             exit={{ opacity: 0 }} 
             className="fixed inset-0 bg-black/80 flex items-center justify-center z-[99999] p-4"
           >
-            <div className="bg-[#FAF0E6] p-8 rounded-lg max-w-md w-full relative border-4 border-red-800 shadow-2xl">
+            <div className="bg-[#0B0B0A] p-8 rounded-lg max-w-md w-full relative border-4 border-red-800 shadow-2xl">
               <button 
                 onClick={() => setReportingBottle(null)} 
                 className="absolute top-2 right-2 text-[#8B5A2B] hover:text-red-700"
@@ -1281,20 +1281,20 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
                 <X className="w-8 h-8" />
               </button>
 
-              <h3 className="text-2xl font-bold text-red-800 mb-2 font-serif flex items-center gap-2">
+              <h3 className="text-2xl font-bold text-red-400 mb-2 font-serif flex items-center gap-2">
                 <AlertTriangle className="w-6 h-6" /> Report Letter
               </h3>
 
-              <p className="text-[#5C3A21] font-bold mb-1">
+              <p className="text-[#E4F2EA] font-bold mb-1">
                 Target: {reportingBottle.name || 'Anonymous Author'}
               </p>
 
-              <p className="text-xs italic text-stone-600 mb-4 bg-amber-100/70 p-2 rounded border border-amber-300">
+              <p className="text-xs italic text-[#9DC4B1] mb-4 bg-[#12513A]/50 p-2 rounded border border-[#3FA97A]/40">
                 ⚖️ <strong>Tribunal Notice:</strong> Even though this bottle is anonymous to other players, the Guild Masters can still identify the author and act on abuse.
               </p>
 
               {reportStatus === 'success' ? (
-                <div className="p-4 bg-green-100 border border-green-400 text-green-800 rounded text-center">
+                <div className="p-4 bg-[#12513A] border border-[#3FA97A] text-[#C7EFDA] rounded text-center">
                   <CheckCircle className="w-8 h-8 mx-auto mb-2" />
                   <p className="font-bold">Report Filed Successfully</p>
                   <p className="text-sm italic">The Guild Tribunal will unmask and review the transgressor.</p>
@@ -1305,7 +1305,7 @@ export default function BottleOceanPage({ user }: BottleOceanPageProps) {
                     value={reportReason}
                     onChange={(e) => setReportReason(e.target.value)}
                     rows={4}
-                    className="w-full bg-[#FDF5E6] border-2 border-[#D2B48C] p-3 rounded focus:outline-none focus:border-red-700 text-sm font-serif resize-none shadow-inner mb-4"
+                    className="w-full bg-[#141210] text-[#E4F2EA] placeholder:text-[#6E9484] border-2 border-[#3FA97A]/40 p-3 rounded focus:outline-none focus:border-red-500 text-sm font-serif resize-none shadow-inner mb-4"
                     placeholder="Detail the abusive or offensive content here..."
                   />
 

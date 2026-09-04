@@ -109,9 +109,9 @@ io.on('connection', (socket) => {
         socketId: socket.id,
         userId: userId,
         _id: userId,
-        name: userDoc.name || data.name || 'Courier',
+        name: userDoc.name || data.name || 'Postman',
         role: userDoc.role || data.role || 'sender',
-        rank: userDoc.rank || 'Royal Courier',
+        rank: userDoc.rank || 'Royal Postman',
         xp: userDoc.xp || 0,
         reputationScore: userDoc.reputationScore || 0,
         lat: userLat,
@@ -178,7 +178,7 @@ io.on('connection', (socket) => {
     // 2. Broadcast this new user instantly to everyone else on the map
     socket.broadcast.emit('user-joined-map', userPayload);
 
-    // 3. Evaluate real-time courier pickup proximity
+    // 3. Evaluate real-time postman pickup proximity
     evaluateProximity(userId, data.lat, data.lng, userPayload.role, io, activeMapUsers, userSocketMap);
   });
 
@@ -236,7 +236,7 @@ io.on('connection', (socket) => {
       });
     } catch (e) {}
 
-    // Evaluate real-time courier pickup proximity
+    // Evaluate real-time postman pickup proximity
     evaluateProximity(userId, data.lat, data.lng, role, io, activeMapUsers, userSocketMap);
   });
 
@@ -274,7 +274,7 @@ io.on('connection', (socket) => {
         letterRecipient: letterInfo?.receiverRef?.name || 'Intended Recipient',
         letterContentSnippet: letterInfo?.content ? (letterInfo.content.slice(0, 75) + '...') : 'Sealed Royal Missive',
         distanceMeters: typeof data.distanceMeters === 'number' ? data.distanceMeters : 0,
-        message: data.message || `Noble Courier, please accept custody of my sealed missive.`,
+        message: data.message || `Noble Postman, please accept custody of my sealed missive.`,
         timestamp: new Date().toISOString()
       };
 
@@ -630,4 +630,4 @@ function gracefulShutdown(signal) {
 
 process.once('SIGUSR2', () => gracefulShutdown('SIGUSR2'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

@@ -55,7 +55,7 @@ export default function PhantomGazettePopup() {
             onClick={handleOpenNoticeBoard}
             whileHover={{ scale: 1.1, rotate: -3 }}
             whileTap={{ scale: 0.94 }}
-            className="relative p-3.5 sm:px-4 sm:py-3 rounded-full shadow-2xl flex items-center gap-2 bg-gradient-to-br from-amber-900 via-stone-900 to-amber-950 border-2 border-amber-400 text-amber-200 animate-glow-pulse shadow-[0_0_30px_rgba(245,158,11,0.7)] cursor-pointer"
+            className="relative p-3.5 sm:px-4 sm:py-3 rounded-full shadow-2xl flex items-center gap-2 bg-gradient-to-br from-amber-900 via-stone-900 to-amber-950 border-2 border-amber-400 text-amber-200 animate-glow-pulse shadow-[0_0_30px_rgba(52, 160, 110,0.7)] cursor-pointer"
             title="A new proclamation has arrived upon the Notice Board!"
           >
             <Megaphone className="w-5 h-5 text-amber-300" />

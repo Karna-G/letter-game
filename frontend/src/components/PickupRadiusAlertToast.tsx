@@ -85,7 +85,7 @@ export const PickupRadiusAlertToast: React.FC<PickupRadiusAlertToastProps> = ({
           style={{
             background: 'linear-gradient(145deg, #241D17 0%, #161310 100%)',
             border: '2px solid var(--antique-gold)',
-            boxShadow: '0 15px 40px rgba(0,0,0,0.8), 0 0 25px rgba(212,175,55,0.25)'
+            boxShadow: '0 15px 40px rgba(0,0,0,0.8), 0 0 25px rgba(63, 169, 122,0.25)'
           }}
         >
           {/* Top Gold Foil Bar */}
@@ -96,7 +96,7 @@ export const PickupRadiusAlertToast: React.FC<PickupRadiusAlertToastProps> = ({
               left: 0,
               height: '3px',
               width: `${progress}%`,
-              background: 'linear-gradient(to right, #F59E0B, var(--antique-gold), #FDE68A)',
+              background: 'linear-gradient(to right, #34A06E, var(--antique-gold), #B7EBD1)',
               transition: 'width 0.1s linear'
             }} 
           />
@@ -107,7 +107,7 @@ export const PickupRadiusAlertToast: React.FC<PickupRadiusAlertToastProps> = ({
               <div 
                 className="w-10 h-10 rounded-full flex items-center justify-center border shadow-md flex-shrink-0 animate-float-gentle"
                 style={{
-                  background: 'radial-gradient(circle, #54141E 0%, #2A090F 100%)',
+                  background: 'radial-gradient(circle, #0D3826 0%, #05170F 100%)',
                   borderColor: 'var(--antique-gold)'
                 }}
               >
@@ -118,9 +118,9 @@ export const PickupRadiusAlertToast: React.FC<PickupRadiusAlertToastProps> = ({
                   <span 
                     className="text-[10px] uppercase font-bold tracking-[0.2em] px-2 py-0.5 rounded-full"
                     style={{
-                      background: 'rgba(212, 175, 55, 0.15)',
+                      background: 'rgba(63, 169, 122, 0.15)',
                       color: 'var(--antique-gold)',
-                      border: '1px solid rgba(212, 175, 55, 0.3)',
+                      border: '1px solid rgba(63, 169, 122, 0.3)',
                       fontFamily: "'Cinzel', serif"
                     }}
                   >
@@ -166,8 +166,8 @@ export const PickupRadiusAlertToast: React.FC<PickupRadiusAlertToastProps> = ({
               <div 
                 className="mt-2.5 p-2.5 rounded-sm flex items-center justify-between gap-2"
                 style={{
-                  background: 'rgba(212, 175, 55, 0.08)',
-                  border: '1px dashed rgba(212, 175, 55, 0.35)'
+                  background: 'rgba(63, 169, 122, 0.08)',
+                  border: '1px dashed rgba(63, 169, 122, 0.35)'
                 }}
               >
                 <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ export const PickupRadiusAlertToast: React.FC<PickupRadiusAlertToastProps> = ({
               }}
               className="flex-1 py-2 px-3 text-xs font-bold rounded-sm flex items-center justify-center gap-1.5 transition-all text-white"
               style={{
-                background: 'linear-gradient(135deg, #7A1C28 0%, #4D0F18 100%)',
+                background: 'linear-gradient(135deg, #12513A 0%, #08251A 100%)',
                 border: '1px solid var(--antique-gold)',
                 fontFamily: "'Cinzel', serif"
               }}
@@ -207,8 +207,8 @@ export const PickupRadiusAlertToast: React.FC<PickupRadiusAlertToastProps> = ({
                 }}
                 className="py-2 px-3 text-xs font-bold rounded-sm flex items-center justify-center gap-1.5 transition-all"
                 style={{
-                  background: 'rgba(212, 175, 55, 0.15)',
-                  border: '1px solid rgba(212, 175, 55, 0.4)',
+                  background: 'rgba(63, 169, 122, 0.15)',
+                  border: '1px solid rgba(63, 169, 122, 0.4)',
                   color: 'var(--antique-gold)',
                   fontFamily: "'Cinzel', serif"
                 }}

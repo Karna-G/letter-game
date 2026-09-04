@@ -15,7 +15,7 @@ import { notify, confirmAction } from '../components/RealmDialog';
 
 const AVAILABLE_MOODS = [
   { id: 'angry', label: 'Fiery & Indignant', modernLabel: 'Direct & Furious', icon: '⚡', color: '#EF4444' },
-  { id: 'happy', label: 'Exultant & Merry', modernLabel: 'Warm & Celebrating', icon: '☀️', color: '#F59E0B' },
+  { id: 'happy', label: 'Exultant & Merry', modernLabel: 'Warm & Celebrating', icon: '☀️', color: '#34A06E' },
   { id: 'grief', label: 'Elegiac & Sorrowful', modernLabel: 'Vulnerable & Heartbroken', icon: '🌧️', color: '#3B82F6' },
   { id: 'disappointed', label: 'Cold & Disillusioned', modernLabel: 'Cold & Disillusioned', icon: '❄️', color: '#06B6D4' },
   { id: 'mystical', label: 'Quantum Paradox', modernLabel: 'Sci-Fi Quantum Paradox', icon: '🌌', color: '#A855F7' },
@@ -553,7 +553,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
                 <option value="">-- Or compose / paste custom text below --</option>
                 {allUserLetters.map((l) => (
                   <option key={l._id} value={l._id}>
-                    {l.senderRef?.name ? `From: ${l.senderRef.name}` : `To: ${l.receiverRef?.name || 'Courier'}`} • {l.content?.slice(0, 45)}...
+                    {l.senderRef?.name ? `From: ${l.senderRef.name}` : `To: ${l.receiverRef?.name || 'Postman'}`} • {l.content?.slice(0, 45)}...
                   </option>
                 ))}
               </select>
@@ -725,7 +725,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
                     background: isSuperposition 
                       ? 'linear-gradient(145deg, rgba(9,19,31,0.95) 0%, rgba(6,11,18,0.98) 100%)' 
                       : 'linear-gradient(145deg, #1C1915 0%, #12100E 100%)',
-                    border: isSuperposition ? '1px solid rgba(56,189,248,0.6)' : '1px solid rgba(212,175,55,0.35)',
+                    border: isSuperposition ? '1px solid rgba(56,189,248,0.6)' : '1px solid rgba(63, 169, 122,0.35)',
                     boxShadow: isSuperposition ? '0 0 20px rgba(56,189,248,0.2)' : '0 4px 15px rgba(0,0,0,0.5)'
                   }}
                 >
@@ -742,7 +742,7 @@ export default function SchrodingerVaultPage({ user }: { user: any }) {
                           </span>
                         </div>
                         <h4 className="font-bold text-base sm:text-lg mt-1" style={{ color: '#F0F9FF', fontFamily: "'Cinzel', serif" }}>
-                          To: {l.receiverRef?.name || l.receiverRef || 'Open Courier Quest'}
+                          To: {l.receiverRef?.name || l.receiverRef || 'Open Postman Quest'}
                         </h4>
                         <p className="text-[11px] italic" style={{ color: '#94A3B8' }}>
                           Dispatched by: {l.senderRef?.name || 'Your Hand'} • {new Date(l.createdAt).toLocaleDateString()}

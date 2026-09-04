@@ -60,11 +60,11 @@ async function evaluateProximity(userId, lat, lng, role, io, activeMapUsers, use
 
     if (role === 'mailman') {
       // Mailman moved: check all Scribes who have pending letters or alert settings enabled
-      const courier = await User.findById(movingUserId).select('name role rank xp reputationScore location');
-      if (!courier) return;
+      const postman = await User.findById(movingUserId).select('name role rank xp reputationScore location');
+      if (!postman) return;
 
-      const courierLat = (typeof lat === 'number' && lat !== 0) ? lat : (courier.location?.coordinates?.[1] || DEFAULT_REALM_COORDS.lat);
-      const courierLng = (typeof lng === 'number' && lng !== 0) ? lng : (courier.location?.coordinates?.[0] || DEFAULT_REALM_COORDS.lng);
+      const courierLat = (typeof lat === 'number' && lat !== 0) ? lat : (postman.location?.coordinates?.[1] || DEFAULT_REALM_COORDS.lat);
+      const courierLng = (typeof lng === 'number' && lng !== 0) ? lng : (postman.location?.coordinates?.[0] || DEFAULT_REALM_COORDS.lng);
 
       const candidateUserIds = new Set();
       if (activeMapUsers) {
@@ -78,7 +78,7 @@ async function evaluateProximity(userId, lat, lng, role, io, activeMapUsers, use
       }
 
       for (const targetId of candidateUserIds) {
-        await checkPairProximity(targetId, movingUserId, courier, courierLat, courierLng, pendingBySender, activeMapUsers, io, userSocketMap);
+        await checkPairProximity(targetId, movingUserId, postman, courierLat, courierLng, pendingBySender, activeMapUsers, io, userSocketMap);
       }
     } else {
       // Sender/Scribe moved: check nearby Mailmen

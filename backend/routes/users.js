@@ -757,7 +757,7 @@ router.put('/:id/pickup-alert-settings', async (req, res) => {
 
     await user.save();
     res.json({
-      message: 'Perimeter alert settings synchronized with the Royal Courier Guild.',
+      message: 'Perimeter alert settings synchronized with the Royal Postman Guild.',
       pickupAlertSettings: user.pickupAlertSettings
     });
   } catch (err) {

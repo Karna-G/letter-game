@@ -100,9 +100,9 @@ export function confirmAction(options: ConfirmOptions): Promise<boolean> {
 }
 
 const TONE_STYLES: Record<NoticeTone, { icon: typeof CheckCircle; accent: string; glow: string; border: string }> = {
-  success: { icon: CheckCircle,   accent: 'var(--antique-gold)', glow: 'rgba(212,175,55,0.28)', border: 'rgba(212,175,55,0.55)' },
-  error:   { icon: AlertTriangle, accent: '#E8A2A2',             glow: 'rgba(107,29,42,0.42)',  border: 'rgba(190,80,80,0.6)'  },
-  info:    { icon: Info,          accent: 'var(--gold-muted)',   glow: 'rgba(212,175,55,0.18)', border: 'rgba(212,175,55,0.4)' },
+  success: { icon: CheckCircle,   accent: 'var(--antique-gold)', glow: 'rgba(63, 169, 122,0.28)', border: 'rgba(63, 169, 122,0.55)' },
+  error:   { icon: AlertTriangle, accent: '#E8A2A2',             glow: 'rgba(17, 73, 52,0.42)',  border: 'rgba(190,80,80,0.6)'  },
+  info:    { icon: Info,          accent: 'var(--gold-muted)',   glow: 'rgba(63, 169, 122,0.18)', border: 'rgba(63, 169, 122,0.4)' },
 };
 
 // ============================================================
@@ -216,21 +216,21 @@ export default function RealmDialogHost() {
               className="w-full max-w-md rounded-sm overflow-hidden"
               style={{
                 background: 'linear-gradient(180deg, #221D18 0%, #12100E 100%)',
-                border: `1px solid ${isDanger ? 'rgba(190,80,80,0.6)' : 'rgba(212,175,55,0.45)'}`,
+                border: `1px solid ${isDanger ? 'rgba(190,80,80,0.6)' : 'rgba(63, 169, 122,0.45)'}`,
                 boxShadow: isDanger
-                  ? '0 24px 60px rgba(0,0,0,0.85), 0 0 40px rgba(107,29,42,0.4)'
-                  : '0 24px 60px rgba(0,0,0,0.85), 0 0 40px rgba(212,175,55,0.18)',
+                  ? '0 24px 60px rgba(0,0,0,0.85), 0 0 40px rgba(17, 73, 52,0.4)'
+                  : '0 24px 60px rgba(0,0,0,0.85), 0 0 40px rgba(63, 169, 122,0.18)',
               }}
             >
               <div
                 className="px-6 pt-5 pb-4 flex items-center gap-3"
-                style={{ borderBottom: '1px solid rgba(212,175,55,0.22)' }}
+                style={{ borderBottom: '1px solid rgba(63, 169, 122,0.22)' }}
               >
                 <div
                   className="p-2 rounded-full shrink-0"
                   style={{
-                    background: isDanger ? 'rgba(107,29,42,0.3)' : 'rgba(212,175,55,0.15)',
-                    border: `1px solid ${isDanger ? 'rgba(190,80,80,0.5)' : 'rgba(212,175,55,0.4)'}`,
+                    background: isDanger ? 'rgba(17, 73, 52,0.3)' : 'rgba(63, 169, 122,0.15)',
+                    border: `1px solid ${isDanger ? 'rgba(190,80,80,0.5)' : 'rgba(63, 169, 122,0.4)'}`,
                     color: isDanger ? '#E8A2A2' : 'var(--antique-gold)',
                   }}
                 >
@@ -256,7 +256,7 @@ export default function RealmDialogHost() {
 
               <div
                 className="px-6 pb-5 pt-1 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5"
-                style={{ borderTop: '1px solid rgba(212,175,55,0.15)' }}
+                style={{ borderTop: '1px solid rgba(63, 169, 122,0.15)' }}
               >
                 <button
                   onClick={() => settleConfirm(false)}
@@ -264,7 +264,7 @@ export default function RealmDialogHost() {
                   style={{
                     fontFamily: "'Cinzel', serif",
                     background: 'transparent',
-                    border: '1px solid rgba(212,175,55,0.35)',
+                    border: '1px solid rgba(63, 169, 122,0.35)',
                     color: 'var(--parchment-dark)',
                   }}
                 >
@@ -277,11 +277,11 @@ export default function RealmDialogHost() {
                   style={{
                     fontFamily: "'Cinzel', serif",
                     background: isDanger
-                      ? 'linear-gradient(135deg, #7A1E2E 0%, #430E17 100%)'
+                      ? 'linear-gradient(135deg, #12513A 0%, #08251A 100%)'
                       : 'linear-gradient(135deg, #6B5420 0%, #3F320F 100%)',
                     border: `1px solid ${isDanger ? 'rgba(190,80,80,0.7)' : 'var(--antique-gold)'}`,
                     color: '#FFF',
-                    boxShadow: isDanger ? '0 0 18px rgba(107,29,42,0.55)' : '0 0 18px rgba(212,175,55,0.25)',
+                    boxShadow: isDanger ? '0 0 18px rgba(17, 73, 52,0.55)' : '0 0 18px rgba(63, 169, 122,0.25)',
                   }}
                 >
                   {confirmRequest.confirmLabel || 'Confirm'}

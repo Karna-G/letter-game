@@ -174,7 +174,7 @@ export default function DybbukSeancePage({ user }: { user: any }) {
           <p className="max-w-2xl mx-auto text-sm sm:text-base italic leading-relaxed" style={{ color: '#E9D5FF' }}>
             {tone === 'modern'
               ? 'Beyond standard messaging lies the Astral Veil—where eerie spectral entities and forgotten authors transmit messages across reality using your history.'
-              : 'Beyond the boundaries of ink and parchment lies the Astral Veil — where departed scribes, phantom couriers, and forgotten alchemists whisper across the centuries.'}
+              : 'Beyond the boundaries of ink and parchment lies the Astral Veil — where departed scribes, phantom postmen, and forgotten alchemists whisper across the centuries.'}
           </p>
 
           {/* 3D Astral Seance Altar & Ethereal Spirit Portal */}

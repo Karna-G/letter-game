@@ -226,10 +226,10 @@ export default function NamelessWordsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative overflow-hidden rounded-2xl p-6 sm:p-10 border-2 border-[#D4AF37]/60 shadow-2xl"
+        className="relative overflow-hidden rounded-2xl p-6 sm:p-10 border-2 border-[#3FA97A]/60 shadow-2xl"
         style={{
           background: 'radial-gradient(ellipse at top, #2C1B18 0%, #15100D 60%, #0D0A08 100%)',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(212,175,55,0.2)'
+          boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(63, 169, 122,0.2)'
         }}
       >
         {/* Subtle Ethereal Particles Background */}
@@ -238,7 +238,7 @@ export default function NamelessWordsPage() {
 
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-3 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs uppercase tracking-[0.25em] font-bold bg-amber-950/90 border border-amber-400/60 text-[#FDE047] shadow-md">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs uppercase tracking-[0.25em] font-bold bg-amber-950/90 border border-amber-400/60 text-[#4FD1A0] shadow-md">
               <span className="animate-pulse">🕯️</span>
               <span>The Sanctuary of Anonymity • 15-Day Ephemeral Parchments</span>
             </div>
@@ -247,15 +247,15 @@ export default function NamelessWordsPage() {
               className="text-3xl sm:text-5xl font-extrabold tracking-wide drop-shadow-[0_4px_15px_rgba(0,0,0,0.95)]"
               style={{ 
                 fontFamily: "'Cinzel Decorative', serif", 
-                color: '#FFE600', 
-                textShadow: '0 0 25px rgba(255, 230, 0, 0.7), 0 4px 15px rgba(0,0,0,0.95)' 
+                color: '#4FD1A0', 
+                textShadow: '0 0 25px rgba(79, 209, 160, 0.7), 0 4px 15px rgba(0,0,0,0.95)' 
               }}
             >
               Nameless Words
             </h1>
 
             <p
-              className="text-sm sm:text-base text-[#FDE047] italic max-w-2xl font-serif leading-relaxed drop-shadow"
+              className="text-sm sm:text-base text-[#4FD1A0] italic max-w-2xl font-serif leading-relaxed drop-shadow"
             >
               “Words with no name and no address, drifting for 15 days before they fade to ash. Read what wandering souls left behind, react with fire or roses, and add a thought of your own — anonymously.”
             </p>
@@ -271,7 +271,7 @@ export default function NamelessWordsPage() {
             {!isAdmin && (
               <Link
                 to="/compose"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#7A1E2E] via-[#8B2535] to-[#B38F26] text-amber-100 border border-amber-400/60 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#0E4230] via-[#3FA97A] to-[#1D6B4C] text-amber-100 border border-amber-400/60 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl flex items-center justify-center gap-2"
                 style={{ fontFamily: "'Cinzel', serif" }}
               >
                 <PenTool className="w-4 h-4 text-amber-300" />
@@ -297,8 +297,8 @@ export default function NamelessWordsPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                   isActive
-                    ? 'bg-gradient-to-r from-[#F59E0B] via-[#D4AF37] to-[#B45309] text-stone-950 font-black shadow-[0_4px_20px_rgba(212,175,55,0.4)] scale-105 border border-amber-300'
-                    : 'bg-[#1F1712] text-[#FDE047] border border-amber-500/40 hover:bg-[#322319] hover:text-[#FFF8E7] hover:border-amber-400 shadow-md'
+                    ? 'bg-gradient-to-r from-[#1D6B4C] via-[#34A06E] to-[#4FD1A0] text-stone-950 font-black shadow-[0_4px_20px_rgba(63, 169, 122,0.4)] scale-105 border border-amber-300'
+                    : 'bg-[#1F1712] text-[#4FD1A0] border border-amber-500/40 hover:bg-[#322319] hover:text-[#FFF8E7] hover:border-amber-400 shadow-md'
                 }`}
                 style={{ fontFamily: "'Cinzel', serif" }}
               >
@@ -325,8 +325,8 @@ export default function NamelessWordsPage() {
       {/* ── FLOATING MISSIVES GRID ── */}
       {loading ? (
         <div className="text-center py-20 space-y-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#D4AF37] mx-auto" />
-          <p className="text-xs uppercase tracking-widest text-[#FDE047] font-serif" style={{ fontFamily: "'Cinzel', serif" }}>
+          <Loader2 className="w-8 h-8 animate-spin text-[#3FA97A] mx-auto" />
+          <p className="text-xs uppercase tracking-widest text-[#4FD1A0] font-serif" style={{ fontFamily: "'Cinzel', serif" }}>
             Summoning nameless scrolls from the ether...
           </p>
         </div>
@@ -335,7 +335,7 @@ export default function NamelessWordsPage() {
           <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-3xl">
             🕯️
           </div>
-          <h3 className="text-xl font-bold text-[#FDE047]" style={{ fontFamily: "'Cinzel', serif" }}>
+          <h3 className="text-xl font-bold text-[#4FD1A0]" style={{ fontFamily: "'Cinzel', serif" }}>
             The Chamber is in Quiet Solitude
           </h3>
           <p className="text-xs italic text-amber-200/90 font-serif max-w-md mx-auto">
@@ -344,10 +344,10 @@ export default function NamelessWordsPage() {
           {!isAdmin && (
             <Link
               to="/compose"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-amber-950/90 border border-amber-400 text-[#FDE047] hover:bg-amber-900 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-amber-950/90 border border-amber-400 text-[#4FD1A0] hover:bg-amber-900 transition-colors"
               style={{ fontFamily: "'Cinzel', serif" }}
             >
-              <Feather className="w-4 h-4 text-[#D4AF37]" />
+              <Feather className="w-4 h-4 text-[#3FA97A]" />
               <span>Pen a Nameless Epistle</span>
             </Link>
           )}
@@ -362,13 +362,13 @@ export default function NamelessWordsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 onClick={() => handleOpenLetter(letter)}
-                className="group relative cursor-pointer bg-gradient-to-b from-[#241A14] to-[#16100C] border-2 border-amber-500/40 hover:border-amber-400 rounded-2xl p-5 sm:p-6 shadow-xl hover:shadow-[0_10px_35px_rgba(212,175,55,0.25)] transition-all flex flex-col justify-between overflow-hidden"
+                className="group relative cursor-pointer bg-gradient-to-b from-[#241A14] to-[#16100C] border-2 border-amber-500/40 hover:border-amber-400 rounded-2xl p-5 sm:p-6 shadow-xl hover:shadow-[0_10px_35px_rgba(63, 169, 122,0.25)] transition-all flex flex-col justify-between overflow-hidden"
               >
                 {/* Top Badge Row */}
                 <div className="flex items-center justify-between gap-2 mb-3">
                   {/* Topic Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-950/90 border border-amber-500/50 text-[11px] font-bold text-[#FDE047] truncate max-w-[180px] font-serif shadow-inner">
-                    <Tag className="w-3 h-3 text-[#D4AF37] flex-shrink-0" />
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-950/90 border border-amber-500/50 text-[11px] font-bold text-[#4FD1A0] truncate max-w-[180px] font-serif shadow-inner">
+                    <Tag className="w-3 h-3 text-[#3FA97A] flex-shrink-0" />
                     <span className="truncate">{letter.topic || 'Whisper of the Realm'}</span>
                   </div>
 
@@ -389,7 +389,7 @@ export default function NamelessWordsPage() {
                         👑 Mine
                       </span>
                     )}
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-black/70 text-[#FDE047] font-mono border border-amber-500/30 flex items-center gap-1">
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-black/70 text-[#4FD1A0] font-mono border border-amber-500/30 flex items-center gap-1">
                       <Clock className="w-2.5 h-2.5 text-amber-400" />
                       <span>{letter.expiresInDays !== undefined ? `${letter.expiresInDays}d left` : '15d'}</span>
                     </span>
@@ -400,10 +400,10 @@ export default function NamelessWordsPage() {
                   {/* Content Snippet */}
                   {letter.isHandwritten ? (
                     <div className="p-3 rounded-xl bg-[#120E0A] border border-amber-500/30 flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs text-[#FDE047] font-serif">
+                      <div className="flex items-center gap-2 text-xs text-[#4FD1A0] font-serif">
                         <span>✍️ Physical Handwritten Scroll</span>
                       </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-[#FDE047] font-mono font-bold">
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-[#4FD1A0] font-mono font-bold">
                         {letter.handwrittenPages?.length || 1} {letter.handwrittenPages?.length === 1 ? 'Page' : 'Pages'}
                       </span>
                     </div>
@@ -436,11 +436,11 @@ export default function NamelessWordsPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-1 font-serif text-[11px] text-[#FDE047]" title="Anonymous Reflections">
+                    <span className="flex items-center gap-1 font-serif text-[11px] text-[#4FD1A0]" title="Anonymous Reflections">
                       <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
                       <span>{letter.thoughtsCount || letter.thoughts?.length || 0}</span>
                     </span>
-                    <span className="text-[11px] font-bold text-[#FDE047] group-hover:underline font-serif">
+                    <span className="text-[11px] font-bold text-[#4FD1A0] group-hover:underline font-serif">
                       Unroll →
                     </span>
                   </div>
@@ -466,14 +466,14 @@ export default function NamelessWordsPage() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.94, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-3xl w-full my-auto bg-[#18110D] border-2 border-[#D4AF37] rounded-2xl shadow-2xl overflow-hidden relative flex flex-col max-h-[92vh]"
+              className="max-w-3xl w-full my-auto bg-[#18110D] border-2 border-[#3FA97A] rounded-2xl shadow-2xl overflow-hidden relative flex flex-col max-h-[92vh]"
             >
               {/* Modal Top Ribbon */}
               <div className="p-4 sm:p-5 bg-gradient-to-r from-[#2B1B15] to-[#1C120D] border-b border-amber-500/40 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-md border-2 border-amber-400/50"
-                    style={{ backgroundColor: selectedLetter.sealColor || '#7A1E2E' }}
+                    style={{ backgroundColor: selectedLetter.sealColor || '#12513A' }}
                   >
                     {selectedLetter.authorAvatarIcon || '🕯️'}
                   </div>
@@ -488,7 +488,7 @@ export default function NamelessWordsPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-[#FDE047] font-mono">
+                    <p className="text-[11px] text-[#4FD1A0] font-mono">
                       Inscribed {new Date(selectedLetter.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })} • <span className="text-amber-300">⏳ Fades in {selectedLetter.expiresInDays !== undefined ? `${selectedLetter.expiresInDays} days` : '15 days'}</span>
                     </p>
                   </div>
@@ -555,7 +555,7 @@ export default function NamelessWordsPage() {
                 {/* 2. Resonance Reaction Bar (Fire, Rose, Withered, Neutral) */}
                 <div className="p-4 rounded-xl bg-black/70 border border-amber-500/40 flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <span className="text-xs font-bold text-[#FDE047] uppercase tracking-wider font-serif block">
+                    <span className="text-xs font-bold text-[#4FD1A0] uppercase tracking-wider font-serif block">
                       Resonate with this Letter:
                     </span>
                     <span className="text-[10px] text-amber-300/80 font-serif">
@@ -582,10 +582,10 @@ export default function NamelessWordsPage() {
                           title={res.desc}
                           className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed ${
                             isSelected
-                              ? 'bg-gradient-to-r from-[#D4AF37] to-[#E5A93C] text-stone-950 border-amber-300 shadow-[0_0_15px_rgba(212,175,55,0.6)] scale-105'
+                              ? 'bg-gradient-to-r from-[#3FA97A] to-[#3FA97A] text-stone-950 border-amber-300 shadow-[0_0_15px_rgba(63, 169, 122,0.6)] scale-105'
                               : isDisabled
                               ? 'bg-[#1C1510] border-amber-500/20 text-stone-500 opacity-60'
-                              : 'bg-[#2A1F18] border-amber-500/40 text-[#FDE047] hover:border-amber-400 hover:bg-[#382B20] active:scale-95'
+                              : 'bg-[#2A1F18] border-amber-500/40 text-[#4FD1A0] hover:border-amber-400 hover:bg-[#382B20] active:scale-95'
                           }`}
                           style={{ fontFamily: "'Cinzel', serif" }}
                         >
@@ -602,7 +602,7 @@ export default function NamelessWordsPage() {
                   {/* Case A: User is the Author */}
                   {selectedLetter.isMine ? (
                     <div className="p-4 bg-amber-950/60 border border-amber-500/40 rounded-xl text-center space-y-1 font-serif">
-                      <p className="text-xs sm:text-sm font-bold text-[#FDE047]">
+                      <p className="text-xs sm:text-sm font-bold text-[#4FD1A0]">
                         📜 Author's Observation Chamber
                       </p>
                       <p className="text-xs text-amber-200 italic">
@@ -623,8 +623,8 @@ export default function NamelessWordsPage() {
                     /* Case C: User can inscribe their single reflection */
                     <>
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs sm:text-sm font-bold text-[#FDE047] uppercase tracking-wider flex items-center gap-2 font-serif">
-                          <MessageSquare className="w-4 h-4 text-[#D4AF37]" />
+                        <h4 className="text-xs sm:text-sm font-bold text-[#4FD1A0] uppercase tracking-wider flex items-center gap-2 font-serif">
+                          <MessageSquare className="w-4 h-4 text-[#3FA97A]" />
                           <span>Inscribe an Anonymous Thought</span>
                         </h4>
                         <span className="text-[10px] text-amber-300 font-serif italic">
@@ -633,7 +633,7 @@ export default function NamelessWordsPage() {
                       </div>
 
                       <form onSubmit={handlePostThought} className="space-y-3">
-                        <div className="p-2.5 rounded-lg bg-black/60 border border-amber-500/30 text-xs text-[#FDE047] font-serif flex items-center justify-between">
+                        <div className="p-2.5 rounded-lg bg-black/60 border border-amber-500/30 text-xs text-[#4FD1A0] font-serif flex items-center justify-between">
                           <span>We will generate a random pseudonym for you — nobody can trace it back.</span>
                           <span className="text-[11px] font-mono text-amber-300">Randomized Alias</span>
                         </div>
@@ -684,8 +684,8 @@ export default function NamelessWordsPage() {
 
                 {/* 4. Thoughts & Reflections Stream */}
                 <div className="space-y-3 pt-2">
-                  <h4 className="text-xs font-bold text-[#FDE047] uppercase tracking-wider flex items-center gap-2 font-serif">
-                    <MessageSquare className="w-4 h-4 text-[#D4AF37]" />
+                  <h4 className="text-xs font-bold text-[#4FD1A0] uppercase tracking-wider flex items-center gap-2 font-serif">
+                    <MessageSquare className="w-4 h-4 text-[#3FA97A]" />
                     <span>Inscribed Thoughts & Reflections ({selectedLetter.thoughts?.length || 0})</span>
                   </h4>
 
@@ -703,7 +703,7 @@ export default function NamelessWordsPage() {
                           className="p-3.5 rounded-xl bg-gradient-to-r from-[#201610] to-[#17100C] border border-amber-500/30 space-y-1.5"
                         >
                           <div className="flex items-center justify-between text-xs">
-                            <span className="font-bold text-[#FDE047] font-serif flex items-center gap-1.5">
+                            <span className="font-bold text-[#4FD1A0] font-serif flex items-center gap-1.5">
                               <span>{thought.resonanceBadge || '🕯️'}</span>
                               <span>{thought.authorAlias || 'A Wandering Soul'}</span>
                             </span>

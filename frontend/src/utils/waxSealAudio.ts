@@ -275,7 +275,7 @@ class WaxSealAudioEngine {
       snapOsc.start(now + 0.04);
       snapOsc.stop(now + 0.11);
 
-      // 3. Warm Royal Courier Dispatch Fanfare Chime (Soft mellow octave triad: C4, E4, G4, C5)
+      // 3. Warm Royal Postman Dispatch Fanfare Chime (Soft mellow octave triad: C4, E4, G4, C5)
       const notes = [261.63, 329.63, 392.00, 523.25];
       notes.forEach((freq, i) => {
         const osc = ctx.createOscillator();
@@ -783,7 +783,7 @@ class WaxSealAudioEngine {
   }
 
   /**
-   * Royal Postal Bell & Horn Chime: Warm, comforting Victorian courier proximity chime
+   * Royal Postal Bell & Horn Chime: Warm, comforting Victorian postman proximity chime
    */
   public playCourierProximityChime(): void {
     try {
@@ -818,7 +818,7 @@ class WaxSealAudioEngine {
         osc.stop(t + note.dur + 0.05);
       });
     } catch (e) {
-      console.warn('Courier proximity chime error:', e);
+      console.warn('Postman proximity chime error:', e);
     }
   }
 }

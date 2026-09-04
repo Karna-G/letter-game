@@ -60,8 +60,8 @@ const THEMES = [
 
 const SEAL_COLORS = [
   { id: '#DC2626', name: 'Imperial Crimson', bg: '#DC2626' },
-  { id: '#D4AF37', name: 'Royal Gold', bg: '#D4AF37' },
-  { id: '#059669', name: 'Courier Emerald', bg: '#059669' },
+  { id: '#3FA97A', name: 'Royal Gold', bg: '#3FA97A' },
+  { id: '#059669', name: 'Postman Emerald', bg: '#059669' },
   { id: '#2563EB', name: 'Sapphire Nocturne', bg: '#2563EB' },
   { id: '#9333EA', name: 'Mystic Amethyst', bg: '#9333EA' },
   { id: '#1E1B18', name: 'Obsidian Shadow', bg: '#1E1B18' },
@@ -153,7 +153,7 @@ export default function SocialTeaserModal({
       setDispatchedCopied(false);
       if (letter) {
         setRecipientName(letter.receiverRef?.name || letter.receiverName || (typeof letter.receiverRef === 'string' ? letter.receiverRef : '') || 'Noble Scribe');
-        setSenderName(letter.senderRef?.name || letter.senderName || 'Royal Courier');
+        setSenderName(letter.senderRef?.name || letter.senderName || 'Royal Postman');
         if (letter.isAnonymous) setIsAnonymousSender(true);
         if (letter.scheduledFor) {
           const sched = new Date(letter.scheduledFor);
@@ -169,7 +169,7 @@ export default function SocialTeaserModal({
         if (letter.sealStamp) setSealIcon(letter.sealStamp);
       } else {
         setRecipientName('Lady Genevieve');
-        setSenderName('Royal Courier');
+        setSenderName('Royal Postman');
         setTargetDate(formatLocalDateTime(new Date(Date.now() + 60 * 60 * 1000)));
       }
     }
@@ -504,15 +504,15 @@ export default function SocialTeaserModal({
           initial={{ scale: 0.9, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.9, y: 20 }}
-          className="relative w-full max-w-5xl bg-[#17120E] border-2 border-[#D4AF37]/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[95vh]"
+          className="relative w-full max-w-5xl bg-[#17120E] border-2 border-[#3FA97A]/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[95vh]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(212,175,55,0.12) 0%, transparent 70%)'
+            backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(63, 169, 122,0.12) 0%, transparent 70%)'
           }}
         >
           {/* Header Bar */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#D4AF37]/30 bg-[#1E1712]">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#3FA97A]/30 bg-[#1E1712]">
             <div className="flex items-center gap-3">
-              <span className="text-2xl p-2 bg-[#2D2119] border border-[#D4AF37]/40 rounded-xl shadow-inner">
+              <span className="text-2xl p-2 bg-[#2D2119] border border-[#3FA97A]/40 rounded-xl shadow-inner">
                 ✨
               </span>
               <div>
@@ -521,7 +521,7 @@ export default function SocialTeaserModal({
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
                   Sealed Letter Story Herald
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 font-sans uppercase">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#3FA97A]/20 text-[#3FA97A] border border-[#3FA97A]/40 font-sans uppercase">
                     9:16 Royal Story
                   </span>
                 </h2>
@@ -549,9 +549,9 @@ export default function SocialTeaserModal({
               <div className="relative group">
                 {/* 9:16 Phone Frame */}
                 <div
-                  className="relative rounded-[28px] p-2 sm:p-2.5 bg-gradient-to-b from-[#3D2D1E] via-[#2A1F14] to-[#1A120B] border-2 border-[#D4AF37]/60 shadow-2xl"
+                  className="relative rounded-[28px] p-2 sm:p-2.5 bg-gradient-to-b from-[#3D2D1E] via-[#2A1F14] to-[#1A120B] border-2 border-[#3FA97A]/60 shadow-2xl"
                   style={{
-                    boxShadow: '0 0 35px rgba(212,175,55,0.25), inset 0 0 15px rgba(0,0,0,0.8)'
+                    boxShadow: '0 0 35px rgba(63, 169, 122,0.25), inset 0 0 15px rgba(0,0,0,0.8)'
                   }}
                 >
                   {/* Phone Notch */}
@@ -569,14 +569,14 @@ export default function SocialTeaserModal({
                   />
 
                   {/* Overlay Badges on Hover */}
-                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#D4AF37]/40 text-[11px] text-[#FAF0E6] whitespace-nowrap">
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#3FA97A]/40 text-[11px] text-[#FAF0E6] whitespace-nowrap">
                     🔴 Live 60 FPS Preview
                   </div>
                 </div>
 
                 {/* Quick Info Below Phone */}
                 <p className="text-center text-xs text-[#D2B48C]/70 mt-3 font-serif flex items-center justify-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#3FA97A]" />
                   1080 × 1920 HD Vertical Format • Real Scannable QR
                 </p>
               </div>
@@ -585,7 +585,7 @@ export default function SocialTeaserModal({
             {/* RIGHT COLUMN: Customization Controls & Export Actions (7 cols) */}
             <div className="lg:col-span-7 flex flex-col justify-between space-y-5">
               {/* Tabs Navigation */}
-              <div className="flex border-b border-[#D4AF37]/30 bg-[#211912] rounded-xl p-1 gap-1">
+              <div className="flex border-b border-[#3FA97A]/30 bg-[#211912] rounded-xl p-1 gap-1">
                 {[
                   { id: 'theme', label: 'Theme & Mood', icon: Palette },
                   { id: 'envelope', label: 'Wax Seal', icon: Shield },
@@ -603,7 +603,7 @@ export default function SocialTeaserModal({
                       }}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
                         active
-                          ? 'bg-gradient-to-r from-[#D4AF37] to-[#B38F26] text-[#1E1712] shadow-md'
+                          ? 'bg-gradient-to-r from-[#3FA97A] to-[#1D6B4C] text-[#1E1712] shadow-md'
                           : 'text-[#D2B48C] hover:text-[#FAF0E6] hover:bg-white/5'
                       }`}
                       style={{ fontFamily: "'Cinzel', serif" }}
@@ -616,11 +616,11 @@ export default function SocialTeaserModal({
               </div>
 
               {/* TAB CONTENT AREA */}
-              <div className="flex-1 bg-[#1E1712]/90 border border-[#D4AF37]/25 rounded-xl p-4 sm:p-5 overflow-y-auto max-h-[340px]">
+              <div className="flex-1 bg-[#1E1712]/90 border border-[#3FA97A]/25 rounded-xl p-4 sm:p-5 overflow-y-auto max-h-[340px]">
                 {/* TAB 1: THEME & MOOD */}
                 {activeTab === 'theme' && (
                   <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[#3FA97A] uppercase tracking-wider flex items-center gap-2">
                       <Palette className="w-4 h-4" /> Select Story Atmosphere
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -633,8 +633,8 @@ export default function SocialTeaserModal({
                           }}
                           className={`p-3 rounded-xl border text-left flex items-start gap-3 transition-all ${
                             theme === t.id
-                              ? 'bg-[#3A2818] border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.3)]'
-                              : 'bg-[#261D15] border-[#D4AF37]/20 hover:border-[#D4AF37]/50'
+                              ? 'bg-[#3A2818] border-[#3FA97A] shadow-[0_0_15px_rgba(63, 169, 122,0.3)]'
+                              : 'bg-[#261D15] border-[#3FA97A]/20 hover:border-[#3FA97A]/50'
                           }`}
                         >
                           <span className="text-2xl">{t.icon}</span>
@@ -647,7 +647,7 @@ export default function SocialTeaserModal({
                     </div>
 
                     {/* Audio Toggle */}
-                    <div className="pt-3 border-t border-[#D4AF37]/20 flex items-center justify-between">
+                    <div className="pt-3 border-t border-[#3FA97A]/20 flex items-center justify-between">
                       <div>
                         <p className="text-xs font-bold text-[#FAF0E6]">Include Ambient Audio (75% Soft Volume)</p>
                         <p className="text-[11px] text-[#D2B48C]/70">
@@ -661,8 +661,8 @@ export default function SocialTeaserModal({
                         }}
                         className={`p-2 rounded-lg border transition-all ${
                           soundEnabled
-                            ? 'bg-[#D4AF37] text-[#1E1712] border-[#D4AF37]'
-                            : 'bg-[#261D15] text-[#D2B48C] border-[#D4AF37]/30'
+                            ? 'bg-[#3FA97A] text-[#1E1712] border-[#3FA97A]'
+                            : 'bg-[#261D15] text-[#D2B48C] border-[#3FA97A]/30'
                         }`}
                       >
                         {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
@@ -675,7 +675,7 @@ export default function SocialTeaserModal({
                 {activeTab === 'envelope' && (
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-xs font-bold text-[#D4AF37] uppercase tracking-wider mb-2">
+                      <h4 className="text-xs font-bold text-[#3FA97A] uppercase tracking-wider mb-2">
                         Wax Color Palette
                       </h4>
                       <div className="flex flex-wrap gap-2.5">
@@ -688,7 +688,7 @@ export default function SocialTeaserModal({
                             }}
                             className={`w-9 h-9 rounded-full border-2 transition-transform shadow-md relative ${
                               sealColor === c.id
-                                ? 'scale-110 border-white ring-2 ring-[#D4AF37]'
+                                ? 'scale-110 border-white ring-2 ring-[#3FA97A]'
                                 : 'border-black/50 hover:scale-105'
                             }`}
                             style={{ backgroundColor: c.bg }}
@@ -702,8 +702,8 @@ export default function SocialTeaserModal({
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-[#D4AF37]/20">
-                      <h4 className="text-xs font-bold text-[#D4AF37] uppercase tracking-wider mb-2">
+                    <div className="pt-3 border-t border-[#3FA97A]/20">
+                      <h4 className="text-xs font-bold text-[#3FA97A] uppercase tracking-wider mb-2">
                         Stamped Crest Insignia
                       </h4>
                       <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
@@ -716,8 +716,8 @@ export default function SocialTeaserModal({
                             }}
                             className={`p-2 rounded-xl border flex flex-col items-center justify-center transition-all ${
                               sealIcon === icon.id
-                                ? 'bg-[#3A2818] border-[#D4AF37] scale-105 shadow-md'
-                                : 'bg-[#261D15] border-[#D4AF37]/20 hover:border-[#D4AF37]/50'
+                                ? 'bg-[#3A2818] border-[#3FA97A] scale-105 shadow-md'
+                                : 'bg-[#261D15] border-[#3FA97A]/20 hover:border-[#3FA97A]/50'
                             }`}
                           >
                             <span className="text-xl">{icon.emoji}</span>
@@ -727,7 +727,7 @@ export default function SocialTeaserModal({
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-[#D4AF37]/20 space-y-2">
+                    <div className="pt-3 border-t border-[#3FA97A]/20 space-y-2">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-xs font-bold text-[#FAF0E6]">Include Real Scannable QR Sticker</p>
@@ -742,8 +742,8 @@ export default function SocialTeaserModal({
                           }}
                           className={`p-2 rounded-lg border transition-all ${
                             includeQr
-                              ? 'bg-[#D4AF37] text-[#1E1712] border-[#D4AF37]'
-                              : 'bg-[#261D15] text-[#D2B48C] border-[#D4AF37]/30'
+                              ? 'bg-[#3FA97A] text-[#1E1712] border-[#3FA97A]'
+                              : 'bg-[#261D15] text-[#D2B48C] border-[#3FA97A]/30'
                           }`}
                         >
                           <QrCode className="w-4 h-4" />
@@ -751,14 +751,14 @@ export default function SocialTeaserModal({
                       </div>
 
                       {/* Copyable Token & Link Box */}
-                      <div className="flex items-center justify-between p-2 rounded-lg bg-black/60 border border-[#D4AF37]/30 text-xs">
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-black/60 border border-[#3FA97A]/30 text-xs">
                         <div className="flex items-center gap-2 overflow-hidden mr-2">
-                          <LinkIcon className="w-3.5 h-3.5 text-[#D4AF37] flex-shrink-0" />
+                          <LinkIcon className="w-3.5 h-3.5 text-[#3FA97A] flex-shrink-0" />
                           <span className="font-mono text-[11px] text-amber-200 truncate">{rawTokenString}</span>
                         </div>
                         <button
                           onClick={handleCopyToken}
-                          className="px-2.5 py-1 rounded bg-[#D4AF37] hover:bg-[#FFE082] text-[#1E1712] font-bold text-[10px] flex items-center gap-1 flex-shrink-0"
+                          className="px-2.5 py-1 rounded bg-[#3FA97A] hover:bg-[#A8E6C8] text-[#1E1712] font-bold text-[10px] flex items-center gap-1 flex-shrink-0"
                         >
                           {copiedToken ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                           <span>{copiedToken ? 'Copied' : 'Copy Code'}</span>
@@ -773,7 +773,7 @@ export default function SocialTeaserModal({
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-xs font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5">
+                        <h4 className="text-xs font-bold text-[#3FA97A] uppercase tracking-wider flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5 text-amber-400" />
                           <span>Sealed Until Quick Presets</span>
                         </h4>
@@ -793,7 +793,7 @@ export default function SocialTeaserModal({
                             key={btn.label}
                             type="button"
                             onClick={btn.fn}
-                            className="py-2 px-1 text-xs font-semibold rounded-lg bg-[#2A1F16] border border-[#D4AF37]/30 hover:border-[#D4AF37] text-[#FAF0E6] hover:bg-[#382B1F] transition-all text-center"
+                            className="py-2 px-1 text-xs font-semibold rounded-lg bg-[#2A1F16] border border-[#3FA97A]/30 hover:border-[#3FA97A] text-[#FAF0E6] hover:bg-[#382B1F] transition-all text-center"
                           >
                             {btn.label}
                           </button>
@@ -801,20 +801,20 @@ export default function SocialTeaserModal({
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-[#D4AF37]/20">
-                      <label className="block text-xs font-bold text-[#D4AF37] uppercase tracking-wider mb-1.5">
+                    <div className="pt-3 border-t border-[#3FA97A]/20">
+                      <label className="block text-xs font-bold text-[#3FA97A] uppercase tracking-wider mb-1.5">
                         Exact Unlock / Arrival Date & Time (Sealed Until)
                       </label>
                       <input
                         type="datetime-local"
                         value={targetDate}
                         onChange={(e) => handleCustomDateTimeChange(e.target.value)}
-                        className="w-full bg-[#261D15] border border-[#D4AF37]/40 rounded-lg px-3 py-2 text-sm text-[#FAF0E6] focus:border-[#D4AF37] outline-none font-mono"
+                        className="w-full bg-[#261D15] border border-[#3FA97A]/40 rounded-lg px-3 py-2 text-sm text-[#FAF0E6] focus:border-[#3FA97A] outline-none font-mono"
                       />
                     </div>
 
-                    <div className="pt-3 border-t border-[#D4AF37]/20">
-                      <label className="block text-xs font-bold text-[#D4AF37] uppercase tracking-wider mb-1.5">
+                    <div className="pt-3 border-t border-[#3FA97A]/20">
+                      <label className="block text-xs font-bold text-[#3FA97A] uppercase tracking-wider mb-1.5">
                         Story Video Loop Duration
                       </label>
                       <div className="flex gap-3">
@@ -825,8 +825,8 @@ export default function SocialTeaserModal({
                             onClick={() => setDurationSec(sec)}
                             className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold border transition-all ${
                               durationSec === sec
-                                ? 'bg-[#D4AF37] text-[#1E1712] border-[#D4AF37]'
-                                : 'bg-[#261D15] text-[#D2B48C] border-[#D4AF37]/30'
+                                ? 'bg-[#3FA97A] text-[#1E1712] border-[#3FA97A]'
+                                : 'bg-[#261D15] text-[#D2B48C] border-[#3FA97A]/30'
                             }`}
                           >
                             {sec} Seconds Loop
@@ -836,10 +836,10 @@ export default function SocialTeaserModal({
                     </div>
 
                     {/* ── DEDICATED SEALED-UNTIL DISPATCH CARD IN COUNTDOWN TAB ── */}
-                    <div className="pt-3 border-t border-[#D4AF37]/30 bg-gradient-to-br from-[#2B1B17]/90 to-[#1A120B]/90 p-4 rounded-xl border border-amber-500/40 space-y-2.5 shadow-inner">
+                    <div className="pt-3 border-t border-[#3FA97A]/30 bg-gradient-to-br from-[#2B1B17]/90 to-[#1A120B]/90 p-4 rounded-xl border border-amber-500/40 space-y-2.5 shadow-inner">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-amber-200 flex items-center gap-1.5 font-serif">
-                          <Clock className="w-4 h-4 text-[#D4AF37]" />
+                          <Clock className="w-4 h-4 text-[#3FA97A]" />
                           <span>Sealed Until: <strong className="text-amber-300 font-mono">{new Date(targetDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</strong></span>
                         </span>
                       </div>
@@ -867,7 +867,7 @@ export default function SocialTeaserModal({
                       {/* Recipient */}
                       <div>
                         <div className="flex items-center justify-between mb-1">
-                          <label className="text-xs font-bold text-[#D4AF37]">Recipient Moniker</label>
+                          <label className="text-xs font-bold text-[#3FA97A]">Recipient Moniker</label>
                           <button
                             onClick={() => setIsAnonymousRecipient(!isAnonymousRecipient)}
                             className="text-[10px] text-[#D2B48C] hover:text-white flex items-center gap-1"
@@ -882,14 +882,14 @@ export default function SocialTeaserModal({
                           disabled={isAnonymousRecipient}
                           placeholder={isAnonymousRecipient ? 'Someone Special' : 'Enter recipient name'}
                           onChange={(e) => setRecipientName(e.target.value)}
-                          className="w-full bg-[#261D15] border border-[#D4AF37]/40 rounded-lg px-3 py-1.5 text-xs text-[#FAF0E6] focus:border-[#D4AF37] outline-none disabled:opacity-50"
+                          className="w-full bg-[#261D15] border border-[#3FA97A]/40 rounded-lg px-3 py-1.5 text-xs text-[#FAF0E6] focus:border-[#3FA97A] outline-none disabled:opacity-50"
                         />
                       </div>
 
                       {/* Sender */}
                       <div>
                         <div className="flex items-center justify-between mb-1">
-                          <label className="text-xs font-bold text-[#D4AF37]">Sender Moniker</label>
+                          <label className="text-xs font-bold text-[#3FA97A]">Sender Moniker</label>
                           <button
                             onClick={() => setIsAnonymousSender(!isAnonymousSender)}
                             className="text-[10px] text-[#D2B48C] hover:text-white flex items-center gap-1"
@@ -904,14 +904,14 @@ export default function SocialTeaserModal({
                           disabled={isAnonymousSender}
                           placeholder={isAnonymousSender ? 'An Anonymous Scribe' : 'Enter sender name'}
                           onChange={(e) => setSenderName(e.target.value)}
-                          className="w-full bg-[#261D15] border border-[#D4AF37]/40 rounded-lg px-3 py-1.5 text-xs text-[#FAF0E6] focus:border-[#D4AF37] outline-none disabled:opacity-50"
+                          className="w-full bg-[#261D15] border border-[#3FA97A]/40 rounded-lg px-3 py-1.5 text-xs text-[#FAF0E6] focus:border-[#3FA97A] outline-none disabled:opacity-50"
                         />
                       </div>
                     </div>
 
                     {/* Mystery Clue */}
                     <div className="pt-2">
-                      <label className="block text-xs font-bold text-[#D4AF37] mb-1.5">
+                      <label className="block text-xs font-bold text-[#3FA97A] mb-1.5">
                         Mystery Clue / Riddle Line (Optional)
                       </label>
                       <input
@@ -919,14 +919,14 @@ export default function SocialTeaserModal({
                         value={mysteryClue}
                         onChange={(e) => setMysteryClue(e.target.value)}
                         placeholder="Inscribe a subtle hint..."
-                        className="w-full bg-[#261D15] border border-[#D4AF37]/40 rounded-lg px-3 py-2 text-xs text-[#FAF0E6] focus:border-[#D4AF37] outline-none mb-2"
+                        className="w-full bg-[#261D15] border border-[#3FA97A]/40 rounded-lg px-3 py-2 text-xs text-[#FAF0E6] focus:border-[#3FA97A] outline-none mb-2"
                       />
                       <div className="flex flex-wrap gap-1.5">
                         {CLUE_PRESETS.slice(0, 3).map((clue, idx) => (
                           <button
                             key={idx}
                             onClick={() => setMysteryClue(clue)}
-                            className="text-[10px] px-2 py-1 rounded bg-[#2D2119] hover:bg-[#3D2D22] text-[#D2B48C] border border-[#D4AF37]/20"
+                            className="text-[10px] px-2 py-1 rounded bg-[#2D2119] hover:bg-[#3D2D22] text-[#D2B48C] border border-[#3FA97A]/20"
                           >
                             Preset #{idx + 1}
                           </button>
@@ -939,14 +939,14 @@ export default function SocialTeaserModal({
 
               {/* RECORDING PROGRESS BAR (if active) */}
               {exportProgress && (
-                <div className="bg-[#261D15] border border-[#D4AF37]/40 rounded-xl p-3">
+                <div className="bg-[#261D15] border border-[#3FA97A]/40 rounded-xl p-3">
                   <div className="flex justify-between text-xs font-bold text-[#FAF0E6] mb-1.5">
                     <span>🎬 {exportProgress.message || 'Processing royal video...'}</span>
                     <span>{exportProgress.progress}%</span>
                   </div>
                   <div className="w-full h-2 bg-black/60 rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full bg-gradient-to-r from-[#D4AF37] to-[#E5A93C]"
+                      className="h-full bg-gradient-to-r from-[#3FA97A] to-[#3FA97A]"
                       style={{ width: `${exportProgress.progress}%` }}
                     />
                   </div>
@@ -982,7 +982,7 @@ export default function SocialTeaserModal({
                 <button
                   onClick={handleDispatchLetter}
                   disabled={dispatchLoading}
-                  className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[#7A1E2E] via-[#8B2535] to-[#B38F26] hover:brightness-110 active:scale-[0.98] text-amber-100 border-2 border-[#D4AF37] transition-all shadow-[0_0_25px_rgba(212,175,55,0.4)] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-[#0E4230] via-[#3FA97A] to-[#1D6B4C] hover:brightness-110 active:scale-[0.98] text-amber-100 border-2 border-[#3FA97A] transition-all shadow-[0_0_25px_rgba(63, 169, 122,0.4)] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
                   {dispatchLoading ? (
@@ -1003,7 +1003,7 @@ export default function SocialTeaserModal({
                   <button
                     onClick={handleExportVideo}
                     disabled={exportProgress?.status === 'rendering'}
-                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-gradient-to-r from-[#D4AF37] via-[#E5A93C] to-[#B38F26] text-[#1E1712] hover:brightness-110 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-gradient-to-r from-[#3FA97A] via-[#3FA97A] to-[#1D6B4C] text-[#1E1712] hover:brightness-110 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
                     style={{ fontFamily: "'Cinzel', serif" }}
                   >
                     <Video className="w-4 h-4 flex-shrink-0" />
@@ -1013,21 +1013,21 @@ export default function SocialTeaserModal({
                   {/* 2. HD PNG Snapshot */}
                   <button
                     onClick={handleExportImage}
-                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-[#2A1F16] border border-[#D4AF37]/50 hover:border-[#D4AF37] text-[#FAF0E6] hover:bg-[#382B1F] active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
+                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-[#2A1F16] border border-[#3FA97A]/50 hover:border-[#3FA97A] text-[#FAF0E6] hover:bg-[#382B1F] active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
                     style={{ fontFamily: "'Cinzel', serif" }}
                   >
-                    <ImageIcon className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
+                    <ImageIcon className="w-4 h-4 text-[#3FA97A] flex-shrink-0" />
                     <span>HD Story Card</span>
                   </button>
 
                   {/* 3. Copy to Clipboard */}
                   <button
                     onClick={handleCopyClipboard}
-                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-[#2A1F16] border border-[#D4AF37]/50 hover:border-[#D4AF37] text-[#FAF0E6] hover:bg-[#382B1F] active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
+                    className="py-2.5 px-3 rounded-xl font-bold text-xs bg-[#2A1F16] border border-[#3FA97A]/50 hover:border-[#3FA97A] text-[#FAF0E6] hover:bg-[#382B1F] active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
                     style={{ fontFamily: "'Cinzel', serif" }}
                     title="Copy HD Story Card directly to Clipboard"
                   >
-                    <Copy className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
+                    <Copy className="w-4 h-4 text-[#3FA97A] flex-shrink-0" />
                     <span>Copy Image</span>
                   </button>
 
@@ -1054,7 +1054,7 @@ export default function SocialTeaserModal({
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="absolute inset-0 z-50 bg-black/92 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center"
               >
-                <div className="max-w-md w-full bg-[#1A120B] border-2 border-[#D4AF37] p-6 rounded-2xl shadow-2xl space-y-4 text-center animate-glow-pulse">
+                <div className="max-w-md w-full bg-[#1A120B] border-2 border-[#3FA97A] p-6 rounded-2xl shadow-2xl space-y-4 text-center animate-glow-pulse">
                   <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-2xl">
                     👑
                   </div>
@@ -1088,7 +1088,7 @@ export default function SocialTeaserModal({
                   {/* QR Code Canvas */}
                   {dispatchedResult.qrCodeToken && (
                     <div className="space-y-2">
-                      <div className="inline-block p-3 bg-white rounded-xl shadow-inner border-2 border-[#D4AF37]">
+                      <div className="inline-block p-3 bg-white rounded-xl shadow-inner border-2 border-[#3FA97A]">
                         <QRCodeCanvas value={dispatchedResult.qrCodeToken} size={150} fgColor="#1A1208" />
                       </div>
 
@@ -1105,7 +1105,7 @@ export default function SocialTeaserModal({
                               setTimeout(() => setDispatchedCopied(false), 2000);
                             }
                           }}
-                          className="px-2.5 py-1 rounded bg-[#D4AF37] text-stone-900 font-bold text-[10px] flex items-center gap-1 flex-shrink-0"
+                          className="px-2.5 py-1 rounded bg-[#3FA97A] text-stone-900 font-bold text-[10px] flex items-center gap-1 flex-shrink-0"
                         >
                           {dispatchedCopied ? <Check className="w-3 h-3 text-green-800" /> : <Copy className="w-3 h-3" />}
                           <span>{dispatchedCopied ? 'Copied' : 'Copy'}</span>

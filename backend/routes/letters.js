@@ -703,7 +703,7 @@ router.delete('/:id', async (req, res) => {
 const POSTMASTER_RIDDLES = [
   {
     id: 'riddle-1',
-    category: 'Easy Courier Riddle',
+    category: 'Easy Postman Riddle',
     prompt: 'What gets wetter the more it dries?',
     options: ['A Towel', 'A Candle', 'A River Stone', 'A Cloud'],
     answerIndex: 0,
@@ -719,7 +719,7 @@ const POSTMASTER_RIDDLES = [
   },
   {
     id: 'riddle-3',
-    category: 'Imperial Courier Lore',
+    category: 'Imperial Postman Lore',
     prompt: 'What can travel all around the world while staying in one corner?',
     options: ['A Postage Stamp', 'A Compass', 'A Lantern', 'A Flag'],
     answerIndex: 0,
@@ -899,7 +899,7 @@ router.post('/scan', async (req, res) => {
 
         const senderName = populated?.senderRef?.name || 'Noble Scribe';
         const receiverName = populated?.receiverRef?.name || 'Intended Recipient';
-        const mailmanName = populated?.mailmanRef?.name || (role === 'mailman' ? 'Royal Courier' : 'Imperial Deliverer');
+        const mailmanName = populated?.mailmanRef?.name || (role === 'mailman' ? 'Royal Postman' : 'Imperial Deliverer');
 
         const payload = {
           letterId: letter._id,
@@ -914,8 +914,8 @@ router.post('/scan', async (req, res) => {
           transferredFrom: stageType === 'pickup' ? senderName : mailmanName,
           transferredTo: stageType === 'pickup' ? `${mailmanName}'s Saddlebag` : `${receiverName}'s Mailbox`,
           message: stageType === 'pickup'
-            ? `Letter transferred from ${senderName} to Courier ${mailmanName}'s Saddlebag!`
-            : `Letter delivered from Courier ${mailmanName} into ${receiverName}'s Sovereign Mailbox!`
+            ? `Letter transferred from ${senderName} to Postman ${mailmanName}'s Saddlebag!`
+            : `Letter delivered from Postman ${mailmanName} into ${receiverName}'s Sovereign Mailbox!`
         };
 
         io.emit('letter-handover-animated', payload);
@@ -1104,7 +1104,7 @@ const SPECTRAL_PERSONAS = [
     ]
   },
   {
-    name: 'The Phantom Courier of Cairn Vale',
+    name: 'The Phantom Postman of Cairn Vale',
     title: 'Eternal Rider of the Grey Highway',
     realmOrigin: 'The Spectral Crossroads',
     font: 'Metamorphous',
@@ -1384,7 +1384,7 @@ function generateDybbukContent(user, pastLetters, tone = 'classical') {
   const opener = persona.openers[Math.floor(Math.random() * persona.openers.length)];
   const closer = persona.closers[Math.floor(Math.random() * persona.closers.length)];
 
-  let middleParagraph = `I have traversed the veil to deliver this reflection. In the echoes of your correspondence, the spectral realm heard the vibrations of "${userEchoWord1}" and "${userEchoWord2}". The astral winds carry your deeds across the ether. Do not question how this letter found its way into your sovereign mailbox without courier footsteps.`;
+  let middleParagraph = `I have traversed the veil to deliver this reflection. In the echoes of your correspondence, the spectral realm heard the vibrations of "${userEchoWord1}" and "${userEchoWord2}". The astral winds carry your deeds across the ether. Do not question how this letter found its way into your sovereign mailbox without postman footsteps.`;
 
   const content = `${opener}\n\n${middleParagraph}\n\n${closer}\n\n— Signed in Spectral Ink by ${persona.name},\n${persona.title}`;
 
@@ -2047,7 +2047,7 @@ router.post('/:id/bottle/uncork', async (req, res) => {
 // --- FEATURE: DELIVERY PROOF TO CENTRAL HUB & PENALTIES ---
 // =======================================================
 
-// 1. Submit Delivery Proof from Mailman / Courier to Central Hub
+// 1. Submit Delivery Proof from Mailman / Postman to Central Hub
 router.post('/:id/delivery-proof/submit', async (req, res) => {
   try {
     const { mailmanId, handoverCoordinates } = req.body;
@@ -2081,7 +2081,7 @@ router.post('/:id/delivery-proof/submit', async (req, res) => {
         receiverName: letter.receiverRef?.name,
         senderName: letter.senderRef?.name,
         mailmanId: letter.mailmanRef?._id?.toString() || mailmanId,
-        mailmanName: letter.mailmanRef?.name || 'Royal Courier',
+        mailmanName: letter.mailmanRef?.name || 'Royal Postman',
         submittedAt: new Date()
       });
     }
@@ -2214,7 +2214,7 @@ router.post('/:id/delivery-proof/verify', async (req, res) => {
       return res.json({
         success: false,
         status: 'declined',
-        message: '⚠️ Delivery proof declined. Central Hub recorded infraction and penalized courier.',
+        message: '⚠️ Delivery proof declined. Central Hub recorded infraction and penalized postman.',
         penaltyApplied: true,
         xpDeducted,
         letter
@@ -2226,7 +2226,7 @@ router.post('/:id/delivery-proof/verify', async (req, res) => {
   }
 });
 
-// 3. Central Hub Registry: Fetch all authenticated proofs, pending reviews, and courier penalty audits
+// 3. Central Hub Registry: Fetch all authenticated proofs, pending reviews, and postman penalty audits
 router.get('/central-hub/proofs', async (req, res) => {
   try {
     const proofs = await Letter.find({

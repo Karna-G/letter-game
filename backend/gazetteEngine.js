@@ -37,7 +37,7 @@ function getSeasonalContext(date = new Date()) {
       season: 'Spring',
       editionTitle: 'The Vernal Equinox & Blossom Post',
       leadHeading: 'Carrier Pigeons Take Flight Across Thawing Alpine Passes',
-      leadContent: 'As the winter frosts recede from the highland carriage roads, the Imperial Courier Guild reports the reopening of the Great Northern Mountain Route. Scribes throughout the realm have begun dipping their quills in newly brewed elderberry inks, dispatching declarations of affection and philosophical discourse. The Postmaster reminds all correspondents that flower-scented wax seals must be properly cured before carriage dispatch.',
+      leadContent: 'As the winter frosts recede from the highland carriage roads, the Imperial Postman Guild reports the reopening of the Great Northern Mountain Route. Scribes throughout the realm have begun dipping their quills in newly brewed elderberry inks, dispatching declarations of affection and philosophical discourse. The Postmaster reminds all correspondents that flower-scented wax seals must be properly cured before carriage dispatch.',
       weatherForecast: 'Brisk mountain breezes with intermittent April showers; pigeon flights optimal at dawn.',
       quote: '“Let every spring letter be as sweet as newly blooming violets, and as true as a homing compass.”',
       woodcut: 'pigeon'
@@ -47,7 +47,7 @@ function getSeasonalContext(date = new Date()) {
       season: 'Summer',
       editionTitle: 'The Midsummer Solstice & Maritime Dispatches',
       leadHeading: 'Ocean Bottle Letters Wash Ashore Along the Southern Archipelago',
-      leadContent: 'Lighthouse keepers along the Western Cliffs report an unprecedented tide of wax-sealed glass bottles bearing curious poetic fragments from distant shores. The Royal Admiralty has declared that all drifted messages belong to the Sovereign Archive, though citizens may uncork them at the nearest coastal post tavern. Couriers are cautioned against riding during peak noon heat without water rations for their steeds.',
+      leadContent: 'Lighthouse keepers along the Western Cliffs report an unprecedented tide of wax-sealed glass bottles bearing curious poetic fragments from distant shores. The Royal Admiralty has declared that all drifted messages belong to the Sovereign Archive, though citizens may uncork them at the nearest coastal post tavern. Postmen are cautioned against riding during peak noon heat without water rations for their steeds.',
       weatherForecast: 'Golden coastal sunshine; light maritime trade winds favorable for transatlantic packet ships.',
       quote: '“The ocean keeps no secrets that a patient beachcomber and a sharp corkscrew cannot unveil.”',
       woodcut: 'ship'
@@ -57,7 +57,7 @@ function getSeasonalContext(date = new Date()) {
       season: 'Autumn',
       editionTitle: 'The Autumnal Equinox & Harvest Scriptorium',
       leadHeading: 'A Mysterious Flurry of Wax-Sealed Scrolls Sweeps the Capital',
-      leadContent: 'The crisp autumn winds have brought with them a marked surge in sealed epistolary traffic. Night couriers report strange lantern signals exchanged between the towers of the Grand Archive, while tavern patrons whisper of letters that arrive hours before they were ostensibly penned. The Postmaster General urges all noble scribes to inspect their sealing wax for traces of enchanted golden dust and to report any spectral messengers seen hovering near the guild wastebin.',
+      leadContent: 'The crisp autumn winds have brought with them a marked surge in sealed epistolary traffic. Night postmen report strange lantern signals exchanged between the towers of the Grand Archive, while tavern patrons whisper of letters that arrive hours before they were ostensibly penned. The Postmaster General urges all noble scribes to inspect their sealing wax for traces of enchanted golden dust and to report any spectral messengers seen hovering near the guild wastebin.',
       weatherForecast: 'Amber autumn twilight with swirling leaf-drifts; lantern oil recommended for night rides.',
       quote: '“When autumn leaves fall like dried parchment, the truest words are written by candlelight.”',
       woodcut: 'quill'
@@ -67,7 +67,7 @@ function getSeasonalContext(date = new Date()) {
       season: 'Winter',
       editionTitle: 'The Frost & Hearthside Postal Chronicle',
       leadHeading: 'Snowbound Carriages Press On by Lantern Light',
-      leadContent: 'Heavy snowdrifts have blanketed the King’s Highway, yet the Royal Couriers have equipped their horse-drawn sleighs with brass bells to warn travelers in the blizzard. Letters penned near the tavern hearths are said to retain a comforting aroma of cedar smoke and mulled spice. The Postmaster warns correspondents against allowing inkpots to freeze on window sills, as frozen iron gall ink may fracture delicate parchment.',
+      leadContent: 'Heavy snowdrifts have blanketed the King’s Highway, yet the Royal Postmen have equipped their horse-drawn sleighs with brass bells to warn travelers in the blizzard. Letters penned near the tavern hearths are said to retain a comforting aroma of cedar smoke and mulled spice. The Postmaster warns correspondents against allowing inkpots to freeze on window sills, as frozen iron gall ink may fracture delicate parchment.',
       weatherForecast: 'Sub-zero temperatures across northern provinces; lantern warmth required at all relay posts.',
       quote: '“No winter blizzard is cold enough to chill the warmth of a letter penned from the heart.”',
       woodcut: 'carriage'
@@ -81,9 +81,9 @@ function getSeasonalContext(date = new Date()) {
 const POSTAL_STORIES_POOL = [
   {
     category: 'Postal Mystery',
-    headline: 'The Curious Case of the Vanishing Courier of Dover Road',
+    headline: 'The Curious Case of the Vanishing Postman of Dover Road',
     leadHeading: 'A Sealed Mailbag Discovered Intact in an Ancient Hollow Oak',
-    leadContent: 'Late yesterday evening, a woodcutter in the Whispering Forest happened upon a brass-buckled mailbag bearing the royal seal of 1794. Inside, twenty-four perfectly preserved letters were discovered, their wax seals untouched by time or moisture. The letters have been conveyed to the High Postmaster for immediate cataloging, while scholars debate whether the courier succumbed to fairy enchantments or merely retired to become a cider merchant.',
+    leadContent: 'Late yesterday evening, a woodcutter in the Whispering Forest happened upon a brass-buckled mailbag bearing the royal seal of 1794. Inside, twenty-four perfectly preserved letters were discovered, their wax seals untouched by time or moisture. The letters have been conveyed to the High Postmaster for immediate cataloging, while scholars debate whether the postman succumbed to fairy enchantments or merely retired to become a cider merchant.',
     woodcut: 'wax_seal',
     quote: '“Time may delay the carriage, but the post always arrives at its destiny.”'
   },
@@ -91,13 +91,13 @@ const POSTAL_STORIES_POOL = [
     category: 'Philatelic Gazette',
     headline: 'Rare Inverted Griffin Stamp Discovered in Village Estate',
     leadHeading: 'Stamp Collectors Gather at the Royal Philatelic Exchange',
-    leadContent: 'A humble estate sale in the valley has yielded a singular treasure: a 4-penny Inverted Griffin stamp printed with copper-red intaglio ink. Philatelic experts from across three kingdoms have gathered at the Guild Exchange to examine the serrated perforation. The Postmaster confirms that this stamp retains its full mailing validity, granting its bearer free courier escort anywhere in the realm.',
+    leadContent: 'A humble estate sale in the valley has yielded a singular treasure: a 4-penny Inverted Griffin stamp printed with copper-red intaglio ink. Philatelic experts from across three kingdoms have gathered at the Guild Exchange to examine the serrated perforation. The Postmaster confirms that this stamp retains its full mailing validity, granting its bearer free postman escort anywhere in the realm.',
     woodcut: 'quill',
     quote: '“A miniature square of parchment can hold more majesty than a monarch’s crown.”'
   },
   {
     category: 'Celestial Dispatch',
-    headline: 'Nocturnal Owls Appointed as Official Night Airmail Couriers',
+    headline: 'Nocturnal Owls Appointed as Official Night Airmail Postmen',
     leadHeading: 'Midnight Letters Delivered Under the Gleam of the Crescent Moon',
     leadContent: 'The Royal Aviary has officially sanctioned a corps of trained Midnight Owls to accompany nocturnal mailmen on dangerous wilderness trails. Equipped with brass message cylinders fastened to their talons, these silent sentinels can glide over impassable ravines and drop urgent decrees directly onto receiver balconies. Citizens are requested not to leave open hearth fires where owls may roost.',
     woodcut: 'owl',
@@ -109,7 +109,7 @@ const CLASSIFIEDS_POOL = [
   { tag: 'WANTED', text: 'Skilled scribe capable of reading mirrored cursive and Latin shorthand. Generous guild stipend and unlimited lamp oil provided.' },
   { tag: 'FOR SALE', text: 'Set of antique brass postage scales with calibrated dram weights and polished velvet carrying case. Inquire at Stationers Court.' },
   { tag: 'LOST & FOUND', text: 'Lost near the Old Bridge: One scarlet wax seal bearing a rearing stag insignia. Reward of two silver farthings for its safe return.' },
-  { tag: 'NOTICE', text: 'The Royal Courier Guild reminds citizens that letters containing live crickets or volatile alchemical mixtures will be summarily quarantined.' },
+  { tag: 'NOTICE', text: 'The Royal Postman Guild reminds citizens that letters containing live crickets or volatile alchemical mixtures will be summarily quarantined.' },
   { tag: 'SERVICES', text: 'Master Cartographer offers hand-drawn postal maps of newly charted realm roads with postal inns and water troughs clearly demarcated.' },
   { tag: 'ANNOUNCEMENT', text: 'The Annual Philatelic Swap Meet shall convene this Saturday beneath the Great Clocktower. All stamp albums welcome.' }
 ];
@@ -138,7 +138,7 @@ async function checkAndGenerateGazettes(userId) {
       reputationScore: user.reputationScore || 0,
       deliveriesCompleted: user.deliveriesCompleted || 0,
       xp: user.xp || 0,
-      rank: user.rank || (user.role === 'mailman' ? 'Novice Courier' : 'Noble Scribe'),
+      rank: user.rank || (user.role === 'mailman' ? 'Novice Postman' : 'Noble Scribe'),
       unreadMailboxCount: unreadMailboxCount || 0,
       milestoneAchieved: null
     };
@@ -280,7 +280,7 @@ async function generateSpecialGazette(userId) {
     date: now,
     formattedDateStr: formatAntiqueDate(now),
     category: randomStory.category,
-    weatherForecast: 'Ominous twilight haze with sudden gusts of courier horn fanfares.',
+    weatherForecast: 'Ominous twilight haze with sudden gusts of postman horn fanfares.',
     leadStory: {
       heading: randomStory.leadHeading,
       content: randomStory.leadContent,
@@ -292,8 +292,8 @@ async function generateSpecialGazette(userId) {
     },
     communityHighlights: [
       {
-        title: 'Fellowship Courier Alert',
-        body: 'Couriers are cautioned that the old willow bridge near the mill is currently undergoing timber reinforcement.'
+        title: 'Fellowship Postman Alert',
+        body: 'Postmen are cautioned that the old willow bridge near the mill is currently undergoing timber reinforcement.'
       },
       {
         title: 'Philatelic Exchange Bulletin',
@@ -306,7 +306,7 @@ async function generateSpecialGazette(userId) {
       reputationScore: user.reputationScore || 0,
       deliveriesCompleted: user.deliveriesCompleted || 0,
       xp: user.xp || 0,
-      rank: user.rank || (user.role === 'mailman' ? 'Novice Courier' : 'Noble Scribe'),
+      rank: user.rank || (user.role === 'mailman' ? 'Novice Postman' : 'Noble Scribe'),
       unreadMailboxCount: unreadMailboxCount || 0,
       milestoneAchieved: 'Extraordinary Dispatch Summoned'
     },

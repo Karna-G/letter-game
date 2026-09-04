@@ -28,7 +28,7 @@ export const MAILBOX_PETS: Record<Exclude<MailboxPetType, 'none'>, MailboxPetDat
     specialActionName: 'Wing Flutter & Flap',
     quotes: [
       'Coo-coo! The skies were clear today, and I guarded your postal chamber.',
-      'Coo! I sense a courier riding near with fresh sealing wax!',
+      'Coo! I sense a postman riding near with fresh sealing wax!',
       'Rrr-coo! Your letters are safely roosted beside me.',
       'Flap! All horizons are clear and ready for flight.',
     ],
@@ -56,11 +56,11 @@ export const MAILBOX_PETS: Record<Exclude<MailboxPetType, 'none'>, MailboxPetDat
     title: 'Frontier Scout Fox',
     species: 'Vulpes Cursoria',
     emoji: '🦊',
-    description: 'Agile wilderness pathfinder. Keeps watch for highwaymen and guides couriers along secret forest trade paths.',
+    description: 'Agile wilderness pathfinder. Keeps watch for highwaymen and guides postmen along secret forest trade paths.',
     specialActionName: 'Alert Sniff & Keen Survey',
     quotes: [
-      'Yip! I know all the hidden forest shortcuts the couriers use!',
-      'Sniffs the air... I scent the aroma of aged parchment and courier leather!',
+      'Yip! I know all the hidden forest shortcuts the postmen use!',
+      'Sniffs the air... I scent the aroma of aged parchment and postman leather!',
       'A cunning scribe always keeps a sharp eye on their mailbox.',
       'No stealthy highwaymen can slip past my bushy tail unnoticed!'
     ],
@@ -239,9 +239,9 @@ export default function MailboxPetCompanion({
               className="absolute -top-16 z-30 max-w-[210px] sm:max-w-[240px] px-3 py-1.5 rounded shadow-xl text-center pointer-events-none"
               style={{
                 background: 'linear-gradient(135deg, #FFFDF9 0%, #F5ECD7 100%)',
-                border: '1px solid #C89D3C',
+                border: '1px solid #3FA97A',
                 color: '#2A1810',
-                boxShadow: '0 8px 25px rgba(0,0,0,0.5), 0 0 10px rgba(212,175,55,0.3)'
+                boxShadow: '0 8px 25px rgba(0,0,0,0.5), 0 0 10px rgba(63, 169, 122,0.3)'
               }}
             >
               <div className="text-[11px] font-serif leading-tight italic font-medium">
@@ -251,8 +251,8 @@ export default function MailboxPetCompanion({
                 className="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-2.5 h-2.5 rotate-45"
                 style={{
                   background: '#F5ECD7',
-                  borderRight: '1px solid #C89D3C',
-                  borderBottom: '1px solid #C89D3C'
+                  borderRight: '1px solid #3FA97A',
+                  borderBottom: '1px solid #3FA97A'
                 }}
               />
             </motion.div>
@@ -346,7 +346,7 @@ function PetSelectorModal({ activePet, saving, onSelectPet, onClose }: PetSelect
           style={{
             background: 'linear-gradient(160deg, #1D1915 0%, #110F0D 100%)',
             border: '2px solid var(--antique-gold)',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.85), 0 0 30px rgba(212,175,55,0.2)'
+            boxShadow: '0 25px 60px rgba(0,0,0,0.85), 0 0 30px rgba(63, 169, 122,0.2)'
           }}
         >
           <div className="flex items-center justify-between border-b border-amber-900/40 pb-4">
@@ -383,7 +383,7 @@ function PetSelectorModal({ activePet, saving, onSelectPet, onClose }: PetSelect
                   onClick={() => onSelectPet(key)}
                   className={`relative p-4 rounded-sm border transition-all cursor-pointer group flex flex-col justify-between overflow-hidden ${
                     isSelected
-                      ? 'bg-gradient-to-br from-amber-950/80 to-stone-900/90 border-amber-400 shadow-[0_0_20px_rgba(212,175,55,0.25)]'
+                      ? 'bg-gradient-to-br from-amber-950/80 to-stone-900/90 border-amber-400 shadow-[0_0_20px_rgba(63, 169, 122,0.25)]'
                       : 'bg-stone-950/60 border-stone-800 hover:border-amber-700/60 hover:bg-stone-900/60'
                   }`}
                 >
@@ -502,7 +502,7 @@ function PigeonSvg({ isSpecial }: { isSpecial: boolean }) {
         <circle cx="68" cy="38" r="3.5" fill="#F97316" />
         <circle cx="68" cy="38" r="1.8" fill="#111827" />
         <circle cx="69" cy="37" r="0.8" fill="#FFFFFF" />
-        <path d="M 74 41 L 86 43 L 74 46 Z" fill="#D97706" />
+        <path d="M 74 41 L 86 43 L 74 46 Z" fill="#21855A" />
         <ellipse cx="73" cy="40" rx="2.5" ry="1.5" fill="#E5E7EB" />
       </motion.g>
 
@@ -531,8 +531,8 @@ function PigeonSvg({ isSpecial }: { isSpecial: boolean }) {
         <line x1="45" y1="54" x2="55" y2="61" stroke="#F3F4F6" strokeWidth="2.5" strokeLinecap="round" />
       </motion.g>
 
-      <path d="M 52 64 Q 56 70 54 74" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="54" cy="74" r="2.5" fill="#D4AF37" />
+      <path d="M 52 64 Q 56 70 54 74" stroke="#3FA97A" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="54" cy="74" r="2.5" fill="#3FA97A" />
     </motion.svg>
   );
 }
@@ -605,7 +605,7 @@ function CatSvg({ isSpecial }: { isSpecial: boolean }) {
         transition={{ duration: 1.8, ease: 'easeInOut' }}
       />
 
-      <ellipse cx="58" cy="68" rx="12" ry="10" fill="#FEF3C7" />
+      <ellipse cx="58" cy="68" rx="12" ry="10" fill="#DCF5E8" />
 
       <motion.g
         animate={
@@ -615,8 +615,8 @@ function CatSvg({ isSpecial }: { isSpecial: boolean }) {
         }
         transition={{ duration: 1.8 }}
       >
-        <ellipse cx="62" cy="82" rx="5" ry="4" fill="#FEF3C7" />
-        <ellipse cx="72" cy="82" rx="5" ry="4" fill="#FEF3C7" />
+        <ellipse cx="62" cy="82" rx="5" ry="4" fill="#DCF5E8" />
+        <ellipse cx="72" cy="82" rx="5" ry="4" fill="#DCF5E8" />
       </motion.g>
 
       <motion.g
@@ -634,7 +634,7 @@ function CatSvg({ isSpecial }: { isSpecial: boolean }) {
         <polygon points="70,31 75,23 79,34" fill="#FCA5A5" />
 
         <circle cx="67" cy="44" r="15" fill="#B45309" />
-        <ellipse cx="67" cy="47" rx="10" ry="7" fill="#FEF3C7" />
+        <ellipse cx="67" cy="47" rx="10" ry="7" fill="#DCF5E8" />
 
         {isSpecial ? (
           <>
@@ -655,14 +655,14 @@ function CatSvg({ isSpecial }: { isSpecial: boolean }) {
 
         <polygon points="66,46 68,46 67,48" fill="#F43F5E" />
         <path d="M 67 48 Q 65 52 63 51 M 67 48 Q 69 52 71 51" stroke="#78350F" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-        <line x1="56" y1="46" x2="48" y2="44" stroke="#FEF3C7" strokeWidth="1.2" />
-        <line x1="56" y1="48" x2="46" y2="49" stroke="#FEF3C7" strokeWidth="1.2" />
-        <line x1="78" y1="46" x2="86" y2="44" stroke="#FEF3C7" strokeWidth="1.2" />
-        <line x1="78" y1="48" x2="88" y2="49" stroke="#FEF3C7" strokeWidth="1.2" />
+        <line x1="56" y1="46" x2="48" y2="44" stroke="#DCF5E8" strokeWidth="1.2" />
+        <line x1="56" y1="48" x2="46" y2="49" stroke="#DCF5E8" strokeWidth="1.2" />
+        <line x1="78" y1="46" x2="86" y2="44" stroke="#DCF5E8" strokeWidth="1.2" />
+        <line x1="78" y1="48" x2="88" y2="49" stroke="#DCF5E8" strokeWidth="1.2" />
       </motion.g>
 
       <path d="M 56 56 Q 66 60 76 56" stroke="#991B1B" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="66" cy="60" r="3" fill="#D4AF37" />
+      <circle cx="66" cy="60" r="3" fill="#3FA97A" />
     </motion.svg>
   );
 }
@@ -741,7 +741,7 @@ function FoxSvg({ isSpecial }: { isSpecial: boolean }) {
         <polygon points="60,57 64,57 62,60" fill="#18181B" />
       </motion.g>
 
-      <circle cx="56" cy="62" r="3" fill="#D4AF37" />
+      <circle cx="56" cy="62" r="3" fill="#3FA97A" />
       <polygon points="56,60 57,62 56,64 55,62" fill="#991B1B" />
     </motion.svg>
   );
@@ -771,7 +771,7 @@ function OwlSvg({ isSpecial }: { isSpecial: boolean }) {
       <ellipse cx="50" cy="60" rx="22" ry="24" fill="#451A03" />
       <ellipse cx="50" cy="62" rx="18" ry="20" fill="#78350F" />
 
-      <ellipse cx="50" cy="65" rx="13" ry="14" fill="#FEF3C7" opacity="0.9" />
+      <ellipse cx="50" cy="65" rx="13" ry="14" fill="#DCF5E8" opacity="0.9" />
       <path d="M 44 60 Q 47 63 50 60 Q 53 63 56 60" stroke="#B45309" strokeWidth="1.5" fill="none" />
       <path d="M 42 66 Q 46 70 50 66 Q 54 70 58 66" stroke="#B45309" strokeWidth="1.5" fill="none" />
       <path d="M 45 72 Q 48 75 50 72 Q 52 75 55 72" stroke="#B45309" strokeWidth="1.5" fill="none" />
@@ -779,10 +779,10 @@ function OwlSvg({ isSpecial }: { isSpecial: boolean }) {
       <path d="M 28 48 Q 24 64 34 76 Q 38 68 34 50 Z" fill="#290E02" />
       <path d="M 72 48 Q 76 64 66 76 Q 62 68 66 50 Z" fill="#290E02" />
 
-      <line x1="43" y1="82" x2="41" y2="88" stroke="#D97706" strokeWidth="3" strokeLinecap="round" />
-      <line x1="47" y1="82" x2="47" y2="88" stroke="#D97706" strokeWidth="3" strokeLinecap="round" />
-      <line x1="53" y1="82" x2="53" y2="88" stroke="#D97706" strokeWidth="3" strokeLinecap="round" />
-      <line x1="57" y1="82" x2="59" y2="88" stroke="#D97706" strokeWidth="3" strokeLinecap="round" />
+      <line x1="43" y1="82" x2="41" y2="88" stroke="#21855A" strokeWidth="3" strokeLinecap="round" />
+      <line x1="47" y1="82" x2="47" y2="88" stroke="#21855A" strokeWidth="3" strokeLinecap="round" />
+      <line x1="53" y1="82" x2="53" y2="88" stroke="#21855A" strokeWidth="3" strokeLinecap="round" />
+      <line x1="57" y1="82" x2="59" y2="88" stroke="#21855A" strokeWidth="3" strokeLinecap="round" />
 
       <motion.g
         animate={
@@ -804,8 +804,8 @@ function OwlSvg({ isSpecial }: { isSpecial: boolean }) {
         <circle cx="50" cy="36" r="18" fill="#451A03" />
         <circle cx="50" cy="36" r="16" fill="#78350F" />
 
-        <circle cx="42" cy="36" r="9" fill="#FEF3C7" />
-        <circle cx="58" cy="36" r="9" fill="#FEF3C7" />
+        <circle cx="42" cy="36" r="9" fill="#DCF5E8" />
+        <circle cx="58" cy="36" r="9" fill="#DCF5E8" />
 
         <motion.g
           animate={
@@ -820,20 +820,20 @@ function OwlSvg({ isSpecial }: { isSpecial: boolean }) {
           transition={{ duration: isSpecial ? 1.2 : 4.5, repeat: isSpecial ? 0 : Infinity }}
           style={{ transformOrigin: '50px 36px' }}
         >
-          <circle cx="42" cy="36" r="6.5" fill="#F59E0B" />
+          <circle cx="42" cy="36" r="6.5" fill="#34A06E" />
           <circle cx="42" cy="36" r="3.8" fill="#111827" />
           <circle cx="44" cy="34" r="1.2" fill="#FFFFFF" />
 
-          <circle cx="58" cy="36" r="6.5" fill="#F59E0B" />
+          <circle cx="58" cy="36" r="6.5" fill="#34A06E" />
           <circle cx="58" cy="36" r="3.8" fill="#111827" />
           <circle cx="60" cy="34" r="1.2" fill="#FFFFFF" />
         </motion.g>
 
-        <polygon points="48,36 52,36 50,45" fill="#D97706" />
+        <polygon points="48,36 52,36 50,45" fill="#21855A" />
       </motion.g>
 
-      <circle cx="50" cy="54" r="3" fill="#D4AF37" />
-      <path d="M 50 54 L 54 44" stroke="#D4AF37" strokeWidth="1" strokeDasharray="1,1" />
+      <circle cx="50" cy="54" r="3" fill="#3FA97A" />
+      <path d="M 50 54 L 54 44" stroke="#3FA97A" strokeWidth="1" strokeDasharray="1,1" />
     </motion.svg>
   );
 }

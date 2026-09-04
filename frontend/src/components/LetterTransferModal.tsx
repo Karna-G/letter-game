@@ -66,7 +66,7 @@ export default function LetterTransferModal({ handover, onClose }: Props) {
           style={{
             background: 'linear-gradient(160deg, #1C1915 0%, #12100E 100%)',
             border: '2px solid var(--antique-gold)',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(212,175,55,0.25)'
+            boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(63, 169, 122,0.25)'
           }}
         >
           {/* Top Gold Rule */}
@@ -80,9 +80,9 @@ export default function LetterTransferModal({ handover, onClose }: Props) {
           </button>
 
           {/* Header Title & Stage Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] uppercase tracking-[0.2em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] uppercase tracking-[0.2em] font-semibold mb-3 animate-float-gentle" style={{ background: 'rgba(63, 169, 122,0.15)', border: '1px solid rgba(63, 169, 122,0.4)', color: 'var(--antique-gold)', fontFamily: "'Cinzel', serif" }}>
             <Sparkles className="w-3 h-3 text-amber-300" />
-            <span>{isPickup ? '✦ Courier Pickup ✦' : '✦ Handover to Mailbox ✦'}</span>
+            <span>{isPickup ? '✦ Postman Pickup ✦' : '✦ Handover to Mailbox ✦'}</span>
           </div>
 
           <h3 className="text-xl sm:text-2xl font-bold tracking-wide mb-1" style={{ fontFamily: "'Cinzel Decorative', serif", color: 'var(--parchment-light)' }}>
@@ -95,7 +95,7 @@ export default function LetterTransferModal({ handover, onClose }: Props) {
           {/* ── 3D Theatrical Gliding Envelope Handover Stage ── */}
           <div className="relative py-8 px-4 my-2 rounded-sm overflow-hidden flex items-center justify-between" style={{
             background: 'linear-gradient(135deg, rgba(30,24,18,0.7) 0%, rgba(15,12,9,0.9) 100%)',
-            border: '1px solid rgba(212,175,55,0.25)'
+            border: '1px solid rgba(63, 169, 122,0.25)'
           }}>
             {/* Origin Participant */}
             <div className="flex flex-col items-center z-10 w-24">
@@ -106,7 +106,7 @@ export default function LetterTransferModal({ handover, onClose }: Props) {
                 {handover.transferredFrom}
               </span>
               <span className="text-[10px] text-amber-400/70 uppercase tracking-wider font-mono">
-                {isPickup ? 'Sender Scribe' : 'Imperial Courier'}
+                {isPickup ? 'Sender Scribe' : 'Imperial Postman'}
               </span>
             </div>
 
@@ -133,13 +133,13 @@ export default function LetterTransferModal({ handover, onClose }: Props) {
                 className="relative z-20 flex flex-col items-center justify-center p-2 rounded-sm shadow-2xl"
                 style={{
                   background: 'linear-gradient(135deg, #FDFBF7 0%, #E8DFCC 100%)',
-                  border: '1.5px solid #8B263E',
-                  boxShadow: '0 8px 25px rgba(212,175,55,0.4)'
+                  border: '1.5px solid #12513A',
+                  boxShadow: '0 8px 25px rgba(63, 169, 122,0.4)'
                 }}
               >
-                <Mail className="w-6 h-6 text-[#8B263E]" />
+                <Mail className="w-6 h-6 text-[#12513A]" />
                 {/* Wax Stamp Dot */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#8B263E] border border-amber-300 shadow-sm" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#12513A] border border-amber-300 shadow-sm" />
               </motion.div>
             </div>
 
